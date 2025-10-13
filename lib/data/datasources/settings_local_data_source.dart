@@ -4,6 +4,7 @@ import '../../core/entities/settings.dart';
 abstract class SettingsLocalDataSource {
   Future<AppSettings> getSettings();
   Future<void> updateHourlyRate(double rate);
+  Future<void> updateThemeMode(ThemeMode themeMode);
 }
 
 class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
@@ -13,12 +14,17 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
 
   @override
   Future<AppSettings> getSettings() async {
-    final rate = await databaseHelper.getHourlyRate();
-    return AppSettings(hourlyRate: rate);
+    final settingsMap = await databaseHelper.getSettings();
+    return AppSettings.fromMap(settingsMap);
   }
 
   @override
   Future<void> updateHourlyRate(double rate) async {
     await databaseHelper.updateHourlyRate(rate);
+  }
+
+  @override
+  Future<void> updateThemeMode(ThemeMode themeMode) async {
+    await databaseHelper.updateThemeMode(themeMode.toString().split('.').last);
   }
 }

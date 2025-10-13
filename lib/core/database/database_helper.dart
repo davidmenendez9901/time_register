@@ -22,8 +22,9 @@ class DatabaseHelper {
     String path = join(documentsDirectory.path, 'time_register.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -32,7 +33,8 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE settings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        hourly_rate REAL NOT NULL DEFAULT 0.0
+        hourly_rate REAL NOT NULL DEFAULT 0.0,
+        theme_mode TEXT NOT NULL DEFAULT 'system'
       )
     ''');
 
@@ -53,17 +55,37 @@ class DatabaseHelper {
     ''');
 
     // Insert default settings
-    await db.insert('settings', {'hourly_rate': 14.0});
+    await db.insert('settings', {
+      'hourly_rate': 14.0,
+      'theme_mode': 'system',
+    });
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Add theme_mode column to settings table
+      await db.execute('''
+        ALTER TABLE settings ADD COLUMN theme_mode TEXT NOT NULL DEFAULT 'system'
+      ''');
+    }
   }
 
   // Settings operations
-  Future<double> getHourlyRate() async {
+  Future<Map<String, dynamic>> getSettings() async {
     final db = await database;
     final result = await db.query('settings', limit: 1);
     if (result.isNotEmpty) {
-      return result.first['hourly_rate'] as double;
+      return result.first;
     }
-    return 14.0; // Default rate
+    return {
+      'hourly_rate': 14.0,
+      'theme_mode': 'system',
+    };
+  }
+
+  Future<double> getHourlyRate() async {
+    final settings = await getSettings();
+    return settings['hourly_rate'] as double;
   }
 
   Future<void> updateHourlyRate(double rate) async {
@@ -71,6 +93,26 @@ class DatabaseHelper {
     await db.update(
       'settings',
       {'hourly_rate': rate},
+      where: 'id = ?',
+      whereArgs: [1],
+    );
+  }
+
+  Future<void> updateThemeMode(String themeMode) async {
+    final db = await database;
+    await db.update(
+      'settings',
+      {'theme_mode': themeMode},
+      where: 'id = ?',
+      whereArgs: [1],
+    );
+  }
+
+  Future<void> updateSettings(Map<String, dynamic> settings) async {
+    final db = await database;
+    await db.update(
+      'settings',
+      settings,
       where: 'id = ?',
       whereArgs: [1],
     );

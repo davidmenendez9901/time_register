@@ -52,7 +52,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
         onTap: _onItemTapped,
       ),
       floatingActionButton: _selectedIndex == 0
@@ -66,8 +65,7 @@ class _HomePageState extends State<HomePage> {
                   context.read<TimeTrackingBloc>().add(LoadWorkEntries());
                 });
               },
-              backgroundColor: Colors.blue,
-              child: const FaIcon(FontAwesomeIcons.plus, color: Colors.white),
+              child: const FaIcon(FontAwesomeIcons.plus),
             )
           : null,
     );
@@ -93,8 +91,6 @@ class _HomeContentState extends State<HomeContent> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Time Register'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: BlocBuilder<TimeTrackingBloc, TimeTrackingState>(

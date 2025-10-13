@@ -16,4 +16,9 @@ class SettingsRepositoryImpl implements SettingsRepository {
   Future<void> updateHourlyRate(double rate) async {
     await localDataSource.updateHourlyRate(rate);
   }
+
+  @override
+  Future<void> updateThemeMode(ThemeMode themeMode) async {
+    await localDataSource.updateThemeMode(themeMode);
+  }
 }

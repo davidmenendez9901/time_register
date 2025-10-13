@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../core/entities/settings.dart' as app_settings;
 import '../blocs/settings/settings_bloc.dart';
 import '../blocs/settings/settings_event.dart';
 import '../blocs/settings/settings_state.dart';
@@ -105,8 +106,6 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
       ),
       body: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
@@ -116,6 +115,55 @@ class _SettingsPageState extends State<SettingsPage> {
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                // Theme Section
+                Card(
+                  elevation: 2,
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: FaIcon(
+                            FontAwesomeIcons.palette,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        title: const Text(
+                          'Theme',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          _getThemeModeName(state.settings.themeMode),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        trailing: IconButton(
+                          icon: const FaIcon(FontAwesomeIcons.penToSquare),
+                          onPressed: () => _showThemeModeDialog(state.settings.themeMode),
+                        ),
+                      ),
+                      const Divider(height: 1),
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          'Choose between light, dark, or system theme. System theme follows your device settings.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).textTheme.bodySmall?.color,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
                 // Hourly Rate Section
                 Card(
                   elevation: 2,
@@ -125,12 +173,12 @@ class _SettingsPageState extends State<SettingsPage> {
                         leading: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.blue.shade100,
+                            color: Colors.green.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const FaIcon(
                             FontAwesomeIcons.dollarSign,
-                            color: Colors.blue,
+                            color: Colors.green,
                           ),
                         ),
                         title: const Text(
@@ -139,9 +187,9 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         subtitle: Text(
                           '\$${state.settings.hourlyRate.toStringAsFixed(2)} per hour',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
-                            color: Colors.blue.shade700,
+                            color: Colors.green,
                           ),
                         ),
                         trailing: IconButton(
@@ -156,7 +204,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           'This rate will be applied to new work entries. Existing entries will keep their original rate.',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey.shade600,
+                            color: Theme.of(context).textTheme.bodySmall?.color,
                           ),
                         ),
                       ),
@@ -276,6 +324,129 @@ class _SettingsPageState extends State<SettingsPage> {
           }
           return const SizedBox.shrink();
         },
+      ),
+    );
+  }
+
+  String _getThemeModeName(app_settings.ThemeMode mode) {
+    switch (mode) {
+      case app_settings.ThemeMode.light:
+        return 'Light';
+      case app_settings.ThemeMode.dark:
+        return 'Dark';
+      case app_settings.ThemeMode.system:
+        return 'System';
+    }
+  }
+
+  void _showThemeModeDialog(app_settings.ThemeMode currentMode) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              FaIcon(FontAwesomeIcons.palette, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 8),
+              const Text('Choose Theme'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildThemeOption(
+                dialogContext,
+                app_settings.ThemeMode.light,
+                'Light',
+                FontAwesomeIcons.sun,
+                currentMode,
+              ),
+              const SizedBox(height: 8),
+              _buildThemeOption(
+                dialogContext,
+                app_settings.ThemeMode.dark,
+                'Dark',
+                FontAwesomeIcons.moon,
+                currentMode,
+              ),
+              const SizedBox(height: 8),
+              _buildThemeOption(
+                dialogContext,
+                app_settings.ThemeMode.system,
+                'System',
+                FontAwesomeIcons.circleHalfStroke,
+                currentMode,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeOption(
+    BuildContext dialogContext,
+    app_settings.ThemeMode mode,
+    String label,
+    IconData icon,
+    app_settings.ThemeMode currentMode,
+  ) {
+    final isSelected = mode == currentMode;
+    return InkWell(
+      onTap: () {
+        context.read<SettingsBloc>().add(UpdateThemeMode(mode));
+        Navigator.pop(dialogContext);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Theme changed to $label'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+              : null,
+        ),
+        child: Row(
+          children: [
+            FaIcon(
+              icon,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey.shade600,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primary
+                      : null,
+                ),
+              ),
+            ),
+            if (isSelected)
+              FaIcon(
+                FontAwesomeIcons.circleCheck,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+          ],
+        ),
       ),
     );
   }

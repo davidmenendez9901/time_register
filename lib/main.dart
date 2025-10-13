@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/database/database_helper.dart';
+import 'core/theme/app_theme.dart';
+import 'core/entities/settings.dart' as app_settings;
 import 'data/datasources/work_entry_local_data_source.dart';
 import 'data/datasources/settings_local_data_source.dart';
 import 'data/repositories/work_entry_repository_impl.dart';
@@ -10,9 +12,12 @@ import 'core/usecases/add_work_entry.dart';
 import 'core/usecases/update_work_entry.dart';
 import 'core/usecases/delete_work_entry.dart';
 import 'core/usecases/get_settings.dart';
-import 'core/usecases/update_hourly_rate.dart';
+import 'core/usecases/update_hourly_rate.dart' as hourly_rate_usecase;
+import 'core/usecases/update_theme_mode.dart' as theme_mode_usecase;
 import 'presentation/blocs/time_tracking/time_tracking_bloc.dart';
 import 'presentation/blocs/settings/settings_bloc.dart';
+import 'presentation/blocs/settings/settings_event.dart';
+import 'presentation/blocs/settings/settings_state.dart';
 import 'presentation/pages/home_page.dart';
 
 void main() async {
@@ -35,7 +40,8 @@ void main() async {
   final updateWorkEntry = UpdateWorkEntry(workEntryRepository);
   final deleteWorkEntry = DeleteWorkEntry(workEntryRepository);
   final getSettings = GetSettings(settingsRepository);
-  final updateHourlyRate = UpdateHourlyRate(settingsRepository);
+  final updateHourlyRate = hourly_rate_usecase.UpdateHourlyRate(settingsRepository);
+  final updateThemeMode = theme_mode_usecase.UpdateThemeMode(settingsRepository);
 
   runApp(MyApp(
     getWorkEntries: getWorkEntries,
@@ -44,6 +50,7 @@ void main() async {
     deleteWorkEntry: deleteWorkEntry,
     getSettings: getSettings,
     updateHourlyRate: updateHourlyRate,
+    updateThemeMode: updateThemeMode,
   ));
 }
 
@@ -53,7 +60,8 @@ class MyApp extends StatelessWidget {
   final UpdateWorkEntry updateWorkEntry;
   final DeleteWorkEntry deleteWorkEntry;
   final GetSettings getSettings;
-  final UpdateHourlyRate updateHourlyRate;
+  final hourly_rate_usecase.UpdateHourlyRate updateHourlyRate;
+  final theme_mode_usecase.UpdateThemeMode updateThemeMode;
 
   const MyApp({
     super.key,
@@ -63,6 +71,7 @@ class MyApp extends StatelessWidget {
     required this.deleteWorkEntry,
     required this.getSettings,
     required this.updateHourlyRate,
+    required this.updateThemeMode,
   });
 
   @override
@@ -81,20 +90,39 @@ class MyApp extends StatelessWidget {
           create: (context) => SettingsBloc(
             getSettings: getSettings,
             updateHourlyRate: updateHourlyRate,
-          ),
+            updateThemeMode: updateThemeMode,
+          )..add(LoadSettings()),
         ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-      
-        title: 'Time Register',
-        theme: ThemeData(
+      child: BlocBuilder<SettingsBloc, SettingsState>(
+        builder: (context, state) {
+          ThemeMode themeMode = ThemeMode.system;
           
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          useMaterial3: true,
-        ),
-        home: const HomePage(),
+          if (state is SettingsLoaded) {
+            themeMode = _convertThemeMode(state.settings.themeMode);
+          }
+
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Time Register',
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeMode,
+            home: const HomePage(),
+          );
+        },
       ),
     );
+  }
+
+  ThemeMode _convertThemeMode(app_settings.ThemeMode mode) {
+    switch (mode) {
+      case app_settings.ThemeMode.light:
+        return ThemeMode.light;
+      case app_settings.ThemeMode.dark:
+        return ThemeMode.dark;
+      case app_settings.ThemeMode.system:
+        return ThemeMode.system;
+    }
   }
 }
