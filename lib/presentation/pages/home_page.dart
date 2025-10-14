@@ -36,23 +36,23 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _widgetOptions.elementAt(_selectedIndex),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.home),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _onItemTapped,
+        destinations: const <NavigationDestination>[
+          NavigationDestination(
+            icon: FaIcon(FontAwesomeIcons.house),
             label: 'Home',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: FaIcon(FontAwesomeIcons.chartBar),
             label: 'Summary',
           ),
-          BottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.cog),
+          NavigationDestination(
+            icon: FaIcon(FontAwesomeIcons.gear),
             label: 'Settings',
           ),
         ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
       ),
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton(
@@ -62,7 +62,10 @@ class _HomePageState extends State<HomePage> {
                   MaterialPageRoute(builder: (context) => const AddEntryPage()),
                 ).then((_) {
                   // Reload entries when returning from add page
-                  context.read<TimeTrackingBloc>().add(LoadWorkEntries());
+                  if(mounted){
+ context.read<TimeTrackingBloc>().add(LoadWorkEntries());
+                  }
+                 
                 });
               },
               child: const FaIcon(FontAwesomeIcons.plus),
@@ -90,9 +93,10 @@ class _HomeContentState extends State<HomeContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Time Register'),
-        elevation: 0,
+        title: const Text('Work Time Tracker'),
+        centerTitle: true,
       ),
+     
       body: BlocBuilder<TimeTrackingBloc, TimeTrackingState>(
         builder: (context, state) {
           if (state is TimeTrackingLoading) {
@@ -151,51 +155,58 @@ class _HomeContentState extends State<HomeContent> {
             return Column(
               children: [
                 // Today's Summary Header
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.blue.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Today\'s Work',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildTodayStat(
-                            FontAwesomeIcons.clock,
-                            '${todayHours.toStringAsFixed(1)}h',
-                            'Hours',
-                          ),
-                          Container(
-                            height: 40,
-                            width: 1,
-                            color: Colors.white.withOpacity(0.3),
-                          ),
-                          _buildTodayStat(
-                            FontAwesomeIcons.dollarSign,
-                            '\$${todayEarnings.toStringAsFixed(2)}',
-                            'Earned',
+                Card(
+                  margin: const EdgeInsets.all(16),
+                 
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blue.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
-                    ],
+                      child: Column(
+                        children: [
+                          Text(
+                            'Today\'s Work',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.9),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _buildTodayStat(
+                                FontAwesomeIcons.clock,
+                                '${todayHours.toStringAsFixed(1)}h',
+                                'Hours',
+                              ),
+                              Container(
+                                height: 40,
+                                width: 1,
+                                color: Colors.white.withValues(alpha: 0.3),
+                              ),
+                              _buildTodayStat(
+                                FontAwesomeIcons.dollarSign,
+                                '\$${todayEarnings.toStringAsFixed(2)}',
+                                'Earned',
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
 
@@ -459,7 +470,7 @@ class _HomeContentState extends State<HomeContent> {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             fontSize: 12,
           ),
         ),
@@ -471,7 +482,7 @@ class _HomeContentState extends State<HomeContent> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

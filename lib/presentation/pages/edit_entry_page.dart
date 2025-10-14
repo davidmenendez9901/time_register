@@ -305,17 +305,18 @@ class _EditEntryPageState extends State<EditEntryPage> {
               // Summary Card
               Card(
                 elevation: 4,
-                color: Colors.blue.shade50,
+                color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.2),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Summary',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const Divider(),
@@ -367,6 +368,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
             style: TextStyle(
               fontSize: isTotal ? 16 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           Text(
@@ -374,7 +376,7 @@ class _EditEntryPageState extends State<EditEntryPage> {
             style: TextStyle(
               fontSize: isTotal ? 18 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal ? Colors.blue.shade700 : null,
+              color: isTotal ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ],

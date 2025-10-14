@@ -67,8 +67,8 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Weekly Summary'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
+        // backgroundColor: Colors.blue,
+        // foregroundColor: Colors.white,
         actions: [
           PopupMenuButton<String>(
             icon: const FaIcon(FontAwesomeIcons.filter),
@@ -177,7 +177,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                 // Summary Cards
                 Container(
                   padding: const EdgeInsets.all(16),
-                  color: Colors.blue.shade50,
+          
                   child: Row(
                     children: [
                       Expanded(
