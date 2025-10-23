@@ -16,7 +16,8 @@ class WeeklySummaryPage extends StatefulWidget {
 
 class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
   bool _showPaidOnly = false;
-  bool _showUnpaidOnly = false;
+  // Initially shows unpaid entries
+  bool _showUnpaidOnly = true;
 
   @override
   void initState() {
@@ -67,8 +68,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Weekly Summary'),
-        // backgroundColor: Colors.blue,
-        // foregroundColor: Colors.white,
+     centerTitle: true,
         actions: [
           PopupMenuButton<String>(
             icon: const FaIcon(FontAwesomeIcons.filter),

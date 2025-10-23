@@ -5,8 +5,7 @@ import 'package:intl/intl.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/time_tracking/time_tracking_state.dart';
-import 'add_entry_page.dart';
-import 'edit_entry_page.dart';
+import 'work_entry_form_page.dart';
 import 'settings_page.dart';
 import 'weekly_summary_page.dart';
 
@@ -59,13 +58,12 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const AddEntryPage()),
+                  MaterialPageRoute(builder: (context) => const WorkEntryFormPage()),
                 ).then((_) {
-                  // Reload entries when returning from add page
-                  if(mounted){
- context.read<TimeTrackingBloc>().add(LoadWorkEntries());
+                  // Reload entries when returning from form page
+                  if(context.mounted){
+                    context.read<TimeTrackingBloc>().add(LoadWorkEntries());
                   }
-                 
                 });
               },
               child: const FaIcon(FontAwesomeIcons.plus),
@@ -93,7 +91,7 @@ class _HomeContentState extends State<HomeContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Work Time Tracker'),
+        title: const Text('Work Time Tracker', style:  TextStyle(fontWeight: FontWeight.bold),),
         centerTitle: true,
       ),
      
@@ -110,7 +108,8 @@ class _HomeContentState extends State<HomeContent> {
                     Container(
                       padding: const EdgeInsets.all(32),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade50,
+                        color: Theme.of(context).primaryColor,
+
                         shape: BoxShape.circle,
                       ),
                       child: FaIcon(
@@ -164,10 +163,10 @@ class _HomeContentState extends State<HomeContent> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.blue,
+                        color: Theme.of(context).primaryColor,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.blue.withValues(alpha: 0.3),
+                            color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -235,10 +234,13 @@ class _HomeContentState extends State<HomeContent> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => EditEntryPage(entry: entry),
+                                builder: (context) => WorkEntryFormPage(entry: entry),
                               ),
                             ).then((_) {
-                              context.read<TimeTrackingBloc>().add(LoadWorkEntries());
+                              if(context.mounted){
+                                context.read<TimeTrackingBloc>().add(LoadWorkEntries());
+                              }
+
                             });
                           },
                           borderRadius: BorderRadius.circular(12),
@@ -285,39 +287,57 @@ class _HomeContentState extends State<HomeContent> {
                                         ],
                                       ),
                                     ),
-                                    if (entry.isPaid)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.green.shade50,
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(
-                                            color: Colors.green.shade200,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            FaIcon(
-                                              FontAwesomeIcons.circleCheck,
-                                              size: 12,
-                                              color: Colors.green.shade700,
+                                    Row(
+                                      children: [
+                                        if (entry.isPaid)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
                                             ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              'Paid',
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.green.shade700,
+                                            decoration: BoxDecoration(
+                                              color: Colors.green.shade50,
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(
+                                                color: Colors.green.shade200,
                                               ),
                                             ),
-                                          ],
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                FaIcon(
+                                                  FontAwesomeIcons.circleCheck,
+                                                  size: 12,
+                                                  color: Colors.green.shade700,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  'Paid',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.green.shade700,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        const SizedBox(width: 8),
+                                        IconButton(
+                                          icon: FaIcon(
+                                            entry.isPaid
+                                                ? FontAwesomeIcons.rotateLeft
+                                                : FontAwesomeIcons.checkDouble,
+                                            size: 16,
+                                            color: entry.isPaid ? Colors.orange : Colors.green,
+                                          ),
+                                          tooltip: entry.isPaid ? 'Mark as Unpaid' : 'Mark as Paid',
+                                          onPressed: () => _showMarkAsPaidDialog(context, entry),
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(),
                                         ),
-                                      ),
+                                      ],
+                                    ),
                                   ],
                                 ),
                                 const SizedBox(height: 12),
@@ -500,6 +520,74 @@ class _HomeContentState extends State<HomeContent> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showMarkAsPaidDialog(BuildContext context, entry) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              FaIcon(
+                entry.isPaid
+                    ? FontAwesomeIcons.rotateLeft
+                    : FontAwesomeIcons.circleCheck,
+                color: entry.isPaid ? Colors.orange : Colors.green,
+              ),
+              const SizedBox(width: 8),
+              Text(entry.isPaid ? 'Mark as Unpaid?' : 'Mark as Paid?'),
+            ],
+          ),
+          content: Text(
+            entry.isPaid
+                ? 'This will mark the entry as unpaid. You can change it back later.'
+                : 'This will mark the entry as paid. You can change it back later.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                context.read<TimeTrackingBloc>().add(
+                  MarkEntryAsPaid(entry.id!, !entry.isPaid),
+                );
+                Navigator.pop(dialogContext);
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        FaIcon(
+                          FontAwesomeIcons.circleCheck,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          entry.isPaid
+                              ? 'Entry marked as unpaid'
+                              : 'Entry marked as paid',
+                        ),
+                      ],
+                    ),
+                    backgroundColor: entry.isPaid ? Colors.orange : Colors.green,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: entry.isPaid ? Colors.orange : Colors.green,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(entry.isPaid ? 'Mark Unpaid' : 'Mark Paid'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

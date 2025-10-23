@@ -14,6 +14,7 @@ import 'core/usecases/delete_work_entry.dart';
 import 'core/usecases/get_settings.dart';
 import 'core/usecases/update_hourly_rate.dart' as hourly_rate_usecase;
 import 'core/usecases/update_theme_mode.dart' as theme_mode_usecase;
+import 'core/usecases/mark_entry_as_paid.dart';
 import 'presentation/blocs/time_tracking/time_tracking_bloc.dart';
 import 'presentation/blocs/settings/settings_bloc.dart';
 import 'presentation/blocs/settings/settings_event.dart';
@@ -39,6 +40,7 @@ void main() async {
   final addWorkEntry = AddWorkEntry(workEntryRepository);
   final updateWorkEntry = UpdateWorkEntry(workEntryRepository);
   final deleteWorkEntry = DeleteWorkEntry(workEntryRepository);
+  final markEntryAsPaid = MarkEntryAsPaid(workEntryRepository);
   final getSettings = GetSettings(settingsRepository);
   final updateHourlyRate = hourly_rate_usecase.UpdateHourlyRate(settingsRepository);
   final updateThemeMode = theme_mode_usecase.UpdateThemeMode(settingsRepository);
@@ -48,6 +50,7 @@ void main() async {
     addWorkEntry: addWorkEntry,
     updateWorkEntry: updateWorkEntry,
     deleteWorkEntry: deleteWorkEntry,
+    markEntryAsPaid: markEntryAsPaid,
     getSettings: getSettings,
     updateHourlyRate: updateHourlyRate,
     updateThemeMode: updateThemeMode,
@@ -59,6 +62,7 @@ class MyApp extends StatelessWidget {
   final AddWorkEntry addWorkEntry;
   final UpdateWorkEntry updateWorkEntry;
   final DeleteWorkEntry deleteWorkEntry;
+  final MarkEntryAsPaid markEntryAsPaid;
   final GetSettings getSettings;
   final hourly_rate_usecase.UpdateHourlyRate updateHourlyRate;
   final theme_mode_usecase.UpdateThemeMode updateThemeMode;
@@ -69,6 +73,7 @@ class MyApp extends StatelessWidget {
     required this.addWorkEntry,
     required this.updateWorkEntry,
     required this.deleteWorkEntry,
+    required this.markEntryAsPaid,
     required this.getSettings,
     required this.updateHourlyRate,
     required this.updateThemeMode,
@@ -84,6 +89,7 @@ class MyApp extends StatelessWidget {
             addWorkEntry: addWorkEntry,
             updateWorkEntry: updateWorkEntry,
             deleteWorkEntry: deleteWorkEntry,
+            markEntryAsPaid: markEntryAsPaid,
           ),
         ),
         BlocProvider(

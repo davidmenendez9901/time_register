@@ -106,6 +106,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
+        centerTitle: true,
       ),
       body: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
