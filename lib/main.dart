@@ -81,9 +81,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize providers
     return MultiBlocProvider(
       providers: [
+        // Initialize bloc providers
         BlocProvider(
+          // Create time tracking bloc
           create: (context) => TimeTrackingBloc(
             getWorkEntries: getWorkEntries,
             addWorkEntry: addWorkEntry,
@@ -92,6 +95,7 @@ class MyApp extends StatelessWidget {
             markEntryAsPaid: markEntryAsPaid,
           ),
         ),
+        // Create settings bloc
         BlocProvider(
           create: (context) => SettingsBloc(
             getSettings: getSettings,
@@ -100,6 +104,7 @@ class MyApp extends StatelessWidget {
           )..add(LoadSettings()),
         ),
       ],
+      //
       child: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
           ThemeMode themeMode = ThemeMode.system;
@@ -109,6 +114,7 @@ class MyApp extends StatelessWidget {
           }
 
           return MaterialApp(
+
             debugShowCheckedModeBanner: false,
             title: 'Time Register',
             theme: AppTheme.lightTheme,
@@ -121,6 +127,7 @@ class MyApp extends StatelessWidget {
     );
   }
 
+  // Convert app_settings.ThemeMode to ThemeMode
   ThemeMode _convertThemeMode(app_settings.ThemeMode mode) {
     switch (mode) {
       case app_settings.ThemeMode.light:

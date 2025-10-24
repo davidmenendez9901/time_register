@@ -18,13 +18,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-
+  // List of pages to display
   static const List<Widget> _widgetOptions = <Widget>[
     HomeContent(),
     WeeklySummaryPage(),
     SettingsPage(),
   ];
-
+  // Method to handle tab selection
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -34,34 +34,45 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Body content
       body: _widgetOptions.elementAt(_selectedIndex),
+      // Bottom navigation bar
       bottomNavigationBar: NavigationBar(
+        // Set selected index
         selectedIndex: _selectedIndex,
+        // Handle tab selection
         onDestinationSelected: _onItemTapped,
+        // List of destinations
         destinations: const <NavigationDestination>[
+          // Navigation destination
           NavigationDestination(
             icon: FaIcon(FontAwesomeIcons.house),
             label: 'Home',
           ),
+          // Navigation destination
           NavigationDestination(
             icon: FaIcon(FontAwesomeIcons.chartBar),
             label: 'Summary',
           ),
+          // Navigation destination
           NavigationDestination(
             icon: FaIcon(FontAwesomeIcons.gear),
             label: 'Settings',
           ),
         ],
       ),
+      // Floating action button
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const WorkEntryFormPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const WorkEntryFormPage(),
+                  ),
                 ).then((_) {
                   // Reload entries when returning from form page
-                  if(context.mounted){
+                  if (context.mounted) {
                     context.read<TimeTrackingBloc>().add(LoadWorkEntries());
                   }
                 });
@@ -81,35 +92,52 @@ class HomeContent extends StatefulWidget {
 }
 
 class _HomeContentState extends State<HomeContent> {
+  // Initialize state
   @override
   void initState() {
     super.initState();
     context.read<TimeTrackingBloc>().add(LoadWorkEntries());
   }
-
+// Method to build the widget
   @override
   Widget build(BuildContext context) {
+    // Return Scaffold widget with AppBar and body
     return Scaffold(
+      // App bar
       appBar: AppBar(
-        title: const Text('Work Time Tracker', style:  TextStyle(fontWeight: FontWeight.bold),),
+        // Set title
+        title: const Text(
+          'Work Time Tracker',
+          // Set text style
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        // Set center title
         centerTitle: true,
       ),
-     
+      // Body content
       body: BlocBuilder<TimeTrackingBloc, TimeTrackingState>(
+        // Build widget based on state
         builder: (context, state) {
+          // Handle different states
           if (state is TimeTrackingLoading) {
+            // Handle loading state
             return const Center(child: CircularProgressIndicator());
           } else if (state is TimeTrackingLoaded) {
+            // Handle loaded state
             if (state.entries.isEmpty) {
+              // Handle empty state
               return Center(
+                // Centered column
                 child: Column(
+                  // Set main axis alignment
                   mainAxisAlignment: MainAxisAlignment.center,
+                  // List of children
                   children: [
+                    // Container with icon
                     Container(
                       padding: const EdgeInsets.all(32),
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor,
-
                         shape: BoxShape.circle,
                       ),
                       child: FaIcon(
@@ -118,6 +146,7 @@ class _HomeContentState extends State<HomeContent> {
                         color: Colors.blue.shade300,
                       ),
                     ),
+                    // Spacing
                     const SizedBox(height: 24),
                     const Text(
                       'No work entries yet',
@@ -148,15 +177,21 @@ class _HomeContentState extends State<HomeContent> {
                   entry.date.day == today.day;
             }).toList();
 
-            final todayHours = todayEntries.fold(0.0, (sum, entry) => sum + entry.totalHours);
-            final todayEarnings = todayEntries.fold(0.0, (sum, entry) => sum + entry.earnings);
+            final todayHours = todayEntries.fold(
+              0.0,
+              (sum, entry) => sum + entry.totalHours,
+            );
+            final todayEarnings = todayEntries.fold(
+              0.0,
+              (sum, entry) => sum + entry.earnings,
+            );
 
             return Column(
               children: [
                 // Today's Summary Header
                 Card(
                   margin: const EdgeInsets.all(16),
-                 
+
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
@@ -166,7 +201,9 @@ class _HomeContentState extends State<HomeContent> {
                         color: Theme.of(context).primaryColor,
                         boxShadow: [
                           BoxShadow(
-                            color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
+                            color: Theme.of(
+                              context,
+                            ).primaryColor.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -216,7 +253,8 @@ class _HomeContentState extends State<HomeContent> {
                     itemCount: state.entries.length,
                     itemBuilder: (context, index) {
                       final entry = state.entries[index];
-                      final isToday = entry.date.year == today.year &&
+                      final isToday =
+                          entry.date.year == today.year &&
                           entry.date.month == today.month &&
                           entry.date.day == today.day;
 
@@ -226,7 +264,10 @@ class _HomeContentState extends State<HomeContent> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: isToday
-                              ? BorderSide(color: Colors.blue.shade200, width: 2)
+                              ? BorderSide(
+                                  color: Colors.blue.shade200,
+                                  width: 2,
+                                )
                               : BorderSide.none,
                         ),
                         child: InkWell(
@@ -234,13 +275,15 @@ class _HomeContentState extends State<HomeContent> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => WorkEntryFormPage(entry: entry),
+                                builder: (context) =>
+                                    WorkEntryFormPage(entry: entry),
                               ),
                             ).then((_) {
-                              if(context.mounted){
-                                context.read<TimeTrackingBloc>().add(LoadWorkEntries());
+                              if (context.mounted) {
+                                context.read<TimeTrackingBloc>().add(
+                                  LoadWorkEntries(),
+                                );
                               }
-
                             });
                           },
                           borderRadius: BorderRadius.circular(12),
@@ -262,23 +305,30 @@ class _HomeContentState extends State<HomeContent> {
                                       child: FaIcon(
                                         FontAwesomeIcons.calendar,
                                         size: 16,
-                                        color: isToday ? Colors.blue : Colors.grey.shade600,
+                                        color: isToday
+                                            ? Colors.blue
+                                            : Colors.grey.shade600,
                                       ),
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            DateFormat('EEEE, MMM d').format(entry.date),
+                                            DateFormat(
+                                              'EEEE, MMM d',
+                                            ).format(entry.date),
                                             style: const TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                           Text(
-                                            DateFormat('yyyy').format(entry.date),
+                                            DateFormat(
+                                              'yyyy',
+                                            ).format(entry.date),
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: Colors.grey.shade600,
@@ -297,7 +347,8 @@ class _HomeContentState extends State<HomeContent> {
                                             ),
                                             decoration: BoxDecoration(
                                               color: Colors.green.shade50,
-                                              borderRadius: BorderRadius.circular(12),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                               border: Border.all(
                                                 color: Colors.green.shade200,
                                               ),
@@ -316,7 +367,8 @@ class _HomeContentState extends State<HomeContent> {
                                                   style: TextStyle(
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.bold,
-                                                    color: Colors.green.shade700,
+                                                    color:
+                                                        Colors.green.shade700,
                                                   ),
                                                 ),
                                               ],
@@ -329,10 +381,18 @@ class _HomeContentState extends State<HomeContent> {
                                                 ? FontAwesomeIcons.rotateLeft
                                                 : FontAwesomeIcons.checkDouble,
                                             size: 16,
-                                            color: entry.isPaid ? Colors.orange : Colors.green,
+                                            color: entry.isPaid
+                                                ? Colors.orange
+                                                : Colors.green,
                                           ),
-                                          tooltip: entry.isPaid ? 'Mark as Unpaid' : 'Mark as Paid',
-                                          onPressed: () => _showMarkAsPaidDialog(context, entry),
+                                          tooltip: entry.isPaid
+                                              ? 'Mark as Unpaid'
+                                              : 'Mark as Paid',
+                                          onPressed: () =>
+                                              _showMarkAsPaidDialog(
+                                                context,
+                                                entry,
+                                              ),
                                           padding: EdgeInsets.zero,
                                           constraints: const BoxConstraints(),
                                         ),
@@ -361,7 +421,9 @@ class _HomeContentState extends State<HomeContent> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.orange.shade50,
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -387,7 +449,8 @@ class _HomeContentState extends State<HomeContent> {
                                 ),
                                 const SizedBox(height: 8),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     _buildInfoChip(
                                       FontAwesomeIcons.hourglass,
@@ -410,7 +473,8 @@ class _HomeContentState extends State<HomeContent> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         'Total Earnings',
@@ -556,7 +620,7 @@ class _HomeContentState extends State<HomeContent> {
                   MarkEntryAsPaid(entry.id!, !entry.isPaid),
                 );
                 Navigator.pop(dialogContext);
-                
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Row(
@@ -574,7 +638,9 @@ class _HomeContentState extends State<HomeContent> {
                         ),
                       ],
                     ),
-                    backgroundColor: entry.isPaid ? Colors.orange : Colors.green,
+                    backgroundColor: entry.isPaid
+                        ? Colors.orange
+                        : Colors.green,
                     duration: const Duration(seconds: 2),
                   ),
                 );
