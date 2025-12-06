@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 import 'core/database/database_helper.dart';
 import 'core/theme/app_theme.dart';
 import 'core/entities/settings.dart' as app_settings;
@@ -15,6 +17,8 @@ import 'core/usecases/get_settings.dart';
 import 'core/usecases/update_hourly_rate.dart' as hourly_rate_usecase;
 import 'core/usecases/update_theme_mode.dart' as theme_mode_usecase;
 import 'core/usecases/mark_entry_as_paid.dart';
+import 'core/usecases/update_app_palette.dart' as palette_usecase;
+import 'core/theme/app_palette.dart';
 import 'presentation/blocs/time_tracking/time_tracking_bloc.dart';
 import 'presentation/blocs/settings/settings_bloc.dart';
 import 'presentation/blocs/settings/settings_event.dart';
@@ -42,19 +46,27 @@ void main() async {
   final deleteWorkEntry = DeleteWorkEntry(workEntryRepository);
   final markEntryAsPaid = MarkEntryAsPaid(workEntryRepository);
   final getSettings = GetSettings(settingsRepository);
-  final updateHourlyRate = hourly_rate_usecase.UpdateHourlyRate(settingsRepository);
-  final updateThemeMode = theme_mode_usecase.UpdateThemeMode(settingsRepository);
+  final updateHourlyRate = hourly_rate_usecase.UpdateHourlyRate(
+    settingsRepository,
+  );
+  final updateThemeMode = theme_mode_usecase.UpdateThemeMode(
+    settingsRepository,
+  );
+  final updateAppPalette = palette_usecase.UpdateAppPalette(settingsRepository);
 
-  runApp(MyApp(
-    getWorkEntries: getWorkEntries,
-    addWorkEntry: addWorkEntry,
-    updateWorkEntry: updateWorkEntry,
-    deleteWorkEntry: deleteWorkEntry,
-    markEntryAsPaid: markEntryAsPaid,
-    getSettings: getSettings,
-    updateHourlyRate: updateHourlyRate,
-    updateThemeMode: updateThemeMode,
-  ));
+  runApp(
+    MyApp(
+      getWorkEntries: getWorkEntries,
+      addWorkEntry: addWorkEntry,
+      updateWorkEntry: updateWorkEntry,
+      deleteWorkEntry: deleteWorkEntry,
+      markEntryAsPaid: markEntryAsPaid,
+      getSettings: getSettings,
+      updateHourlyRate: updateHourlyRate,
+      updateThemeMode: updateThemeMode,
+      updateAppPalette: updateAppPalette,
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -66,6 +78,7 @@ class MyApp extends StatelessWidget {
   final GetSettings getSettings;
   final hourly_rate_usecase.UpdateHourlyRate updateHourlyRate;
   final theme_mode_usecase.UpdateThemeMode updateThemeMode;
+  final palette_usecase.UpdateAppPalette updateAppPalette;
 
   const MyApp({
     super.key,
@@ -77,6 +90,7 @@ class MyApp extends StatelessWidget {
     required this.getSettings,
     required this.updateHourlyRate,
     required this.updateThemeMode,
+    required this.updateAppPalette,
   });
 
   @override
@@ -101,6 +115,7 @@ class MyApp extends StatelessWidget {
             getSettings: getSettings,
             updateHourlyRate: updateHourlyRate,
             updateThemeMode: updateThemeMode,
+            updateAppPalette: updateAppPalette,
           )..add(LoadSettings()),
         ),
       ],
@@ -108,18 +123,31 @@ class MyApp extends StatelessWidget {
       child: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
           ThemeMode themeMode = ThemeMode.system;
-          
+          AppPalette palette = AppPalette.blue;
+
           if (state is SettingsLoaded) {
             themeMode = _convertThemeMode(state.settings.themeMode);
+            palette = state.settings.palette;
           }
 
           return MaterialApp(
-
             debugShowCheckedModeBanner: false,
-            title: 'Time Register',
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
+            // Use localized app title if available, otherwise fallback
+            onGenerateTitle: (context) =>
+                AppLocalizations.of(context)?.appTitle ?? 'Time Register',
+            theme: AppTheme.getTheme(palette: palette, isDark: false),
+            darkTheme: AppTheme.getTheme(palette: palette, isDark: true),
             themeMode: themeMode,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'), // English
+              Locale('es'), // Spanish
+            ],
             home: const HomePage(),
           );
         },

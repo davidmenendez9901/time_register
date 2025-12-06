@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:time_register/l10n/app_localizations.dart';
 import '../../core/entities/settings.dart' as app_settings;
+import '../../core/theme/app_palette.dart';
 import '../blocs/settings/settings_bloc.dart';
 import '../blocs/settings/settings_event.dart';
 import '../blocs/settings/settings_state.dart';
@@ -30,41 +32,43 @@ class _SettingsPageState extends State<SettingsPage> {
     super.dispose();
   }
 
-  void _showEditRateDialog(double currentRate) {
+  void _showEditRateDialog(double currentRate, AppLocalizations l10n) {
     _rateController.text = currentRate.toStringAsFixed(2);
 
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Row(
+          title: Row(
             children: [
-              FaIcon(FontAwesomeIcons.dollarSign, color: Colors.blue),
-              SizedBox(width: 8),
-              Text('Edit Hourly Rate'),
+              const FaIcon(FontAwesomeIcons.dollarSign, color: Colors.blue),
+              const SizedBox(width: 8),
+              Text(l10n.editHourlyRate),
             ],
           ),
           content: Form(
             key: _formKey,
             child: TextFormField(
               controller: _rateController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
               ],
-              decoration: const InputDecoration(
-                labelText: 'Hourly Rate',
+              decoration: InputDecoration(
+                labelText: l10n.hourlyRate,
                 prefixText: '\$ ',
-                border: OutlineInputBorder(),
-                helperText: 'Enter your hourly rate',
+                border: const OutlineInputBorder(),
+                helperText: l10n.enterHourlyRate,
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter a rate';
+                  return l10n.enterRateValidation;
                 }
                 final rate = double.tryParse(value);
                 if (rate == null || rate <= 0) {
-                  return 'Please enter a valid positive number';
+                  return l10n.enterValidNumberValidation;
                 }
                 return null;
               },
@@ -73,7 +77,7 @@ class _SettingsPageState extends State<SettingsPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             ElevatedButton(
               onPressed: () {
@@ -82,8 +86,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   context.read<SettingsBloc>().add(UpdateHourlyRate(newRate));
                   Navigator.pop(dialogContext);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Hourly rate updated successfully'),
+                    SnackBar(
+                      content: Text(l10n.rateUpdated),
                       backgroundColor: Colors.green,
                     ),
                   );
@@ -93,7 +97,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Save'),
+              child: Text(l10n.saveEntry),
             ),
           ],
         );
@@ -103,11 +107,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.settingsTab), centerTitle: true),
       body: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
           if (state is SettingsLoading) {
@@ -125,7 +127,9 @@ class _SettingsPageState extends State<SettingsPage> {
                         leading: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: FaIcon(
@@ -133,12 +137,12 @@ class _SettingsPageState extends State<SettingsPage> {
                             color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
-                        title: const Text(
-                          'Theme',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        title: Text(
+                          l10n.appearance,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
-                          _getThemeModeName(state.settings.themeMode),
+                          '${_getThemeModeName(state.settings.themeMode, l10n)} • ${state.settings.palette.name}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Theme.of(context).colorScheme.primary,
@@ -146,14 +150,15 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         trailing: IconButton(
                           icon: const FaIcon(FontAwesomeIcons.penToSquare),
-                          onPressed: () => _showThemeModeDialog(state.settings.themeMode),
+                          onPressed: () =>
+                              _showAppearanceDialog(state.settings, l10n),
                         ),
                       ),
                       const Divider(height: 1),
                       Padding(
                         padding: const EdgeInsets.all(16),
                         child: Text(
-                          'Choose between light, dark, or system theme. System theme follows your device settings.',
+                          l10n.appearanceSubtitle,
                           style: TextStyle(
                             fontSize: 12,
                             color: Theme.of(context).textTheme.bodySmall?.color,
@@ -182,12 +187,12 @@ class _SettingsPageState extends State<SettingsPage> {
                             color: Colors.green,
                           ),
                         ),
-                        title: const Text(
-                          'Hourly Rate',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        title: Text(
+                          l10n.hourlyRate,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
-                          '\$${state.settings.hourlyRate.toStringAsFixed(2)} per hour',
+                          '\$${state.settings.hourlyRate.toStringAsFixed(2)} ${l10n.perHour}',
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.green,
@@ -195,14 +200,17 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         trailing: IconButton(
                           icon: const FaIcon(FontAwesomeIcons.penToSquare),
-                          onPressed: () => _showEditRateDialog(state.settings.hourlyRate),
+                          onPressed: () => _showEditRateDialog(
+                            state.settings.hourlyRate,
+                            l10n,
+                          ),
                         ),
                       ),
                       const Divider(height: 1),
                       Padding(
                         padding: const EdgeInsets.all(16),
                         child: Text(
-                          'This rate will be applied to new work entries. Existing entries will keep their original rate.',
+                          l10n.hourlyRateSubtitle,
                           style: TextStyle(
                             fontSize: 12,
                             color: Theme.of(context).textTheme.bodySmall?.color,
@@ -215,9 +223,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 const SizedBox(height: 24),
 
                 // App Information Section
-                const Text(
-                  'About',
-                  style: TextStyle(
+                Text(
+                  l10n.about,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -239,7 +247,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             color: Colors.green,
                           ),
                         ),
-                        title: const Text('App Version'),
+                        title: Text(l10n.version),
                         subtitle: const Text('1.0.0'),
                       ),
                       const Divider(height: 1),
@@ -255,8 +263,8 @@ class _SettingsPageState extends State<SettingsPage> {
                             color: Colors.purple,
                           ),
                         ),
-                        title: const Text('Time Register'),
-                        subtitle: const Text('Track your work hours and earnings'),
+                        title: Text(l10n.appTitle),
+                        subtitle: Text(l10n.appDescription),
                       ),
                     ],
                   ),
@@ -264,9 +272,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 const SizedBox(height: 24),
 
                 // Help Section
-                const Text(
-                  'Help',
-                  style: TextStyle(
+                Text(
+                  l10n.help,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -288,11 +296,11 @@ class _SettingsPageState extends State<SettingsPage> {
                             color: Colors.orange,
                           ),
                         ),
-                        title: const Text('How to use'),
-                        subtitle: const Text('Learn how to track your work hours'),
+                        title: Text(l10n.howToUse),
+                        subtitle: Text(l10n.howToUseSubtitle),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                         onTap: () {
-                          _showHelpDialog();
+                          _showHelpDialog(l10n);
                         },
                       ),
                     ],
@@ -311,13 +319,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     color: Colors.red,
                   ),
                   const SizedBox(height: 16),
-                  Text('Error: ${state.message}'),
+                  Text(l10n.errorMsg(state.message)),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
                       context.read<SettingsBloc>().add(LoadSettings());
                     },
-                    child: const Text('Retry'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -329,54 +337,102 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  String _getThemeModeName(app_settings.ThemeMode mode) {
+  String _getThemeModeName(app_settings.ThemeMode mode, AppLocalizations l10n) {
     switch (mode) {
       case app_settings.ThemeMode.light:
-        return 'Light';
+        return l10n.light;
       case app_settings.ThemeMode.dark:
-        return 'Dark';
+        return l10n.dark;
       case app_settings.ThemeMode.system:
-        return 'System';
+        return l10n.system;
     }
   }
 
-  void _showThemeModeDialog(app_settings.ThemeMode currentMode) {
+  void _showAppearanceDialog(
+    app_settings.AppSettings settings,
+    AppLocalizations l10n,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              FaIcon(FontAwesomeIcons.palette, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(width: 8),
-              const Text('Choose Theme'),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildThemeOption(
-                dialogContext,
-                app_settings.ThemeMode.light,
-                'Light',
-                FontAwesomeIcons.sun,
-                currentMode,
+        return DefaultTabController(
+          length: 2,
+          child: AlertDialog(
+            title: Text(l10n.appearance),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TabBar(
+                    tabs: [
+                      Tab(text: l10n.mode),
+                      Tab(text: l10n.colors),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 300,
+                    child: TabBarView(
+                      children: [
+                        // Mode Tab
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: Column(
+                            children: [
+                              _buildThemeOption(
+                                dialogContext,
+                                app_settings.ThemeMode.light,
+                                l10n.light,
+                                FontAwesomeIcons.sun,
+                                settings.themeMode,
+                              ),
+                              const SizedBox(height: 8),
+                              _buildThemeOption(
+                                dialogContext,
+                                app_settings.ThemeMode.dark,
+                                l10n.dark,
+                                FontAwesomeIcons.moon,
+                                settings.themeMode,
+                              ),
+                              const SizedBox(height: 8),
+                              _buildThemeOption(
+                                dialogContext,
+                                app_settings.ThemeMode.system,
+                                l10n.system,
+                                FontAwesomeIcons.circleHalfStroke,
+                                settings.themeMode,
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Colors Tab
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: ListView.builder(
+                            itemCount: AppPalette.values.length,
+                            itemBuilder: (context, index) {
+                              final palette = AppPalette.values[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: _buildPaletteOption(
+                                  dialogContext,
+                                  palette,
+                                  settings.palette,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              _buildThemeOption(
-                dialogContext,
-                app_settings.ThemeMode.dark,
-                'Dark',
-                FontAwesomeIcons.moon,
-                currentMode,
-              ),
-              const SizedBox(height: 8),
-              _buildThemeOption(
-                dialogContext,
-                app_settings.ThemeMode.system,
-                'System',
-                FontAwesomeIcons.circleHalfStroke,
-                currentMode,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(l10n.close),
               ),
             ],
           ),
@@ -396,17 +452,11 @@ class _SettingsPageState extends State<SettingsPage> {
     return InkWell(
       onTap: () {
         context.read<SettingsBloc>().add(UpdateThemeMode(mode));
-        Navigator.pop(dialogContext);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Theme changed to $label'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        // Keep dialog open to allow further customization
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           border: Border.all(
             color: isSelected
@@ -426,25 +476,25 @@ class _SettingsPageState extends State<SettingsPage> {
               color: isSelected
                   ? Theme.of(context).colorScheme.primary
                   : Colors.grey.shade600,
+              size: 20,
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primary
-                      : null,
-                ),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : null,
               ),
             ),
+            const Spacer(),
             if (isSelected)
               FaIcon(
                 FontAwesomeIcons.circleCheck,
                 color: Theme.of(context).colorScheme.primary,
-                size: 20,
+                size: 16,
               ),
           ],
         ),
@@ -452,16 +502,69 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  void _showHelpDialog() {
+  Widget _buildPaletteOption(
+    BuildContext dialogContext,
+    AppPalette palette,
+    AppPalette currentPalette,
+  ) {
+    final isSelected = palette == currentPalette;
+    return InkWell(
+      onTap: () {
+        context.read<SettingsBloc>().add(UpdateAppPalette(palette));
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isSelected ? palette.primary : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          color: isSelected ? palette.primary.withValues(alpha: 0.1) : null,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: palette.primary,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              palette.name,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? palette.primary : null,
+              ),
+            ),
+            const Spacer(),
+            if (isSelected)
+              FaIcon(
+                FontAwesomeIcons.circleCheck,
+                color: palette.primary,
+                size: 16,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showHelpDialog(AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Row(
+          title: Row(
             children: [
-              FaIcon(FontAwesomeIcons.circleQuestion, color: Colors.blue),
-              SizedBox(width: 8),
-              Text('How to Use'),
+              const FaIcon(FontAwesomeIcons.circleQuestion, color: Colors.blue),
+              const SizedBox(width: 8),
+              Text(l10n.howToUse),
             ],
           ),
           content: SingleChildScrollView(
@@ -470,23 +573,20 @@ class _SettingsPageState extends State<SettingsPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildHelpItem(
-                  '1. Add Work Entry',
-                  'Tap the + button on the home screen to log your daily work hours.',
+                  l10n.helpAddWorkEntryTitle,
+                  l10n.helpAddWorkEntryDesc,
+                ),
+                const SizedBox(height: 12),
+                _buildHelpItem(l10n.helpSetTimesTitle, l10n.helpSetTimesDesc),
+                const SizedBox(height: 12),
+                _buildHelpItem(
+                  l10n.helpViewSummaryTitle,
+                  l10n.helpViewSummaryDesc,
                 ),
                 const SizedBox(height: 12),
                 _buildHelpItem(
-                  '2. Set Times',
-                  'Select your start and end times. Toggle lunch break to deduct 0.5 hours.',
-                ),
-                const SizedBox(height: 12),
-                _buildHelpItem(
-                  '3. View Summary',
-                  'Check the Summary tab to see your weekly earnings and hours.',
-                ),
-                const SizedBox(height: 12),
-                _buildHelpItem(
-                  '4. Update Rate',
-                  'Change your hourly rate in Settings. New entries will use the updated rate.',
+                  l10n.helpUpdateRateTitle,
+                  l10n.helpUpdateRateDesc,
                 ),
               ],
             ),
@@ -494,7 +594,7 @@ class _SettingsPageState extends State<SettingsPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Got it!'),
+              child: Text(l10n.gotIt),
             ),
           ],
         );
@@ -508,18 +608,12 @@ class _SettingsPageState extends State<SettingsPage> {
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
         const SizedBox(height: 4),
         Text(
           description,
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey.shade700,
-          ),
+          style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
         ),
       ],
     );

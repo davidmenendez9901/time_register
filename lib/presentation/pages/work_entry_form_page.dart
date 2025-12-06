@@ -10,6 +10,8 @@ import '../blocs/settings/settings_bloc.dart';
 import '../blocs/settings/settings_event.dart';
 import '../blocs/settings/settings_state.dart';
 
+import 'package:time_register/l10n/app_localizations.dart';
+
 class WorkEntryFormPage extends StatefulWidget {
   final WorkEntry? entry; // null = agregar, no null = editar
 
@@ -30,14 +32,15 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
 
   // Getters para determinar el modo
   bool get _isEditMode => widget.entry != null;
-  String get _appBarTitle => _isEditMode ? 'Edit Work Entry' : 'Add Work Entry';
-  String get _saveButtonText => _isEditMode ? 'Save Changes' : 'Save Entry';
+  // Titles handled in build method for localization
+  // String get _appBarTitle => _isEditMode ? 'Edit Work Entry' : 'Add Work Entry';
+  // String get _saveButtonText => _isEditMode ? 'Save Changes' : 'Save Entry';
 
   @override
   void initState() {
     super.initState();
     _initializeValues();
-    
+
     // Cargar settings solo en modo agregar para obtener la tarifa por defecto
     if (!_isEditMode) {
       context.read<SettingsBloc>().add(LoadSettings());
@@ -127,10 +130,11 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
       );
 
       // Validate that end time is after start time
-      if (endDateTime.isBefore(startDateTime) || endDateTime.isAtSameMomentAs(startDateTime)) {
+      if (endDateTime.isBefore(startDateTime) ||
+          endDateTime.isAtSameMomentAs(startDateTime)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('End time must be after start time'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.endTimeAfterStart),
             backgroundColor: Colors.red,
           ),
         );
@@ -178,26 +182,32 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
   }
 
   void _deleteEntry() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Row(
+          title: Row(
             children: [
-              FaIcon(FontAwesomeIcons.triangleExclamation, color: Colors.red),
-              SizedBox(width: 8),
-              Text('Delete Entry'),
+              const FaIcon(
+                FontAwesomeIcons.triangleExclamation,
+                color: Colors.red,
+              ),
+              const SizedBox(width: 8),
+              Text(l10n.deleteEntry),
             ],
           ),
-          content: const Text('Are you sure you want to delete this work entry? This action cannot be undone.'),
+          content: Text(l10n.deleteEntryConfirm),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             ElevatedButton(
               onPressed: () {
-                context.read<TimeTrackingBloc>().add(DeleteWorkEntry(widget.entry!.id!));
+                context.read<TimeTrackingBloc>().add(
+                  DeleteWorkEntry(widget.entry!.id!),
+                );
                 Navigator.pop(dialogContext);
                 Navigator.pop(context);
               },
@@ -205,7 +215,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Delete'),
+              child: Text(l10n.delete),
             ),
           ],
         );
@@ -215,9 +225,13 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final appBarTitle = _isEditMode ? l10n.editWorkEntry : l10n.addWorkEntry;
+    final saveButtonText = _isEditMode ? l10n.saveChanges : l10n.saveEntry;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_appBarTitle),
+        title: Text(appBarTitle),
         // backgroundColor: Theme.of(context).colorScheme.primary,
         // foregroundColor: Theme.of(context).colorScheme.onPrimary,
         centerTitle: true,
@@ -226,7 +240,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                 IconButton(
                   icon: const FaIcon(FontAwesomeIcons.trash),
                   onPressed: _deleteEntry,
-                  tooltip: 'Delete Entry',
+                  tooltip: l10n.deleteEntry,
                 ),
               ]
             : null,
@@ -251,9 +265,14 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                 Card(
                   elevation: 2,
                   child: ListTile(
-                    leading: const FaIcon(FontAwesomeIcons.calendar, color: Colors.blue),
-                    title: const Text('Date'),
-                    subtitle: Text(DateFormat('EEEE, MMMM d, y').format(_selectedDate)),
+                    leading: const FaIcon(
+                      FontAwesomeIcons.calendar,
+                      color: Colors.blue,
+                    ),
+                    title: Text(l10n.date),
+                    subtitle: Text(
+                      DateFormat('EEEE, MMMM d, y').format(_selectedDate),
+                    ),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () => _selectDate(context),
                   ),
@@ -264,8 +283,11 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                 Card(
                   elevation: 2,
                   child: ListTile(
-                    leading: const FaIcon(FontAwesomeIcons.clock, color: Colors.green),
-                    title: const Text('Start Time'),
+                    leading: const FaIcon(
+                      FontAwesomeIcons.clock,
+                      color: Colors.green,
+                    ),
+                    title: Text(l10n.startTime),
                     subtitle: Text(_startTime.format(context)),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () => _selectStartTime(context),
@@ -277,8 +299,11 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                 Card(
                   elevation: 2,
                   child: ListTile(
-                    leading: const FaIcon(FontAwesomeIcons.clock, color: Colors.red),
-                    title: const Text('End Time'),
+                    leading: const FaIcon(
+                      FontAwesomeIcons.clock,
+                      color: Colors.red,
+                    ),
+                    title: Text(l10n.endTime),
                     subtitle: Text(_endTime.format(context)),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () => _selectEndTime(context),
@@ -290,9 +315,12 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                 Card(
                   elevation: 2,
                   child: SwitchListTile(
-                    secondary: const FaIcon(FontAwesomeIcons.utensils, color: Colors.orange),
-                    title: const Text('Lunch Break'),
-                    subtitle: const Text('Deduct 0.5 hours'),
+                    secondary: const FaIcon(
+                      FontAwesomeIcons.utensils,
+                      color: Colors.orange,
+                    ),
+                    title: Text(l10n.lunchBreak),
+                    subtitle: Text(l10n.deductLunch),
                     value: _lunchTaken,
                     onChanged: (bool value) {
                       setState(() {
@@ -309,14 +337,14 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                     elevation: 2,
                     child: SwitchListTile(
                       secondary: FaIcon(
-                        _isPaid ? FontAwesomeIcons.circleCheck : FontAwesomeIcons.clock,
+                        _isPaid
+                            ? FontAwesomeIcons.circleCheck
+                            : FontAwesomeIcons.clock,
                         color: _isPaid ? Colors.green : Colors.orange,
                       ),
-                      title: const Text('Mark as Paid'),
+                      title: Text(l10n.markAsPaid),
                       subtitle: Text(
-                        _isPaid
-                            ? 'This entry has been paid'
-                            : 'This entry has not been paid yet',
+                        _isPaid ? l10n.paidStatus : l10n.unpaidStatus,
                       ),
                       value: _isPaid,
                       onChanged: (bool value) {
@@ -339,11 +367,14 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                       children: [
                         Row(
                           children: [
-                            const FaIcon(FontAwesomeIcons.dollarSign, color: Colors.green),
+                            const FaIcon(
+                              FontAwesomeIcons.dollarSign,
+                              color: Colors.green,
+                            ),
                             const SizedBox(width: 8),
-                            const Text(
-                              'Hourly Rate',
-                              style: TextStyle(
+                            Text(
+                              l10n.hourlyRate,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -353,24 +384,28 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                         const SizedBox(height: 8),
                         TextFormField(
                           initialValue: _hourlyRate.toStringAsFixed(2),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
                           inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d+\.?\d{0,2}'),
+                            ),
                           ],
                           decoration: InputDecoration(
                             prefixText: '\$ ',
                             border: const OutlineInputBorder(),
-                            helperText: _isEditMode 
-                                ? 'Rate for this entry' 
-                                : 'Default rate from settings',
+                            helperText: _isEditMode
+                                ? l10n.rateForEntry
+                                : l10n.defaultRateFromSettings,
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter a rate';
+                              return l10n.enterRateValidation;
                             }
                             final rate = double.tryParse(value);
                             if (rate == null || rate <= 0) {
-                              return 'Please enter a valid positive number';
+                              return l10n.enterValidNumberValidation;
                             }
                             return null;
                           },
@@ -392,31 +427,36 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                 // Summary Card
                 Card(
                   elevation: 4,
-                  // color: Theme.of(context).colorScheme.primaryContainer,
 
+                  // color: Theme.of(context).colorScheme.primaryContainer,
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Summary',
+                          l10n.summaryTab,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: _isEditMode
-                                ? Theme.of(context).colorScheme.onPrimaryContainer
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimaryContainer
                                 : null,
                           ),
                         ),
                         const Divider(),
-                        _buildSummaryRow('Hourly Rate', '\$${_hourlyRate.toStringAsFixed(2)}'),
                         _buildSummaryRow(
-                          'Total Hours',
+                          l10n.hourlyRate,
+                          '\$${_hourlyRate.toStringAsFixed(2)}',
+                        ),
+                        _buildSummaryRow(
+                          l10n.totalHours,
                           _calculateDisplayHours().toStringAsFixed(2),
                         ),
                         _buildSummaryRow(
-                          'Estimated Earnings',
+                          l10n.estimatedEarnings,
                           '\$${_calculateDisplayEarnings().toStringAsFixed(2)}',
                           isTotal: true,
                         ),
@@ -427,10 +467,10 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                 const SizedBox(height: 24),
 
                 // Save Button
-                 ElevatedButton.icon(
+                ElevatedButton.icon(
                   onPressed: _saveEntry,
                   icon: const FaIcon(FontAwesomeIcons.floppyDisk),
-                  label: Text(_saveButtonText),
+                  label: Text(saveButtonText),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
@@ -459,7 +499,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
             style: TextStyle(
               fontSize: isTotal ? 16 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: _isEditMode 
+              color: _isEditMode
                   ? Theme.of(context).colorScheme.onSurface
                   : null,
             ),
@@ -469,13 +509,13 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
             style: TextStyle(
               fontSize: isTotal ? 18 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal 
-                  ? (_isEditMode 
-                      ? Theme.of(context).colorScheme.primary 
-                      : Colors.blue.shade700)
-                  : (_isEditMode 
-                      ? Theme.of(context).colorScheme.onSurface 
-                      : null),
+              color: isTotal
+                  ? (_isEditMode
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.blue.shade700)
+                  : (_isEditMode
+                        ? Theme.of(context).colorScheme.onSurface
+                        : null),
             ),
           ),
         ],
@@ -500,11 +540,16 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
       _endTime.minute,
     );
 
-    if (endDateTime.isBefore(startDateTime) || endDateTime.isAtSameMomentAs(startDateTime)) {
+    if (endDateTime.isBefore(startDateTime) ||
+        endDateTime.isAtSameMomentAs(startDateTime)) {
       return 0.0;
     }
 
-    return WorkEntry.calculateTotalHours(startDateTime, endDateTime, _lunchTaken);
+    return WorkEntry.calculateTotalHours(
+      startDateTime,
+      endDateTime,
+      _lunchTaken,
+    );
   }
 
   double _calculateDisplayEarnings() {

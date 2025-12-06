@@ -6,6 +6,9 @@ import '../../core/entities/work_entry.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/time_tracking/time_tracking_state.dart';
+import 'package:time_register/l10n/app_localizations.dart';
+import 'package:animations/animations.dart';
+import 'work_entry_form_page.dart';
 
 class WeeklySummaryPage extends StatefulWidget {
   const WeeklySummaryPage({super.key});
@@ -16,13 +19,20 @@ class WeeklySummaryPage extends StatefulWidget {
 
 class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
   bool _showPaidOnly = false;
-  // Initially shows unpaid entries
-  bool _showUnpaidOnly = true;
+  bool _showUnpaidOnly = false;
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
     context.read<TimeTrackingBloc>().add(LoadWorkEntries());
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   List<WorkEntry> _filterEntries(List<WorkEntry> entries) {
@@ -36,17 +46,21 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
 
   Map<String, List<WorkEntry>> _groupEntriesByWeek(List<WorkEntry> entries) {
     final Map<String, List<WorkEntry>> grouped = {};
-    
-    for (var entry in entries) {
+
+    // Sort entries by date descending first
+    final sortedEntries = List<WorkEntry>.from(entries)
+      ..sort((a, b) => b.date.compareTo(a.date));
+
+    for (var entry in sortedEntries) {
       final weekStart = _getWeekStart(entry.date);
       final weekKey = DateFormat('MMM d, y').format(weekStart);
-      
+
       if (!grouped.containsKey(weekKey)) {
         grouped[weekKey] = [];
       }
       grouped[weekKey]!.add(entry);
     }
-    
+
     return grouped;
   }
 
@@ -63,12 +77,67 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
     return entries.fold(0.0, (sum, entry) => sum + entry.earnings);
   }
 
+  void _navigateToEdit(WorkEntry entry) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => WorkEntryFormPage(entry: entry)),
+    );
+  }
+
+  void _togglePaidStatus(WorkEntry entry) {
+    // Need context for localization here, but method doesn't take context explicitly except via closure capture or direct usage if in State.
+    // However, ScaffoldMessenger needs context anyway.
+    final l10n = AppLocalizations.of(context)!;
+    final updatedEntry = entry.copyWith(isPaid: !entry.isPaid);
+    context.read<TimeTrackingBloc>().add(UpdateWorkEntry(updatedEntry));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          updatedEntry.isPaid ? l10n.markAsPaid : l10n.markAsUnpaid,
+        ),
+        duration: const Duration(seconds: 2),
+        action: SnackBarAction(
+          label: l10n.undo,
+          onPressed: () {
+            context.read<TimeTrackingBloc>().add(UpdateWorkEntry(entry));
+          },
+        ),
+      ),
+    );
+  }
+
+  void _deleteEntry(WorkEntry entry) {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.deleteEntry),
+        content: Text(l10n.deleteEntryConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<TimeTrackingBloc>().add(DeleteWorkEntry(entry.id!));
+              Navigator.pop(context);
+            },
+            child: Text(l10n.delete, style: const TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Weekly Summary'),
-     centerTitle: true,
+        title: Text(l10n.weeklySummary),
+        centerTitle: true,
         actions: [
           PopupMenuButton<String>(
             icon: const FaIcon(FontAwesomeIcons.filter),
@@ -94,10 +163,12 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                     FaIcon(
                       FontAwesomeIcons.list,
                       size: 16,
-                      color: !_showPaidOnly && !_showUnpaidOnly ? Colors.blue : Colors.grey,
+                      color: !_showPaidOnly && !_showUnpaidOnly
+                          ? Colors.blue
+                          : Colors.grey,
                     ),
                     const SizedBox(width: 8),
-                    const Text('All Entries'),
+                    Text(l10n.allEntries),
                   ],
                 ),
               ),
@@ -111,7 +182,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                       color: _showPaidOnly ? Colors.green : Colors.grey,
                     ),
                     const SizedBox(width: 8),
-                    const Text('Paid Only'),
+                    Text(l10n.paidOnly),
                   ],
                 ),
               ),
@@ -125,7 +196,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                       color: _showUnpaidOnly ? Colors.orange : Colors.grey,
                     ),
                     const SizedBox(width: 8),
-                    const Text('Unpaid Only'),
+                    Text(l10n.unpaidOnly),
                   ],
                 ),
               ),
@@ -138,29 +209,53 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
           if (state is TimeTrackingLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is TimeTrackingLoaded) {
-            final filteredEntries = _filterEntries(state.entries);
-            
-            if (filteredEntries.isEmpty) {
+            final allEntries = state.entries;
+            final filteredEntries = _filterEntries(allEntries);
+
+            // --- Calculations for Slider ---
+            final now = DateTime.now();
+
+            // 1. Outstanding (Unpaid)
+            final unpaidEntries = allEntries.where((e) => !e.isPaid).toList();
+            final totalUnpaidHours = _calculateTotalHours(unpaidEntries);
+            final totalUnpaidAmount = _calculateTotalEarnings(unpaidEntries);
+
+            // 2. Current Week
+            final currentWeekStart = _getWeekStart(now);
+            // End of week is start + 7 days (exclusive)
+            final currentWeekEnd = currentWeekStart.add(
+              const Duration(days: 7),
+            );
+            final currentWeekEntries = allEntries.where((e) {
+              return e.date.isAfter(
+                    currentWeekStart.subtract(const Duration(seconds: 1)),
+                  ) &&
+                  e.date.isBefore(currentWeekEnd);
+            }).toList();
+            final weekHours = _calculateTotalHours(currentWeekEntries);
+            final weekEarnings = _calculateTotalEarnings(currentWeekEntries);
+
+            // 3. Current Month
+            final currentMonthEntries = allEntries.where((e) {
+              return e.date.year == now.year && e.date.month == now.month;
+            }).toList();
+            final monthHours = _calculateTotalHours(currentMonthEntries);
+            final monthEarnings = _calculateTotalEarnings(currentMonthEntries);
+            // -------------------------------
+
+            if (filteredEntries.isEmpty && allEntries.isEmpty) {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     FaIcon(
-                      _showPaidOnly
-                          ? FontAwesomeIcons.circleCheck
-                          : _showUnpaidOnly
-                              ? FontAwesomeIcons.clock
-                              : FontAwesomeIcons.chartBar,
+                      FontAwesomeIcons.chartSimple,
                       size: 64,
-                      color: Colors.grey,
+                      color: Colors.grey.withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      _showPaidOnly
-                          ? 'No paid entries yet'
-                          : _showUnpaidOnly
-                              ? 'No unpaid entries'
-                              : 'No work entries yet',
+                      l10n.noEntries,
                       style: const TextStyle(fontSize: 18, color: Colors.grey),
                     ),
                   ],
@@ -169,116 +264,270 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
             }
 
             final groupedEntries = _groupEntriesByWeek(filteredEntries);
-            final totalHours = _calculateTotalHours(filteredEntries);
-            final totalEarnings = _calculateTotalEarnings(filteredEntries);
 
-            return Column(
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
               children: [
-                // Summary Cards
-                Container(
-                  padding: const EdgeInsets.all(16),
-          
-                  child: Row(
+                // Slider Section
+                SizedBox(
+                  height: 160,
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentPage = index;
+                      });
+                    },
                     children: [
-                      Expanded(
-                        child: _buildSummaryCard(
-                          'Total Hours',
-                          totalHours.toStringAsFixed(2),
-                          FontAwesomeIcons.clock,
-                          Colors.blue,
-                        ),
+                      _buildSummaryCard(
+                        context,
+                        title: l10n.outstanding,
+                        subtitle: l10n.toCollect,
+                        hours: totalUnpaidHours,
+                        amount: totalUnpaidAmount,
+                        icon: FontAwesomeIcons.circleExclamation,
+                        color: Colors.orange,
+                        backgroundColor: Colors.orange.shade50,
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildSummaryCard(
-                          'Total Earnings',
-                          '\$${totalEarnings.toStringAsFixed(2)}',
-                          FontAwesomeIcons.dollarSign,
-                          Colors.green,
-                        ),
+                      _buildSummaryCard(
+                        context,
+                        title: l10n.thisWeek,
+                        subtitle: l10n.performance,
+                        hours: weekHours,
+                        amount: weekEarnings,
+                        icon: FontAwesomeIcons.calendarWeek,
+                        color: Colors.blue,
+                        backgroundColor: Colors.blue.shade50,
+                      ),
+                      _buildSummaryCard(
+                        context,
+                        title: l10n.thisMonth,
+                        subtitle: DateFormat('MMMM').format(now),
+                        hours: monthHours,
+                        amount: monthEarnings,
+                        icon: FontAwesomeIcons.calendar,
+                        color: Colors.purple,
+                        backgroundColor: Colors.purple.shade50,
                       ),
                     ],
                   ),
                 ),
-
-                // Weekly Breakdown
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: groupedEntries.length,
-                    itemBuilder: (context, index) {
-                      final weekKey = groupedEntries.keys.elementAt(index);
-                      final weekEntries = groupedEntries[weekKey]!;
-                      final weekHours = _calculateTotalHours(weekEntries);
-                      final weekEarnings = _calculateTotalEarnings(weekEntries);
-
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        elevation: 2,
-                        child: ExpansionTile(
-                          leading: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade100,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const FaIcon(
-                              FontAwesomeIcons.calendarWeek,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          title: Text(
-                            'Week of $weekKey',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(
-                            '${weekEntries.length} entries • ${weekHours.toStringAsFixed(1)}h • \$${weekEarnings.toStringAsFixed(2)}',
-                          ),
-                          children: weekEntries.map((entry) {
-                            return ListTile(
-                              leading: FaIcon(
-                                entry.isPaid
-                                    ? FontAwesomeIcons.circleCheck
-                                    : FontAwesomeIcons.clock,
-                                color: entry.isPaid ? Colors.green : Colors.orange,
-                                size: 20,
-                              ),
-                              title: Text(
-                                DateFormat('EEEE, MMM d').format(entry.date),
-                              ),
-                              subtitle: Text(
-                                '${entry.startTime.hour}:${entry.startTime.minute.toString().padLeft(2, '0')} - '
-                                '${entry.endTime.hour}:${entry.endTime.minute.toString().padLeft(2, '0')} • '
-                                '${entry.totalHours.toStringAsFixed(2)}h'
-                                '${entry.lunchTaken ? ' (lunch)' : ''}',
-                              ),
-                              trailing: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    '\$${entry.earnings.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  Text(
-                                    '\$${entry.hourlyRate.toStringAsFixed(2)}/h',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      );
-                    },
-                  ),
+                const SizedBox(height: 8),
+                // Dots Indicator
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(3, (index) {
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _currentPage == index
+                            ? Theme.of(context).primaryColor
+                            : Colors.grey.shade300,
+                      ),
+                    );
+                  }),
                 ),
+
+                const SizedBox(height: 24),
+
+                if (filteredEntries.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Text(l10n.noEntriesFilter),
+                    ),
+                  )
+                else
+                  // Weekly Breakdown List
+                  ...groupedEntries.entries.map((entry) {
+                    final weekKey = entry.key;
+                    final weekEntries = entry.value;
+                    final weekTotalHours = _calculateTotalHours(weekEntries);
+                    final weekTotalEarnings = _calculateTotalEarnings(
+                      weekEntries,
+                    );
+
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: ExpansionTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        leading: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).primaryColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: FaIcon(
+                            FontAwesomeIcons.calendarWeek,
+                            color: Theme.of(context).primaryColor,
+                            size: 20,
+                          ),
+                        ),
+                        title: Text(
+                          l10n.weekOf(weekKey),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          '${weekTotalHours.toStringAsFixed(1)}h • \$${weekTotalEarnings.toStringAsFixed(2)}',
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ),
+                        children: weekEntries.map((entry) {
+                          return OpenContainer(
+                            openBuilder: (context, _) =>
+                                WorkEntryFormPage(entry: entry),
+                            onClosed: (_) {
+                              // Reload handled by Bloc, but we can trigger refresh if needed
+                              // context.read<TimeTrackingBloc>().add(LoadWorkEntries());
+                            },
+                            tappable: false,
+                            closedElevation: 0,
+                            closedColor: Colors.transparent,
+                            closedBuilder: (context, openContainer) {
+                              return ListTile(
+                                onTap: openContainer,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 4,
+                                ),
+                                leading: FaIcon(
+                                  entry.isPaid
+                                      ? FontAwesomeIcons.circleCheck
+                                      : FontAwesomeIcons.hourglass,
+                                  color: entry.isPaid
+                                      ? Colors.green
+                                      : Colors.orange,
+                                  size: 18,
+                                ),
+                                title: Text(
+                                  DateFormat('EEEE, MMM d').format(entry.date),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  '${entry.startTime.hour}:${entry.startTime.minute.toString().padLeft(2, '0')} - '
+                                  '${entry.endTime.hour}:${entry.endTime.minute.toString().padLeft(2, '0')}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          '\$${entry.earnings.toStringAsFixed(2)}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          '${entry.totalHours.toStringAsFixed(1)}h',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    PopupMenuButton<String>(
+                                      icon: const Icon(
+                                        Icons.more_vert,
+                                        size: 20,
+                                        color: Colors.grey,
+                                      ),
+                                      onSelected: (value) {
+                                        if (value == 'toggle_paid') {
+                                          _togglePaidStatus(entry);
+                                        } else if (value == 'edit') {
+                                          // Manually open container?
+                                          // OpenContainer doesn't easily support manual open from outside.
+                                          // We can just navigate normally for the menu option,
+                                          // or better, remove "edit" from menu since tapping the row edits.
+                                          _navigateToEdit(entry);
+                                        } else if (value == 'delete') {
+                                          _deleteEntry(entry);
+                                        }
+                                      },
+                                      itemBuilder: (BuildContext context) => [
+                                        PopupMenuItem(
+                                          value: 'toggle_paid',
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                entry.isPaid
+                                                    ? Icons.money_off
+                                                    : Icons.attach_money,
+                                                size: 18,
+                                                color: entry.isPaid
+                                                    ? Colors.orange
+                                                    : Colors.green,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                entry.isPaid
+                                                    ? l10n.markAsUnpaid
+                                                    : l10n.markAsPaid,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        PopupMenuItem(
+                                          value: 'edit',
+                                          child: Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.edit,
+                                                size: 18,
+                                                color: Colors.blue,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(l10n.edit),
+                                            ],
+                                          ),
+                                        ),
+                                        PopupMenuItem(
+                                          value: 'delete',
+                                          child: Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.delete,
+                                                size: 18,
+                                                color: Colors.red,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(l10n.delete),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  }),
               ],
             );
           } else if (state is TimeTrackingError) {
@@ -292,13 +541,13 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                     color: Colors.red,
                   ),
                   const SizedBox(height: 16),
-                  Text('Error: ${state.message}'),
+                  Text(l10n.errorMsg(state.message)),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
                       context.read<TimeTrackingBloc>().add(LoadWorkEntries());
                     },
-                    child: const Text('Retry'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -310,32 +559,103 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
     );
   }
 
-  Widget _buildSummaryCard(String title, String value, IconData icon, Color color) {
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            FaIcon(icon, color: color, size: 32),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
+  Widget _buildStatItem(
+    String value,
+    String label,
+    Color color, {
+    bool isCurrency = false,
+  }) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(fontSize: 14, color: color.withValues(alpha: 0.8)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryCard(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required double hours,
+    required double amount,
+    required IconData icon,
+    required Color color,
+    required Color backgroundColor,
+  }) {
+    final l10n = AppLocalizations.of(context)!;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      child: Card(
+        elevation: 4,
+        color: backgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FaIcon(icon, color: color, size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: color.withValues(alpha: 0.9),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: color,
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: color.withValues(alpha: 0.7),
+                ),
               ),
-            ),
-          ],
+              const Spacer(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildStatItem(
+                    '${hours.toStringAsFixed(1)} h',
+                    l10n.hours,
+                    color, // Colors.black87,
+                  ),
+                  Container(
+                    height: 40,
+                    width: 1,
+                    color: color.withValues(alpha: 0.3),
+                  ),
+                  _buildStatItem(
+                    '\$${amount.toStringAsFixed(2)}',
+                    l10n.earnings,
+                    color, // Colors.black87,
+                    isCurrency: true,
+                  ),
+                ],
+              ),
+              const Spacer(),
+            ],
+          ),
         ),
       ),
     );

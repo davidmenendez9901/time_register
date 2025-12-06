@@ -1,0 +1,283 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appTitle => 'Time Register';
+
+  @override
+  String get homeTab => 'Home';
+
+  @override
+  String get summaryTab => 'Summary';
+
+  @override
+  String get settingsTab => 'Settings';
+
+  @override
+  String get weeklySummary => 'Weekly Summary';
+
+  @override
+  String get outstanding => 'Outstanding';
+
+  @override
+  String get toCollect => 'To Collect';
+
+  @override
+  String get thisWeek => 'This Week';
+
+  @override
+  String get performance => 'Performance';
+
+  @override
+  String get thisMonth => 'This Month';
+
+  @override
+  String get viewSummary => 'View Summary';
+
+  @override
+  String get noEntriesFilter => 'No entries match the current filter';
+
+  @override
+  String weekOf(String date) {
+    return 'Week of $date';
+  }
+
+  @override
+  String get markAsPaid => 'Mark as Paid';
+
+  @override
+  String get markAsUnpaid => 'Mark as Unpaid';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get general => 'General';
+
+  @override
+  String get hourlyRate => 'Hourly Rate';
+
+  @override
+  String get defaultRate => 'Default Hourly Rate';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get themeAndColor => 'Theme & Colors';
+
+  @override
+  String get appInfo => 'App Info';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get termsOfService => 'Terms of Service';
+
+  @override
+  String get help => 'Help';
+
+  @override
+  String get contactSupport => 'Contact Support';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get mode => 'Mode';
+
+  @override
+  String get colors => 'Colors';
+
+  @override
+  String get system => 'System';
+
+  @override
+  String get light => 'Light';
+
+  @override
+  String get dark => 'Dark';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get deleteEntry => 'Delete Entry';
+
+  @override
+  String get deleteEntryConfirm =>
+      'Are you sure you want to delete this entry?';
+
+  @override
+  String get undo => 'UNDO';
+
+  @override
+  String get noEntries => 'No entries yet';
+
+  @override
+  String get addWorkEntry => 'Add Work Entry';
+
+  @override
+  String get editWorkEntry => 'Edit Work Entry';
+
+  @override
+  String get saveEntry => 'Save Entry';
+
+  @override
+  String get saveChanges => 'Save Changes';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get startTime => 'Start Time';
+
+  @override
+  String get endTime => 'End Time';
+
+  @override
+  String get lunchBreak => 'Lunch Break';
+
+  @override
+  String get deductLunch => 'Deduct 0.5 hours';
+
+  @override
+  String get rateForEntry => 'Rate for this entry';
+
+  @override
+  String get defaultRateFromSettings => 'Default rate from settings';
+
+  @override
+  String get totalHours => 'Total Hours';
+
+  @override
+  String get estimatedEarnings => 'Estimated Earnings';
+
+  @override
+  String get enterRate => 'Please enter a rate';
+
+  @override
+  String get validRate => 'Please enter a valid positive number';
+
+  @override
+  String get endTimeAfterStart => 'End time must be after start time';
+
+  @override
+  String get hours => 'Hours';
+
+  @override
+  String get earnings => 'Earnings';
+
+  @override
+  String get allEntries => 'All Entries';
+
+  @override
+  String get paidOnly => 'Paid Only';
+
+  @override
+  String get unpaidOnly => 'Unpaid Only';
+
+  @override
+  String get paidStatus => 'This entry has been paid';
+
+  @override
+  String get unpaidStatus => 'This entry has not been paid yet';
+
+  @override
+  String errorMsg(String message) {
+    return 'Error: $message';
+  }
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get editHourlyRate => 'Edit Hourly Rate';
+
+  @override
+  String get enterHourlyRate => 'Enter your hourly rate';
+
+  @override
+  String get enterRateValidation => 'Please enter a rate';
+
+  @override
+  String get enterValidNumberValidation =>
+      'Please enter a valid positive number';
+
+  @override
+  String get rateUpdated => 'Hourly rate updated successfully';
+
+  @override
+  String get appearanceSubtitle =>
+      'Customize your app experience with different color schemes and dark/light modes.';
+
+  @override
+  String get hourlyRateSubtitle =>
+      'This rate will be applied to new work entries. Existing entries will keep their original rate.';
+
+  @override
+  String get perHour => 'per hour';
+
+  @override
+  String get appDescription => 'Track your work hours and earnings';
+
+  @override
+  String get howToUse => 'How to Use';
+
+  @override
+  String get howToUseSubtitle => 'Learn how to track your work hours';
+
+  @override
+  String get gotIt => 'Got it!';
+
+  @override
+  String get helpAddWorkEntryTitle => '1. Add Work Entry';
+
+  @override
+  String get helpAddWorkEntryDesc =>
+      'Tap the + button on the home screen to log your daily work hours.';
+
+  @override
+  String get helpSetTimesTitle => '2. Set Times';
+
+  @override
+  String get helpSetTimesDesc =>
+      'Select your start and end times. Toggle lunch break to deduct 0.5 hours.';
+
+  @override
+  String get helpViewSummaryTitle => '3. View Summary';
+
+  @override
+  String get helpViewSummaryDesc =>
+      'Check the Summary tab to see your weekly earnings and hours.';
+
+  @override
+  String get helpUpdateRateTitle => '4. Update Rate';
+
+  @override
+  String get helpUpdateRateDesc =>
+      'Change your hourly rate in Settings. New entries will use the updated rate.';
+}

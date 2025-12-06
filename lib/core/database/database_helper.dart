@@ -22,7 +22,7 @@ class DatabaseHelper {
     String path = join(documentsDirectory.path, 'time_register.db');
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -34,7 +34,8 @@ class DatabaseHelper {
       CREATE TABLE settings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         hourly_rate REAL NOT NULL DEFAULT 0.0,
-        theme_mode TEXT NOT NULL DEFAULT 'system'
+        theme_mode TEXT NOT NULL DEFAULT 'system',
+        app_palette TEXT NOT NULL DEFAULT 'Blue'
       )
     ''');
 
@@ -58,6 +59,7 @@ class DatabaseHelper {
     await db.insert('settings', {
       'hourly_rate': 14.0,
       'theme_mode': 'system',
+      'app_palette': 'Blue',
     });
   }
 
@@ -66,6 +68,12 @@ class DatabaseHelper {
       // Add theme_mode column to settings table
       await db.execute('''
         ALTER TABLE settings ADD COLUMN theme_mode TEXT NOT NULL DEFAULT 'system'
+      ''');
+    }
+    if (oldVersion < 3) {
+      // Add app_palette column to settings table
+      await db.execute('''
+        ALTER TABLE settings ADD COLUMN app_palette TEXT NOT NULL DEFAULT 'Blue'
       ''');
     }
   }
@@ -77,10 +85,7 @@ class DatabaseHelper {
     if (result.isNotEmpty) {
       return result.first;
     }
-    return {
-      'hourly_rate': 14.0,
-      'theme_mode': 'system',
-    };
+    return {'hourly_rate': 14.0, 'theme_mode': 'system', 'app_palette': 'Blue'};
   }
 
   Future<double> getHourlyRate() async {
@@ -108,14 +113,19 @@ class DatabaseHelper {
     );
   }
 
-  Future<void> updateSettings(Map<String, dynamic> settings) async {
+  Future<void> updateAppPalette(String paletteName) async {
     final db = await database;
     await db.update(
       'settings',
-      settings,
+      {'app_palette': paletteName},
       where: 'id = ?',
       whereArgs: [1],
     );
+  }
+
+  Future<void> updateSettings(Map<String, dynamic> settings) async {
+    final db = await database;
+    await db.update('settings', settings, where: 'id = ?', whereArgs: [1]);
   }
 
   // Work entries operations
@@ -126,10 +136,15 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> getWorkEntries() async {
     final db = await database;
-    return await db.query('work_entries', orderBy: 'date DESC, created_at DESC');
+    return await db.query(
+      'work_entries',
+      orderBy: 'date DESC, created_at DESC',
+    );
   }
 
-  Future<List<Map<String, dynamic>>> getWorkEntriesForWeek(DateTime weekStart) async {
+  Future<List<Map<String, dynamic>>> getWorkEntriesForWeek(
+    DateTime weekStart,
+  ) async {
     final db = await database;
     final weekEnd = weekStart.add(const Duration(days: 6));
     final startStr = weekStart.toIso8601String().substring(0, 10);
@@ -155,11 +170,7 @@ class DatabaseHelper {
 
   Future<int> deleteWorkEntry(int id) async {
     final db = await database;
-    return await db.delete(
-      'work_entries',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('work_entries', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<void> markEntryAsPaid(int id, bool isPaid) async {
