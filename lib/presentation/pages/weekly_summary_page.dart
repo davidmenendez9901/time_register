@@ -97,14 +97,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
         content: Text(
           updatedEntry.isPaid ? l10n.markAsPaid : l10n.markAsUnpaid,
         ),
-        duration: const Duration(seconds: 3),
-        action: SnackBarAction(
-          label: l10n.undo,
-          onPressed: () {
-            ScaffoldMessenger.of(context).removeCurrentSnackBar();
-            context.read<TimeTrackingBloc>().add(UpdateWorkEntry(entry));
-          },
-        ),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
