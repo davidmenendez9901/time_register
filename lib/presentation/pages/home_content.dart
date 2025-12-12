@@ -192,6 +192,32 @@ class _HomeContentState extends State<HomeContent> {
                                 ],
                               ],
                             ),
+                            if (entry.description != null &&
+                                entry.description!.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  FaIcon(
+                                    FontAwesomeIcons.noteSticky,
+                                    size: 12,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      entry.description!,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontStyle: FontStyle.italic,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),

@@ -22,7 +22,7 @@ class DatabaseHelper {
     String path = join(documentsDirectory.path, 'time_register.db');
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -51,7 +51,10 @@ class DatabaseHelper {
         hourly_rate REAL NOT NULL,
         earnings REAL NOT NULL,
         is_paid INTEGER NOT NULL DEFAULT 0,
-        created_at TEXT NOT NULL
+        created_at TEXT NOT NULL,
+        lunch_start_time TEXT,
+        lunch_end_time TEXT,
+        description TEXT
       )
     ''');
 
@@ -75,6 +78,16 @@ class DatabaseHelper {
       await db.execute('''
         ALTER TABLE settings ADD COLUMN app_palette TEXT NOT NULL DEFAULT 'Blue'
       ''');
+    }
+    if (oldVersion < 4) {
+      // Add lunch start/end and description columns to work_entries table
+      await db.execute(
+        'ALTER TABLE work_entries ADD COLUMN lunch_start_time TEXT',
+      );
+      await db.execute(
+        'ALTER TABLE work_entries ADD COLUMN lunch_end_time TEXT',
+      );
+      await db.execute('ALTER TABLE work_entries ADD COLUMN description TEXT');
     }
   }
 

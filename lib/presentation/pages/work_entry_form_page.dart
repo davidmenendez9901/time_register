@@ -27,14 +27,14 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
   late TimeOfDay _startTime;
   late TimeOfDay _endTime;
   late bool _lunchTaken;
+  late TimeOfDay _lunchStartTime;
+  late TimeOfDay _lunchEndTime;
   late double _hourlyRate;
   late bool _isPaid;
+  final TextEditingController _descriptionController = TextEditingController();
 
   // Getters para determinar el modo
   bool get _isEditMode => widget.entry != null;
-  // Titles handled in build method for localization
-  // String get _appBarTitle => _isEditMode ? 'Edit Work Entry' : 'Add Work Entry';
-  // String get _saveButtonText => _isEditMode ? 'Save Changes' : 'Save Entry';
 
   @override
   void initState() {
@@ -45,6 +45,12 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
     if (!_isEditMode) {
       context.read<SettingsBloc>().add(LoadSettings());
     }
+  }
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    super.dispose();
   }
 
   void _initializeValues() {
@@ -60,16 +66,38 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
         minute: widget.entry!.endTime.minute,
       );
       _lunchTaken = widget.entry!.lunchTaken;
+      if (widget.entry!.lunchStartTime != null) {
+        _lunchStartTime = TimeOfDay.fromDateTime(widget.entry!.lunchStartTime!);
+      } else {
+        _lunchStartTime = const TimeOfDay(hour: 12, minute: 0);
+      }
+      if (widget.entry!.lunchEndTime != null) {
+        _lunchEndTime = TimeOfDay.fromDateTime(widget.entry!.lunchEndTime!);
+      } else {
+        _lunchEndTime = const TimeOfDay(hour: 12, minute: 30);
+      }
       _hourlyRate = widget.entry!.hourlyRate;
       _isPaid = widget.entry!.isPaid;
+      _descriptionController.text = widget.entry!.description ?? '';
     } else {
       // Modo Agregar - usar valores por defecto
       _selectedDate = DateTime.now();
       _startTime = const TimeOfDay(hour: 9, minute: 0);
       _endTime = const TimeOfDay(hour: 17, minute: 0);
       _lunchTaken = false;
-      _hourlyRate = 14.0; // Se actualizará desde settings
+      _lunchStartTime = const TimeOfDay(hour: 12, minute: 0);
+      _lunchEndTime = const TimeOfDay(hour: 12, minute: 30);
+
+      // Intentar obtener la tarifa de los settings actuales si ya están cargados
+      final settingsState = context.read<SettingsBloc>().state;
+      if (settingsState is SettingsLoaded) {
+        _hourlyRate = settingsState.settings.hourlyRate;
+      } else {
+        _hourlyRate = 14.0; // Valor por defecto temporal
+      }
+
       _isPaid = false;
+      _descriptionController.text = '';
     }
   }
 
@@ -111,6 +139,30 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
     }
   }
 
+  Future<void> _selectLunchStartTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _lunchStartTime,
+    );
+    if (picked != null && picked != _lunchStartTime) {
+      setState(() {
+        _lunchStartTime = picked;
+      });
+    }
+  }
+
+  Future<void> _selectLunchEndTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: _lunchEndTime,
+    );
+    if (picked != null && picked != _lunchEndTime) {
+      setState(() {
+        _lunchEndTime = picked;
+      });
+    }
+  }
+
   void _saveEntry() {
     if (_formKey.currentState!.validate()) {
       final startDateTime = DateTime(
@@ -141,10 +193,45 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
         return;
       }
 
+      DateTime? lunchStartDateTime;
+      DateTime? lunchEndDateTime;
+
+      if (_lunchTaken) {
+        lunchStartDateTime = DateTime(
+          _selectedDate.year,
+          _selectedDate.month,
+          _selectedDate.day,
+          _lunchStartTime.hour,
+          _lunchStartTime.minute,
+        );
+
+        lunchEndDateTime = DateTime(
+          _selectedDate.year,
+          _selectedDate.month,
+          _selectedDate.day,
+          _lunchEndTime.hour,
+          _lunchEndTime.minute,
+        );
+
+        // Validate lunch times
+        if (lunchEndDateTime.isBefore(lunchStartDateTime) ||
+            lunchEndDateTime.isAtSameMomentAs(lunchStartDateTime)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Lunch end time must be after lunch start time'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+      }
+
       final totalHours = WorkEntry.calculateTotalHours(
         startDateTime,
         endDateTime,
         _lunchTaken,
+        lunchStart: lunchStartDateTime,
+        lunchEnd: lunchEndDateTime,
       );
 
       final earnings = WorkEntry.calculateEarnings(totalHours, _hourlyRate);
@@ -160,6 +247,9 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
           hourlyRate: _hourlyRate,
           earnings: earnings,
           isPaid: _isPaid,
+          lunchStartTime: lunchStartDateTime,
+          lunchEndTime: lunchEndDateTime,
+          description: _descriptionController.text,
         );
         context.read<TimeTrackingBloc>().add(UpdateWorkEntry(updatedEntry));
       } else {
@@ -173,6 +263,9 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
           hourlyRate: _hourlyRate,
           earnings: earnings,
           isPaid: false, // Nuevas entradas siempre empiezan como no pagadas
+          lunchStartTime: lunchStartDateTime,
+          lunchEndTime: lunchEndDateTime,
+          description: _descriptionController.text,
         );
         context.read<TimeTrackingBloc>().add(AddWorkEntry(entry));
       }
@@ -314,19 +407,122 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                 // Lunch Toggle
                 Card(
                   elevation: 2,
-                  child: SwitchListTile(
-                    secondary: const FaIcon(
-                      FontAwesomeIcons.utensils,
-                      color: Colors.orange,
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        secondary: const FaIcon(
+                          FontAwesomeIcons.utensils,
+                          color: Colors.orange,
+                        ),
+                        title: Text(l10n.lunchBreak),
+                        subtitle: Text(l10n.deductLunch),
+                        value: _lunchTaken,
+                        onChanged: (bool value) {
+                          setState(() {
+                            _lunchTaken = value;
+                          });
+                        },
+                      ),
+                      if (_lunchTaken) ...[
+                        const Divider(),
+                        ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 0,
+                          ),
+                          leading: const SizedBox(
+                            width: 24,
+                          ), // Spacer for alignment
+                          title: const Text('Lunch Start'),
+                          trailing: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              _lunchStartTime.format(context),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          onTap: () => _selectLunchStartTime(context),
+                        ),
+                        ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 0,
+                          ),
+                          leading: const SizedBox(
+                            width: 24,
+                          ), // Spacer for alignment
+                          title: const Text('Lunch End'),
+                          trailing: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade300),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              _lunchEndTime.format(context),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          onTap: () => _selectLunchEndTime(context),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Description
+                Card(
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            FaIcon(
+                              FontAwesomeIcons.noteSticky,
+                              color: Colors.purple,
+                              size: 20,
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              'Description / Note',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _descriptionController,
+                          maxLines: 3,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: 'Add details about this work entry...',
+                            contentPadding: EdgeInsets.all(12),
+                          ),
+                        ),
+                      ],
                     ),
-                    title: Text(l10n.lunchBreak),
-                    subtitle: Text(l10n.deductLunch),
-                    value: _lunchTaken,
-                    onChanged: (bool value) {
-                      setState(() {
-                        _lunchTaken = value;
-                      });
-                    },
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -523,6 +719,11 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
     );
   }
 
+  double _calculateDisplayEarnings() {
+    final hours = _calculateDisplayHours();
+    return WorkEntry.calculateEarnings(hours, _hourlyRate);
+  }
+
   double _calculateDisplayHours() {
     final startDateTime = DateTime(
       _selectedDate.year,
@@ -545,15 +746,33 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
       return 0.0;
     }
 
+    DateTime? lunchStart;
+    DateTime? lunchEnd;
+
+    if (_lunchTaken) {
+      lunchStart = DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+        _lunchStartTime.hour,
+        _lunchStartTime.minute,
+      );
+
+      lunchEnd = DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+        _lunchEndTime.hour,
+        _lunchEndTime.minute,
+      );
+    }
+
     return WorkEntry.calculateTotalHours(
       startDateTime,
       endDateTime,
       _lunchTaken,
+      lunchStart: lunchStart,
+      lunchEnd: lunchEnd,
     );
-  }
-
-  double _calculateDisplayEarnings() {
-    final hours = _calculateDisplayHours();
-    return WorkEntry.calculateEarnings(hours, _hourlyRate);
   }
 }

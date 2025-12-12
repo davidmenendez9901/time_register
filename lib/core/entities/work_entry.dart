@@ -9,6 +9,9 @@ class WorkEntry {
   final double earnings;
   final bool isPaid;
   final DateTime createdAt;
+  final DateTime? lunchStartTime;
+  final DateTime? lunchEndTime;
+  final String? description;
 
   WorkEntry({
     this.id,
@@ -20,14 +23,34 @@ class WorkEntry {
     required this.hourlyRate,
     required this.earnings,
     required this.isPaid,
+    this.lunchStartTime,
+    this.lunchEndTime,
+    this.description,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
   // Calculate total hours based on start/end time and lunch
-  static double calculateTotalHours(DateTime start, DateTime end, bool lunchTaken) {
+  static double calculateTotalHours(
+    DateTime start,
+    DateTime end,
+    bool lunchTaken, {
+    DateTime? lunchStart,
+    DateTime? lunchEnd,
+  }) {
     final duration = end.difference(start);
-    final hours = duration.inMinutes / 60.0;
-    return lunchTaken ? hours - 0.5 : hours;
+    double hours = duration.inMinutes / 60.0;
+
+    if (lunchTaken) {
+      if (lunchStart != null && lunchEnd != null) {
+        final lunchDuration = lunchEnd.difference(lunchStart);
+        hours -= (lunchDuration.inMinutes / 60.0);
+      } else {
+        // Fallback for backward compatibility or default
+        hours -= 0.5;
+      }
+    }
+
+    return hours < 0 ? 0 : hours;
   }
 
   // Calculate earnings based on total hours and rate
@@ -37,6 +60,17 @@ class WorkEntry {
 
   // Factory constructor from database map
   factory WorkEntry.fromMap(Map<String, dynamic> map) {
+    DateTime? lunchStart;
+    DateTime? lunchEnd;
+
+    if (map['lunch_start_time'] != null) {
+      lunchStart = DateTime.parse('${map['date']} ${map['lunch_start_time']}');
+    }
+
+    if (map['lunch_end_time'] != null) {
+      lunchEnd = DateTime.parse('${map['date']} ${map['lunch_end_time']}');
+    }
+
     return WorkEntry(
       id: map['id'] as int?,
       date: DateTime.parse(map['date'] as String),
@@ -47,6 +81,9 @@ class WorkEntry {
       hourlyRate: map['hourly_rate'] as double,
       earnings: map['earnings'] as double,
       isPaid: (map['is_paid'] as int) == 1,
+      lunchStartTime: lunchStart,
+      lunchEndTime: lunchEnd,
+      description: map['description'] as String?,
       createdAt: DateTime.parse(map['created_at'] as String),
     );
   }
@@ -56,13 +93,22 @@ class WorkEntry {
     return {
       'id': id,
       'date': date.toIso8601String().substring(0, 10),
-      'start_time': '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}',
-      'end_time': '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}',
+      'start_time':
+          '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}',
+      'end_time':
+          '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}',
       'lunch_taken': lunchTaken ? 1 : 0,
       'total_hours': totalHours,
       'hourly_rate': hourlyRate,
       'earnings': earnings,
       'is_paid': isPaid ? 1 : 0,
+      'lunch_start_time': lunchStartTime != null
+          ? '${lunchStartTime!.hour.toString().padLeft(2, '0')}:${lunchStartTime!.minute.toString().padLeft(2, '0')}'
+          : null,
+      'lunch_end_time': lunchEndTime != null
+          ? '${lunchEndTime!.hour.toString().padLeft(2, '0')}:${lunchEndTime!.minute.toString().padLeft(2, '0')}'
+          : null,
+      'description': description,
       'created_at': createdAt.toIso8601String(),
     };
   }
@@ -78,6 +124,9 @@ class WorkEntry {
     double? hourlyRate,
     double? earnings,
     bool? isPaid,
+    DateTime? lunchStartTime,
+    DateTime? lunchEndTime,
+    String? description,
     DateTime? createdAt,
   }) {
     return WorkEntry(
@@ -90,12 +139,15 @@ class WorkEntry {
       hourlyRate: hourlyRate ?? this.hourlyRate,
       earnings: earnings ?? this.earnings,
       isPaid: isPaid ?? this.isPaid,
+      lunchStartTime: lunchStartTime ?? this.lunchStartTime,
+      lunchEndTime: lunchEndTime ?? this.lunchEndTime,
+      description: description ?? this.description,
       createdAt: createdAt ?? this.createdAt,
     );
   }
 
   @override
   String toString() {
-    return 'WorkEntry(id: $id, date: $date, startTime: $startTime, endTime: $endTime, lunchTaken: $lunchTaken, totalHours: $totalHours, hourlyRate: $hourlyRate, earnings: $earnings, isPaid: $isPaid)';
+    return 'WorkEntry(id: $id, date: $date, startTime: $startTime, endTime: $endTime, lunchTaken: $lunchTaken, lunchStart: $lunchStartTime, lunchEnd: $lunchEndTime, totalHours: $totalHours, earnings: $earnings, description: $description)';
   }
 }
