@@ -11,6 +11,9 @@ class WorkEntryModel extends WorkEntry {
     required super.hourlyRate,
     required super.earnings,
     required super.isPaid,
+    super.lunchStartTime,
+    super.lunchEndTime,
+    super.description,
     super.createdAt,
   });
 
@@ -25,11 +28,25 @@ class WorkEntryModel extends WorkEntry {
       hourlyRate: entry.hourlyRate,
       earnings: entry.earnings,
       isPaid: entry.isPaid,
+      lunchStartTime: entry.lunchStartTime,
+      lunchEndTime: entry.lunchEndTime,
+      description: entry.description,
       createdAt: entry.createdAt,
     );
   }
 
   factory WorkEntryModel.fromMap(Map<String, dynamic> map) {
+    DateTime? lunchStart;
+    DateTime? lunchEnd;
+
+    if (map['lunch_start_time'] != null) {
+      lunchStart = DateTime.parse('${map['date']} ${map['lunch_start_time']}');
+    }
+
+    if (map['lunch_end_time'] != null) {
+      lunchEnd = DateTime.parse('${map['date']} ${map['lunch_end_time']}');
+    }
+
     return WorkEntryModel(
       id: map['id'] as int?,
       date: DateTime.parse(map['date'] as String),
@@ -40,6 +57,9 @@ class WorkEntryModel extends WorkEntry {
       hourlyRate: map['hourly_rate'] as double,
       earnings: map['earnings'] as double,
       isPaid: (map['is_paid'] as int) == 1,
+      lunchStartTime: lunchStart,
+      lunchEndTime: lunchEnd,
+      description: map['description'] as String?,
       createdAt: DateTime.parse(map['created_at'] as String),
     );
   }
@@ -49,13 +69,22 @@ class WorkEntryModel extends WorkEntry {
     return {
       'id': id,
       'date': date.toIso8601String().substring(0, 10),
-      'start_time': '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}',
-      'end_time': '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}',
+      'start_time':
+          '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}',
+      'end_time':
+          '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}',
       'lunch_taken': lunchTaken ? 1 : 0,
       'total_hours': totalHours,
       'hourly_rate': hourlyRate,
       'earnings': earnings,
       'is_paid': isPaid ? 1 : 0,
+      'lunch_start_time': lunchStartTime != null
+          ? '${lunchStartTime!.hour.toString().padLeft(2, '0')}:${lunchStartTime!.minute.toString().padLeft(2, '0')}'
+          : null,
+      'lunch_end_time': lunchEndTime != null
+          ? '${lunchEndTime!.hour.toString().padLeft(2, '0')}:${lunchEndTime!.minute.toString().padLeft(2, '0')}'
+          : null,
+      'description': description,
       'created_at': createdAt.toIso8601String(),
     };
   }
