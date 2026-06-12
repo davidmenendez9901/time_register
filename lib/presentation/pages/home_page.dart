@@ -10,6 +10,7 @@ import '../widgets/floating_nav_bar.dart';
 import 'work_entry_form_page.dart';
 import 'home_content.dart';
 import 'weekly_summary_page.dart';
+import 'stats_page.dart';
 import 'settings_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -53,6 +54,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 HomeContent(isNavVisible: _isNavVisible, onScroll: _onScroll),
                 const WeeklySummaryPage(),
+                const StatsPage(),
                 const SettingsPage(),
               ],
             ),

@@ -335,6 +335,22 @@ class AppLocalizationsEs extends AppLocalizations {
       'Este símbolo se muestra junto a todos los montos en la app.';
 
   @override
+  String get statsTab => 'Estadísticas';
+
+  @override
+  String get lastWeeksChart => 'Últimas 8 semanas';
+
+  @override
+  String get lastMonthsChart => 'Últimos 6 meses';
+
+  @override
+  String get earningsByJobChart => 'Ganancias por trabajo (este mes)';
+
+  @override
+  String get noChartData =>
+      'Aún no hay datos suficientes. Agrega entradas de trabajo para ver tus estadísticas.';
+
+  @override
   String get deductions => 'Deducciones';
 
   @override

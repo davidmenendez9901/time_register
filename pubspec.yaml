@@ -66,6 +66,9 @@ dependencies:
   # Backup file picking
   file_selector: ^1.0.3
 
+  # Charts
+  fl_chart: ^1.1.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

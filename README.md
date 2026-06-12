@@ -30,6 +30,7 @@ All data stays on your device — no account, no cloud, no tracking.
 ### 📊 Summaries
 - **Weekly Grouping**: Entries organized by work weeks with expandable details
 - **This Week / This Month / Outstanding** summary cards
+- **Statistics**: Bar charts for the last 8 weeks and 6 months (hours or earnings) and an earnings-by-job breakdown
 - **Daily Totals**: Hours and earnings per day on the home screen
 - **Date Filter**: Jump to any day's entries
 
@@ -165,9 +166,9 @@ See the full [Privacy Policy](PRIVACY_POLICY.md).
 - [x] Live timer (clock in / clock out)
 - [x] Multiple jobs/clients with per-job rates
 - [x] Tax/deduction estimates (optional, off by default)
+- [x] Charts and analytics
 - [ ] PDF export
 - [ ] Overtime rules (1.5x / 2x after N hours)
-- [ ] Charts and analytics
 - [ ] Shift templates
 
 ## 🤝 Contributing

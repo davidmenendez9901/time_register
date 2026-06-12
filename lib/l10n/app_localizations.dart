@@ -716,6 +716,36 @@ abstract class AppLocalizations {
   /// **'This symbol is shown next to all amounts in the app.'**
   String get currencySubtitle;
 
+  /// No description provided for @statsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get statsTab;
+
+  /// No description provided for @lastWeeksChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 8 weeks'**
+  String get lastWeeksChart;
+
+  /// No description provided for @lastMonthsChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 6 months'**
+  String get lastMonthsChart;
+
+  /// No description provided for @earningsByJobChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Earnings by job (this month)'**
+  String get earningsByJobChart;
+
+  /// No description provided for @noChartData.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough data yet. Add some work entries to see your statistics.'**
+  String get noChartData;
+
   /// No description provided for @deductions.
   ///
   /// In en, this message translates to:
