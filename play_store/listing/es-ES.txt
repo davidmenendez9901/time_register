@@ -1,0 +1,48 @@
+NOMBRE (máx. 30 caracteres):
+Time Register
+
+DESCRIPCIÓN CORTA (máx. 80 caracteres):
+Registra tus horas, controla tus pagos y sabe cuánto ganarás. 100% offline.
+
+DESCRIPCIÓN COMPLETA (máx. 4000 caracteres):
+Time Register es la forma más simple de registrar tus horas de trabajo y saber exactamente cuánto vas a cobrar. Pensada para quienes cobran por hora: trabajadores por turnos, freelancers y consultores.
+
+⏱️ REGISTRA TU TIEMPO
+• Ficha entrada y salida con el cronómetro en vivo, o agrega entradas manualmente
+• El turno en curso sobrevive aunque cierres la app
+• Turnos nocturnos que cruzan medianoche, sin complicaciones
+• Almuerzo con horas personalizadas y notas en cada entrada
+
+💰 CONTROLA TUS PAGOS
+• Cada entrada calcula sus ganancias automáticamente
+• Marca entradas como pagadas o pendientes
+• Mira de un vistazo cuánto te deben
+• Deducciones opcionales (impuestos, etc.) para estimar tu neto
+
+💼 ORGANIZA POR TRABAJO
+• Crea trabajos o clientes con su color y su propia tarifa por hora
+• Filtra y analiza tus ganancias por cliente
+
+📊 ENTIENDE TUS NÚMEROS
+• Resumen semanal y mensual
+• Gráficas de horas y ganancias de las últimas 8 semanas y 6 meses
+• Desglose de ganancias por trabajo
+
+📤 COMPARTE Y RESPALDA
+• Exporta CSV listo para hoja de cálculo
+• Genera reportes PDF imprimibles para tu empleador
+• Respalda todos tus datos a un archivo y restáuralos en otro teléfono
+
+🔒 TU PRIVACIDAD, EN SERIO
+• 100% offline: la app ni siquiera tiene permiso de internet
+• Sin cuentas, sin anuncios, sin analíticas, sin rastreo
+• Tus datos viven solo en tu teléfono
+• Código abierto (licencia MIT): puedes auditar cada línea
+
+🎨 A TU GUSTO
+• Tema claro y oscuro con cuatro paletas de color
+• Tu símbolo de moneda ($, €, o el que uses)
+• En español e inglés
+
+Time Register es gratis, sin compras dentro de la app y de código abierto:
+https://github.com/davidmenendez9901/time_register

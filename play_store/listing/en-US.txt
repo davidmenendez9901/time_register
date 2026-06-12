@@ -1,0 +1,48 @@
+APP NAME (max 30 characters):
+Time Register
+
+SHORT DESCRIPTION (max 80 characters):
+Track your hours, control payments and know your earnings. 100% offline.
+
+FULL DESCRIPTION (max 4000 characters):
+Time Register is the simplest way to track your work hours and know exactly how much you will get paid. Built for people who get paid by the hour: shift workers, freelancers and consultants.
+
+⏱️ TRACK YOUR TIME
+• Clock in and out with the live timer, or add entries manually
+• The running shift survives even if you close the app
+• Overnight shifts that cross midnight just work
+• Custom lunch breaks and notes on every entry
+
+💰 CONTROL YOUR PAYMENTS
+• Every entry calculates its earnings automatically
+• Mark entries as paid or unpaid
+• See at a glance how much you are owed
+• Optional deductions (taxes, etc.) to estimate your net pay
+
+💼 ORGANIZE BY JOB
+• Create jobs or clients with their own color and hourly rate
+• Filter and analyze your earnings per client
+
+📊 UNDERSTAND YOUR NUMBERS
+• Weekly and monthly summaries
+• Hours and earnings charts for the last 8 weeks and 6 months
+• Earnings breakdown by job
+
+📤 SHARE AND BACK UP
+• Export spreadsheet-ready CSV files
+• Generate printable PDF reports for your employer
+• Back up all your data to a file and restore it on another phone
+
+🔒 PRIVACY, FOR REAL
+• 100% offline: the app does not even have internet permission
+• No accounts, no ads, no analytics, no tracking
+• Your data lives only on your phone
+• Open source (MIT license): you can audit every line
+
+🎨 MAKE IT YOURS
+• Light and dark themes with four color palettes
+• Your currency symbol ($, €, or whatever you use)
+• Available in English and Spanish
+
+Time Register is free, has no in-app purchases, and is open source:
+https://github.com/davidmenendez9901/time_register

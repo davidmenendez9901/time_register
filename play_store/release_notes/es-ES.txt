@@ -1,0 +1,8 @@
+• Nuevo diseño Material 3 con modo oscuro mejorado
+• Cronómetro: ficha tu entrada y salida en vivo
+• Trabajos/clientes con colores y tarifas propias
+• Gráficas de horas y ganancias por semana y mes
+• Exporta CSV y reportes PDF imprimibles
+• Respaldo y restauración de tus datos
+• Símbolo de moneda configurable y deducciones opcionales
+• Soporte para turnos nocturnos

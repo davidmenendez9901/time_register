@@ -1,0 +1,8 @@
+• New Material 3 design with improved dark mode
+• Live timer: clock in and out of your shift
+• Jobs/clients with their own colors and rates
+• Weekly and monthly hours & earnings charts
+• Export CSV and printable PDF reports
+• Back up and restore your data
+• Configurable currency symbol and optional deductions
+• Overnight shift support
