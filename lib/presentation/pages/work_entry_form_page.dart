@@ -487,7 +487,11 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade300),
+                              border: Border.all(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.outlineVariant,
+                              ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -514,7 +518,11 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade300),
+                              border: Border.all(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.outlineVariant,
+                              ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -760,14 +768,9 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                       children: [
                         Text(
                           l10n.summaryTab,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: _isEditMode
-                                ? Theme.of(
-                                    context,
-                                  ).colorScheme.onPrimaryContainer
-                                : null,
                           ),
                         ),
                         const Divider(),
@@ -792,17 +795,12 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                 const SizedBox(height: 24),
 
                 // Save Button
-                ElevatedButton.icon(
+                FilledButton.icon(
                   onPressed: _saveEntry,
-                  icon: const FaIcon(FontAwesomeIcons.floppyDisk),
+                  icon: const FaIcon(FontAwesomeIcons.floppyDisk, size: 18),
                   label: Text(saveButtonText),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
+                  style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
                   ),
                 ),
               ],
@@ -851,9 +849,6 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
             style: TextStyle(
               fontSize: isTotal ? 16 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: _isEditMode
-                  ? Theme.of(context).colorScheme.onSurface
-                  : null,
             ),
           ),
           Text(
@@ -861,13 +856,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
             style: TextStyle(
               fontSize: isTotal ? 18 : 14,
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal
-                  ? (_isEditMode
-                        ? Theme.of(context).colorScheme.primary
-                        : Colors.blue.shade700)
-                  : (_isEditMode
-                        ? Theme.of(context).colorScheme.onSurface
-                        : null),
+              color: isTotal ? Theme.of(context).colorScheme.primary : null,
             ),
           ),
         ],

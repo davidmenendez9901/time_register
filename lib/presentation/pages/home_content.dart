@@ -15,14 +15,7 @@ import '../widgets/active_shift_banner.dart';
 import 'work_entry_form_page.dart';
 
 class HomeContent extends StatefulWidget {
-  final bool isNavVisible;
-  final Function(UserScrollNotification) onScroll;
-
-  const HomeContent({
-    super.key,
-    required this.isNavVisible,
-    required this.onScroll,
-  });
+  const HomeContent({super.key});
 
   @override
   State<HomeContent> createState() => _HomeContentState();
@@ -191,14 +184,18 @@ class _HomeContentState extends State<HomeContent> {
                                 FaIcon(
                                   FontAwesomeIcons.clock,
                                   size: 12,
-                                  color: Colors.grey.shade600,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
                                   '${entry.totalHours.toStringAsFixed(2)} ${l10n.hours}',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: Colors.grey.shade600,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                                 if (entry.lunchTaken) ...[
@@ -213,7 +210,9 @@ class _HomeContentState extends State<HomeContent> {
                                     l10n.lunchBreak,
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: Colors.grey.shade600,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                 ],
@@ -235,7 +234,9 @@ class _HomeContentState extends State<HomeContent> {
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         fontSize: 13,
-                                        color: Colors.grey.shade600,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                       ),
                                     ),
                                   ),
@@ -250,7 +251,9 @@ class _HomeContentState extends State<HomeContent> {
                                   FaIcon(
                                     FontAwesomeIcons.noteSticky,
                                     size: 12,
-                                    color: Colors.grey.shade400,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
@@ -259,7 +262,9 @@ class _HomeContentState extends State<HomeContent> {
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontStyle: FontStyle.italic,
-                                        color: Colors.grey.shade600,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                       ),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
@@ -284,14 +289,18 @@ class _HomeContentState extends State<HomeContent> {
                           FaIcon(
                             FontAwesomeIcons.tag,
                             size: 12,
-                            color: Colors.grey.shade400,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(width: 6),
                           Text(
                             '$symbol${entry.hourlyRate.toStringAsFixed(2)}/hr',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey.shade600,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -396,25 +405,19 @@ class _HomeContentState extends State<HomeContent> {
           const SizedBox(width: 8),
         ],
       ),
-      body: NotificationListener<UserScrollNotification>(
-        onNotification: (notification) {
-          widget.onScroll(notification);
-          return true;
-        },
-        child: Column(
-          children: [
-            BlocBuilder<ShiftTimerCubit, DateTime?>(
-              builder: (context, shiftStart) {
-                if (shiftStart == null) return const SizedBox.shrink();
-                return ActiveShiftBanner(
-                  start: shiftStart,
-                  onClockOut: _clockOut,
-                );
-              },
-            ),
-            Expanded(child: _buildEntryList(context, l10n)),
-          ],
-        ),
+      body: Column(
+        children: [
+          BlocBuilder<ShiftTimerCubit, DateTime?>(
+            builder: (context, shiftStart) {
+              if (shiftStart == null) return const SizedBox.shrink();
+              return ActiveShiftBanner(
+                start: shiftStart,
+                onClockOut: _clockOut,
+              );
+            },
+          ),
+          Expanded(child: _buildEntryList(context, l10n)),
+        ],
       ),
     );
   }
@@ -517,7 +520,9 @@ class _HomeContentState extends State<HomeContent> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: Colors.grey.shade600,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],

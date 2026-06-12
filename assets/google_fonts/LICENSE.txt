@@ -4,9 +4,5 @@ License, Version 1.1 (https://openfontlicense.org/):
 - Lato (Lato-Regular.ttf, Lato-Bold.ttf, Lato-Italic.ttf)
   Copyright (c) 2010-2014 by tyPoland Lukasz Dziedzic (team@latofonts.com)
 
-- Playfair Display (PlayfairDisplay-Regular.ttf, PlayfairDisplay-Bold.ttf)
-  Copyright 2017 The Playfair Display Project Authors
-  (https://github.com/clauseggers/Playfair-Display)
-
 They were downloaded from Google Fonts (https://fonts.google.com) and are
 bundled so the app works fully offline.

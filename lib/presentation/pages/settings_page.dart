@@ -248,10 +248,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   );
                 }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-              ),
               child: Text(l10n.saveEntry),
             ),
           ],
@@ -834,7 +830,7 @@ class _SettingsPageState extends State<SettingsPage> {
           border: Border.all(
             color: isSelected
                 ? Theme.of(context).colorScheme.primary
-                : Colors.grey.shade300,
+                : Theme.of(context).colorScheme.outlineVariant,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -848,7 +844,7 @@ class _SettingsPageState extends State<SettingsPage> {
               icon,
               color: isSelected
                   ? Theme.of(context).colorScheme.primary
-                  : Colors.grey.shade600,
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
               size: 20,
             ),
             const SizedBox(width: 12),
@@ -890,7 +886,9 @@ class _SettingsPageState extends State<SettingsPage> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           border: Border.all(
-            color: isSelected ? palette.primary : Colors.grey.shade300,
+            color: isSelected
+                ? palette.primary
+                : Theme.of(context).colorScheme.outlineVariant,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -1096,7 +1094,10 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 4),
         Text(
           description,
-          style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+          style: TextStyle(
+            fontSize: 13,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );

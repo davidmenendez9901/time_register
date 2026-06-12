@@ -53,16 +53,16 @@ class _ActiveShiftBannerState extends State<ActiveShiftBanner> {
 
     return Card(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      elevation: 3,
-      color: colors.primary,
+      elevation: 0,
+      color: colors.primaryContainer,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            const FaIcon(
+            FaIcon(
               FontAwesomeIcons.stopwatch,
-              color: Colors.white,
+              color: colors.onPrimaryContainer,
               size: 22,
             ),
             const SizedBox(width: 14),
@@ -74,16 +74,16 @@ class _ActiveShiftBannerState extends State<ActiveShiftBanner> {
                     l10n.shiftInProgress,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.85),
+                      color: colors.onPrimaryContainer.withValues(alpha: 0.8),
                     ),
                   ),
                   Text(
                     _formatElapsed(elapsed),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontFeatures: [FontFeature.tabularFigures()],
+                      color: colors.onPrimaryContainer,
+                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
                   Text(
@@ -92,7 +92,7 @@ class _ActiveShiftBannerState extends State<ActiveShiftBanner> {
                     ),
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.85),
+                      color: colors.onPrimaryContainer.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -100,10 +100,6 @@ class _ActiveShiftBannerState extends State<ActiveShiftBanner> {
             ),
             FilledButton.icon(
               onPressed: widget.onClockOut,
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: colors.primary,
-              ),
               icon: const FaIcon(FontAwesomeIcons.stop, size: 14),
               label: Text(l10n.clockOut),
             ),

@@ -5,13 +5,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class FloatingNavBar extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemSelected;
-  final bool isVisible;
 
   const FloatingNavBar({
     super.key,
     required this.selectedIndex,
     required this.onItemSelected,
-    required this.isVisible,
   });
 
   @override
@@ -19,10 +17,8 @@ class FloatingNavBar extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return AnimatedPositioned(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-      bottom: isVisible ? 32 : -100,
+    return Positioned(
+      bottom: 32,
       left: 32,
       right: 32,
       child: Container(

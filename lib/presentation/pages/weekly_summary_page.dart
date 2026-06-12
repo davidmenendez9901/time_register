@@ -347,7 +347,6 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                         amount: totalUnpaidAmount,
                         icon: FontAwesomeIcons.circleExclamation,
                         color: Colors.orange,
-                        backgroundColor: Colors.orange.shade50,
                       ),
                       _buildSummaryCard(
                         context,
@@ -357,7 +356,6 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                         amount: weekEarnings,
                         icon: FontAwesomeIcons.calendarWeek,
                         color: Colors.blue,
-                        backgroundColor: Colors.blue.shade50,
                       ),
                       _buildSummaryCard(
                         context,
@@ -370,7 +368,6 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                         amount: monthEarnings,
                         icon: FontAwesomeIcons.calendar,
                         color: Colors.purple,
-                        backgroundColor: Colors.purple.shade50,
                       ),
                     ],
                   ),
@@ -388,7 +385,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                         shape: BoxShape.circle,
                         color: _currentPage == index
                             ? Theme.of(context).primaryColor
-                            : Colors.grey.shade300,
+                            : Theme.of(context).colorScheme.outlineVariant,
                       ),
                     );
                   }),
@@ -443,7 +440,11 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                         ),
                         subtitle: Text(
                           '${weekTotalHours.toStringAsFixed(1)}h • ${currencySymbolOf(context)}${weekTotalEarnings.toStringAsFixed(2)}',
-                          style: TextStyle(color: Colors.grey.shade600),
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                         children: weekEntries.map((entry) {
                           return OpenContainer(
@@ -492,7 +493,9 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: Colors.grey.shade600,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                                 trailing: Row(
@@ -514,7 +517,9 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                                           '${entry.totalHours.toStringAsFixed(1)}h',
                                           style: TextStyle(
                                             fontSize: 12,
-                                            color: Colors.grey.shade600,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                           ),
                                         ),
                                       ],
@@ -664,7 +669,6 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
     required double amount,
     required FaIconData icon,
     required Color color,
-    required Color backgroundColor,
   }) {
     final l10n = AppLocalizations.of(context)!;
     final settingsState = context.watch<SettingsBloc>().state;
@@ -672,10 +676,16 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
         ? settingsState.settings
         : null;
     final showNet = appSettings?.deductionsEnabled ?? false;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Tint the card with the accent color so it adapts to light/dark mode
+    final backgroundColor = Color.alphaBlend(
+      color.withValues(alpha: isDark ? 0.18 : 0.07),
+      Theme.of(context).colorScheme.surface,
+    );
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       child: Card(
-        elevation: 4,
+        elevation: 0,
         color: backgroundColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
