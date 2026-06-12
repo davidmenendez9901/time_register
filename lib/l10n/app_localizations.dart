@@ -980,11 +980,35 @@ abstract class AppLocalizations {
   /// **'The selected file is not a valid Time Register backup'**
   String get restoreInvalidFile;
 
+  /// No description provided for @export.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get export;
+
   /// No description provided for @exportCsv.
   ///
   /// In en, this message translates to:
   /// **'Export CSV'**
   String get exportCsv;
+
+  /// No description provided for @exportPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Export PDF'**
+  String get exportPdf;
+
+  /// No description provided for @workReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Work Report'**
+  String get workReport;
+
+  /// No description provided for @generatedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated on {date}'**
+  String generatedOn(String date);
 
   /// No description provided for @nothingToExport.
   ///

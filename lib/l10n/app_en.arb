@@ -167,7 +167,18 @@
     "restore": "Restore",
     "restoreSuccess": "Backup restored successfully",
     "restoreInvalidFile": "The selected file is not a valid Time Register backup",
+    "export": "Export",
     "exportCsv": "Export CSV",
+    "exportPdf": "Export PDF",
+    "workReport": "Work Report",
+    "generatedOn": "Generated on {date}",
+    "@generatedOn": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
     "nothingToExport": "No entries to export",
     "total": "Total",
     "yes": "Yes",

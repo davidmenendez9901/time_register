@@ -471,7 +471,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'The selected file is not a valid Time Register backup';
 
   @override
+  String get export => 'Export';
+
+  @override
   String get exportCsv => 'Export CSV';
+
+  @override
+  String get exportPdf => 'Export PDF';
+
+  @override
+  String get workReport => 'Work Report';
+
+  @override
+  String generatedOn(String date) {
+    return 'Generated on $date';
+  }
 
   @override
   String get nothingToExport => 'No entries to export';

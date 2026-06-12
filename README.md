@@ -24,7 +24,7 @@ All data stays on your device — no account, no cloud, no tracking.
 - **Outstanding Balance**: See at a glance how much you are owed
 - **Filtering**: View all, paid only, or unpaid entries
 - **Per-Entry Rate**: Each entry keeps the hourly rate it was created with
-- **CSV Export**: Share your entries (all, paid, or unpaid) as a spreadsheet-ready file
+- **CSV & PDF Export**: Share your entries (all, paid, or unpaid) as a spreadsheet-ready file or a printable work report
 - **Backup & Restore**: Save everything to a file and load it on a new device
 
 ### 📊 Summaries
@@ -173,7 +173,7 @@ See the full [Privacy Policy](PRIVACY_POLICY.md).
 - [x] Multiple jobs/clients with per-job rates
 - [x] Tax/deduction estimates (optional, off by default)
 - [x] Charts and analytics
-- [ ] PDF export
+- [x] PDF export
 - [ ] Overtime rules (1.5x / 2x after N hours)
 - [ ] Shift templates
 

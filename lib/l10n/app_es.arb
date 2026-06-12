@@ -153,7 +153,18 @@
     "restore": "Restaurar",
     "restoreSuccess": "Respaldo restaurado correctamente",
     "restoreInvalidFile": "El archivo seleccionado no es un respaldo válido de Time Register",
+    "export": "Exportar",
     "exportCsv": "Exportar CSV",
+    "exportPdf": "Exportar PDF",
+    "workReport": "Reporte de Trabajo",
+    "generatedOn": "Generado el {date}",
+    "@generatedOn": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
     "nothingToExport": "No hay entradas para exportar",
     "total": "Total",
     "yes": "Sí",

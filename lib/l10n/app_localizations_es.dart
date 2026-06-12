@@ -478,7 +478,21 @@ class AppLocalizationsEs extends AppLocalizations {
       'El archivo seleccionado no es un respaldo válido de Time Register';
 
   @override
+  String get export => 'Exportar';
+
+  @override
   String get exportCsv => 'Exportar CSV';
+
+  @override
+  String get exportPdf => 'Exportar PDF';
+
+  @override
+  String get workReport => 'Reporte de Trabajo';
+
+  @override
+  String generatedOn(String date) {
+    return 'Generado el $date';
+  }
 
   @override
   String get nothingToExport => 'No hay entradas para exportar';

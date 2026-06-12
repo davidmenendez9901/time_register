@@ -1,13 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 import '../../core/entities/work_entry.dart';
 import '../../core/utils/csv_exporter.dart';
+import '../../core/utils/pdf_exporter.dart';
 import '../blocs/jobs/jobs_cubit.dart';
 import '../blocs/settings/settings_bloc.dart';
 import '../blocs/settings/settings_state.dart';
@@ -108,12 +111,94 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
     );
   }
 
-  void _exportEntries() {
+  void _exportEntries(String format) {
     final state = context.read<TimeTrackingBloc>().state;
     final entries = state is TimeTrackingLoaded
         ? _filterEntries(state.entries)
         : <WorkEntry>[];
-    _exportCsv(entries);
+    if (format == 'pdf') {
+      _exportPdf(entries);
+    } else {
+      _exportCsv(entries);
+    }
+  }
+
+  CsvLabels _buildLabels(AppLocalizations l10n) {
+    return CsvLabels(
+      date: l10n.date,
+      job: l10n.job,
+      startTime: l10n.startTime,
+      endTime: l10n.endTime,
+      lunchBreak: l10n.lunchBreak,
+      lunchStart: l10n.lunchStart,
+      lunchEnd: l10n.lunchEnd,
+      totalHours: l10n.totalHours,
+      hourlyRate: l10n.hourlyRate,
+      earnings: l10n.earnings,
+      paid: l10n.paid,
+      description: l10n.descriptionNote,
+      total: l10n.total,
+      yes: l10n.yes,
+      no: l10n.no,
+    );
+  }
+
+  Future<void> _exportPdf(List<WorkEntry> entries) async {
+    final l10n = AppLocalizations.of(context)!;
+    if (entries.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.nothingToExport)));
+      return;
+    }
+
+    final jobs = context.read<JobsCubit>().state;
+    final settingsState = context.read<SettingsBloc>().state;
+    final settings = settingsState is SettingsLoaded
+        ? settingsState.settings
+        : null;
+
+    final now = DateTime.now();
+    final baseFont = pw.Font.ttf(
+      await rootBundle.load('assets/google_fonts/Lato-Regular.ttf'),
+    );
+    final boldFont = pw.Font.ttf(
+      await rootBundle.load('assets/google_fonts/Lato-Bold.ttf'),
+    );
+    if (!mounted) return;
+
+    final bytes = await PdfExporter.build(
+      entries: entries,
+      labels: _buildLabels(l10n),
+      title: l10n.workReport,
+      generatedOn: l10n.generatedOn(
+        DateFormat.yMMMMd(l10n.localeName).format(now),
+      ),
+      netLabel: l10n.estimatedNet,
+      currencySymbol: settings?.currencySymbol ?? '\$',
+      locale: l10n.localeName,
+      generatedAt: now,
+      baseFont: baseFont,
+      boldFont: boldFont,
+      jobNames: {for (final job in jobs) job.id!: job.name},
+      deductionRate: (settings?.deductionsEnabled ?? false)
+          ? settings!.deductionRate
+          : null,
+    );
+
+    final fileName =
+        'time_register_${DateFormat('yyyy-MM-dd').format(now)}.pdf';
+    final dir = await getTemporaryDirectory();
+    final file = File('${dir.path}/$fileName');
+    await file.writeAsBytes(bytes);
+
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(file.path, mimeType: 'application/pdf')],
+        fileNameOverrides: [fileName],
+        subject: l10n.appTitle,
+      ),
+    );
   }
 
   Future<void> _exportCsv(List<WorkEntry> entries) async {
@@ -129,23 +214,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
     final csv = CsvExporter.buildCsv(
       entries,
       jobNames: {for (final job in jobs) job.id!: job.name},
-      CsvLabels(
-        date: l10n.date,
-        job: l10n.job,
-        startTime: l10n.startTime,
-        endTime: l10n.endTime,
-        lunchBreak: l10n.lunchBreak,
-        lunchStart: l10n.lunchStart,
-        lunchEnd: l10n.lunchEnd,
-        totalHours: l10n.totalHours,
-        hourlyRate: l10n.hourlyRate,
-        earnings: l10n.earnings,
-        paid: l10n.paid,
-        description: l10n.descriptionNote,
-        total: l10n.total,
-        yes: l10n.yes,
-        no: l10n.no,
-      ),
+      _buildLabels(l10n),
     );
 
     final fileName =
@@ -195,10 +264,32 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
         title: Text(l10n.weeklySummary),
         centerTitle: true,
         actions: [
-          IconButton(
+          PopupMenuButton<String>(
             icon: const FaIcon(FontAwesomeIcons.fileExport),
-            tooltip: l10n.exportCsv,
-            onPressed: _exportEntries,
+            tooltip: l10n.export,
+            onSelected: _exportEntries,
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'csv',
+                child: Row(
+                  children: [
+                    const FaIcon(FontAwesomeIcons.fileCsv, size: 16),
+                    const SizedBox(width: 8),
+                    Text(l10n.exportCsv),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'pdf',
+                child: Row(
+                  children: [
+                    const FaIcon(FontAwesomeIcons.filePdf, size: 16),
+                    const SizedBox(width: 8),
+                    Text(l10n.exportPdf),
+                  ],
+                ),
+              ),
+            ],
           ),
           PopupMenuButton<String>(
             icon: const FaIcon(FontAwesomeIcons.filter),
