@@ -599,7 +599,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           ),
                         ),
                         title: Text(l10n.version),
-                        subtitle: const Text('1.0.0'),
+                        subtitle: const Text('1.1.0'),
                       ),
                       const Divider(height: 1),
                       ListTile(

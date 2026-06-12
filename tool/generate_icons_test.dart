@@ -164,6 +164,57 @@ void main() {
     _drawBackground(canvas);
     await _savePng(recorder.endRecording(), 'assets/icon/icon_background.png');
 
+    // Play Store listing icon (exactly 512x512)
+    recorder = ui.PictureRecorder();
+    canvas = Canvas(recorder);
+    canvas.scale(0.5);
+    _drawBackground(canvas);
+    _drawClockAndCoin(canvas);
+    final image512 = await recorder.endRecording().toImage(512, 512);
+    final data512 = await image512.toByteData(format: ui.ImageByteFormat.png);
+    File('assets/icon/playstore_icon_512.png')
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(data512!.buffer.asUint8List());
+
+    // Play Store feature graphic (exactly 1024x500)
+    recorder = ui.PictureRecorder();
+    canvas = Canvas(recorder);
+    canvas.drawRect(
+      const Rect.fromLTWH(0, 0, 1024, 500),
+      Paint()
+        ..shader = ui.Gradient.linear(
+          const Offset(0, 0),
+          const Offset(1024, 500),
+          [_bgTop, _bgBottom],
+        ),
+    );
+    // Clock + coin scaled into the left side, vertically centered
+    canvas.save();
+    canvas.translate(60, 70);
+    canvas.scale(0.35);
+    _drawClockAndCoin(canvas);
+    canvas.restore();
+    final titlePainter = TextPainter(
+      text: const TextSpan(
+        text: 'Time Register',
+        style: TextStyle(
+          fontFamily: 'RobotoGen',
+          fontSize: 86,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    titlePainter.paint(canvas, const Offset(470, 200));
+    final featureImage = await recorder.endRecording().toImage(1024, 500);
+    final featureData = await featureImage.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
+    File('assets/icon/playstore_feature_1024x500.png')
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(featureData!.buffer.asUint8List());
+
     expect(File('assets/icon/icon.png').existsSync(), isTrue);
   });
 }
