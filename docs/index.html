@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Register — Track your hours, know your earnings</title>
+  <meta name="description" content="Free, open source, 100% offline time tracker for hourly workers and freelancers. Track shifts, calculate earnings, export CSV.">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --text: #e2e8f0;
+        --text-muted: #94a3b8;
+        --border: #334155;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .hero {
+      background: linear-gradient(160deg, #3b82f6, #1e40af);
+      color: #fff;
+      text-align: center;
+      padding: 72px 24px 88px;
+      position: relative;
+    }
+    .lang-toggle {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 999px;
+      color: #fff;
+      padding: 6px 16px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .lang-toggle:hover { background: rgba(255,255,255,0.25); }
+    .hero img.icon {
+      width: 112px;
+      height: 112px;
+      border-radius: 26px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+      margin-bottom: 24px;
+    }
+    .hero h1 { font-size: 44px; font-weight: 900; letter-spacing: -0.5px; }
+    .hero p.tagline {
+      font-size: 20px;
+      max-width: 560px;
+      margin: 14px auto 32px;
+      opacity: 0.92;
+    }
+    .buttons { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-block;
+      padding: 13px 28px;
+      border-radius: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 16px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-light { background: #fff; color: var(--primary-dark); box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+    .btn-outline { border: 2px solid rgba(255,255,255,0.7); color: #fff; }
+    .play-soon {
+      margin-top: 22px;
+      font-size: 14px;
+      opacity: 0.85;
+      letter-spacing: 0.4px;
+    }
+    section { max-width: 1040px; margin: 0 auto; padding: 72px 24px; }
+    h2 {
+      font-size: 30px;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 40px;
+      letter-spacing: -0.3px;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 18px;
+    }
+    .feature {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+    .feature .emoji { font-size: 30px; }
+    .feature h3 { font-size: 17px; margin: 10px 0 6px; }
+    .feature p { font-size: 14.5px; color: var(--text-muted); }
+    .shots {
+      display: flex;
+      gap: 22px;
+      overflow-x: auto;
+      padding: 8px 4px 24px;
+      scroll-snap-type: x mandatory;
+    }
+    .shots img {
+      width: 240px;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      box-shadow: 0 14px 38px rgba(15, 23, 42, 0.18);
+      scroll-snap-align: center;
+      flex-shrink: 0;
+    }
+    .privacy {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+    }
+    .privacy .emoji { font-size: 40px; }
+    .privacy h2 { margin: 12px 0 10px; }
+    .privacy p { max-width: 620px; margin: 0 auto 18px; color: var(--text-muted); }
+    .privacy a { color: var(--primary); font-weight: 700; }
+    footer {
+      text-align: center;
+      padding: 36px 24px 48px;
+      color: var(--text-muted);
+      font-size: 14.5px;
+    }
+    footer a { color: var(--primary); font-weight: 700; text-decoration: none; }
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 34px; }
+      .hero p.tagline { font-size: 17px; }
+      section { padding: 52px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <button class="lang-toggle" id="langToggle" aria-label="Cambiar idioma">ES</button>
+    <img class="icon" src="assets/icon.png" alt="Time Register icon">
+    <h1>Time Register</h1>
+    <p class="tagline" data-i18n="tagline">Track your work hours, know exactly what you'll earn. Free, open source and 100% offline.</p>
+    <div class="buttons">
+      <a class="btn btn-light" href="https://github.com/davidmenendez9901/time_register" data-i18n="btnGithub">View on GitHub</a>
+      <a class="btn btn-outline" href="https://github.com/davidmenendez9901/time_register/blob/main/PRIVACY_POLICY.md" data-i18n="btnPrivacy">Privacy Policy</a>
+    </div>
+    <p class="play-soon" data-i18n="playSoon">📱 Coming soon to Google Play</p>
+  </header>
+
+  <section>
+    <h2 data-i18n="featuresTitle">Everything an hourly worker needs</h2>
+    <div class="features">
+      <div class="feature">
+        <div class="emoji">⏱️</div>
+        <h3 data-i18n="f1t">Live timer</h3>
+        <p data-i18n="f1d">Clock in and out from the home screen. The running shift survives app restarts.</p>
+      </div>
+      <div class="feature">
+        <div class="emoji">🌙</div>
+        <h3 data-i18n="f2t">Overnight shifts</h3>
+        <p data-i18n="f2d">Shifts that cross midnight are handled automatically — 22:00 to 06:00 just works.</p>
+      </div>
+      <div class="feature">
+        <div class="emoji">💼</div>
+        <h3 data-i18n="f3t">Jobs &amp; clients</h3>
+        <p data-i18n="f3d">Organize entries by job, each with its own color and hourly rate.</p>
+      </div>
+      <div class="feature">
+        <div class="emoji">📊</div>
+        <h3 data-i18n="f4t">Charts</h3>
+        <p data-i18n="f4d">Weekly and monthly hours and earnings, plus an earnings-by-job breakdown.</p>
+      </div>
+      <div class="feature">
+        <div class="emoji">💰</div>
+        <h3 data-i18n="f5t">Payment tracking</h3>
+        <p data-i18n="f5d">Mark entries as paid or unpaid and always know your outstanding balance.</p>
+      </div>
+      <div class="feature">
+        <div class="emoji">📤</div>
+        <h3 data-i18n="f6t">CSV export</h3>
+        <p data-i18n="f6d">Share a spreadsheet-ready file with your employer or client in two taps.</p>
+      </div>
+      <div class="feature">
+        <div class="emoji">💾</div>
+        <h3 data-i18n="f7t">Backup &amp; restore</h3>
+        <p data-i18n="f7d">Save everything to a file and bring it back on a new phone.</p>
+      </div>
+      <div class="feature">
+        <div class="emoji">🎨</div>
+        <h3 data-i18n="f8t">Your style</h3>
+        <p data-i18n="f8d">Light and dark themes, four color palettes, your currency symbol, English and Spanish.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 data-i18n="shotsTitle">A clean, simple interface</h2>
+    <div class="shots">
+      <img src="screenshots/home.png" alt="Home screen" loading="lazy">
+      <img src="screenshots/summary.png" alt="Weekly summary" loading="lazy">
+      <img src="screenshots/stats.png" alt="Statistics charts" loading="lazy">
+      <img src="screenshots/summary-dark.png" alt="Weekly summary in dark mode" loading="lazy">
+      <img src="screenshots/stats-dark.png" alt="Statistics in dark mode" loading="lazy">
+    </div>
+  </section>
+
+  <section>
+    <div class="privacy">
+      <div class="emoji">🔒</div>
+      <h2 data-i18n="privacyTitle">Your data never leaves your phone</h2>
+      <p data-i18n="privacyText">No account, no cloud, no ads, no analytics. The release app cannot even access the internet — everything is stored locally on your device, and you can delete it at any time.</p>
+      <a href="https://github.com/davidmenendez9901/time_register/blob/main/PRIVACY_POLICY.md" data-i18n="privacyLink">Read the full privacy policy →</a>
+    </div>
+  </section>
+
+  <footer>
+    <span data-i18n="footer">Open source under the MIT license. Built with Flutter.</span>
+    <br>
+    <a href="https://github.com/davidmenendez9901/time_register">github.com/davidmenendez9901/time_register</a>
+  </footer>
+
+  <script>
+    const i18n = {
+      en: {
+        tagline: "Track your work hours, know exactly what you'll earn. Free, open source and 100% offline.",
+        btnGithub: "View on GitHub",
+        btnPrivacy: "Privacy Policy",
+        playSoon: "📱 Coming soon to Google Play",
+        featuresTitle: "Everything an hourly worker needs",
+        f1t: "Live timer",
+        f1d: "Clock in and out from the home screen. The running shift survives app restarts.",
+        f2t: "Overnight shifts",
+        f2d: "Shifts that cross midnight are handled automatically — 22:00 to 06:00 just works.",
+        f3t: "Jobs & clients",
+        f3d: "Organize entries by job, each with its own color and hourly rate.",
+        f4t: "Charts",
+        f4d: "Weekly and monthly hours and earnings, plus an earnings-by-job breakdown.",
+        f5t: "Payment tracking",
+        f5d: "Mark entries as paid or unpaid and always know your outstanding balance.",
+        f6t: "CSV export",
+        f6d: "Share a spreadsheet-ready file with your employer or client in two taps.",
+        f7t: "Backup & restore",
+        f7d: "Save everything to a file and bring it back on a new phone.",
+        f8t: "Your style",
+        f8d: "Light and dark themes, four color palettes, your currency symbol, English and Spanish.",
+        shotsTitle: "A clean, simple interface",
+        privacyTitle: "Your data never leaves your phone",
+        privacyText: "No account, no cloud, no ads, no analytics. The release app cannot even access the internet — everything is stored locally on your device, and you can delete it at any time.",
+        privacyLink: "Read the full privacy policy →",
+        footer: "Open source under the MIT license. Built with Flutter."
+      },
+      es: {
+        tagline: "Registra tus horas de trabajo y sabe exactamente cuánto ganarás. Gratis, open source y 100% offline.",
+        btnGithub: "Ver en GitHub",
+        btnPrivacy: "Política de Privacidad",
+        playSoon: "📱 Muy pronto en Google Play",
+        featuresTitle: "Todo lo que necesita quien cobra por horas",
+        f1t: "Cronómetro en vivo",
+        f1d: "Ficha entrada y salida desde el inicio. El turno en curso sobrevive a reinicios de la app.",
+        f2t: "Turnos nocturnos",
+        f2d: "Los turnos que cruzan medianoche se manejan solos — de 22:00 a 06:00 simplemente funciona.",
+        f3t: "Trabajos y clientes",
+        f3d: "Organiza tus entradas por trabajo, cada uno con su color y su tarifa por hora.",
+        f4t: "Gráficas",
+        f4d: "Horas y ganancias por semana y por mes, más el desglose de ganancias por trabajo.",
+        f5t: "Control de pagos",
+        f5d: "Marca entradas como pagadas o pendientes y sabe siempre cuánto te deben.",
+        f6t: "Exportar CSV",
+        f6d: "Comparte un archivo listo para hoja de cálculo con tu empleador en dos toques.",
+        f7t: "Respaldo y restauración",
+        f7d: "Guarda todo en un archivo y recupéralo en un teléfono nuevo.",
+        f8t: "A tu estilo",
+        f8d: "Tema claro y oscuro, cuatro paletas de color, tu símbolo de moneda, español e inglés.",
+        shotsTitle: "Una interfaz limpia y sencilla",
+        privacyTitle: "Tus datos nunca salen de tu teléfono",
+        privacyText: "Sin cuenta, sin nube, sin publicidad, sin analíticas. La app publicada ni siquiera puede acceder a internet: todo se guarda localmente en tu dispositivo y puedes borrarlo cuando quieras.",
+        privacyLink: "Lee la política de privacidad completa →",
+        footer: "Open source bajo licencia MIT. Hecha con Flutter."
+      }
+    };
+
+    let lang = (navigator.language || "en").startsWith("es") ? "es" : "en";
+    const toggle = document.getElementById("langToggle");
+
+    function applyLang() {
+      document.documentElement.lang = lang;
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        el.textContent = i18n[lang][el.dataset.i18n];
+      });
+      toggle.textContent = lang === "en" ? "ES" : "EN";
+    }
+
+    toggle.addEventListener("click", () => {
+      lang = lang === "en" ? "es" : "en";
+      applyLang();
+    });
+
+    applyLang();
+  </script>
+</body>
+</html>

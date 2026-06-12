@@ -42,13 +42,19 @@ All data stays on your device — no account, no cloud, no tracking.
 - **Languages**: English and Spanish
 - **Persistent Settings**: All configurations saved locally
 
+## 🌐 Website
+
+Check out the landing page: **<https://davidmenendez9901.github.io/time_register/>**
+
 ## 📱 Screenshots
 
-<!-- TODO: add screenshots to docs/screenshots/ and reference them here, e.g.
-| Home | Summary | Settings |
-|------|---------|----------|
-| ![Home](docs/screenshots/home.png) | ![Summary](docs/screenshots/summary.png) | ![Settings](docs/screenshots/settings.png) |
--->
+| Home | Summary | Statistics |
+|------|---------|------------|
+| ![Home](docs/screenshots/home.png) | ![Summary](docs/screenshots/summary.png) | ![Statistics](docs/screenshots/stats.png) |
+
+| Summary (dark) | Statistics (dark) |
+|----------------|-------------------|
+| ![Summary dark](docs/screenshots/summary-dark.png) | ![Statistics dark](docs/screenshots/stats-dark.png) |
 
 ## 🏗️ Architecture
 
