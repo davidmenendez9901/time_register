@@ -1,13 +1,23 @@
+import 'dart:io';
+
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:time_register/l10n/app_localizations.dart';
+import '../../core/database/database_helper.dart';
 import '../../core/entities/settings.dart' as app_settings;
 import '../../core/theme/app_palette.dart';
+import '../../data/services/backup_service.dart';
 import '../blocs/settings/settings_bloc.dart';
 import '../blocs/settings/settings_event.dart';
 import '../blocs/settings/settings_state.dart';
+import '../blocs/time_tracking/time_tracking_bloc.dart';
+import '../blocs/time_tracking/time_tracking_event.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -336,6 +346,59 @@ class _SettingsPageState extends State<SettingsPage> {
                             color: Theme.of(context).textTheme.bodySmall?.color,
                           ),
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Data Section
+                Text(
+                  l10n.dataSection,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Card(
+                  elevation: 2,
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.teal.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const FaIcon(
+                            FontAwesomeIcons.fileExport,
+                            color: Colors.teal,
+                          ),
+                        ),
+                        title: Text(l10n.backupData),
+                        subtitle: Text(l10n.backupSubtitle),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () => _backupData(l10n),
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const FaIcon(
+                            FontAwesomeIcons.fileImport,
+                            color: Colors.orange,
+                          ),
+                        ),
+                        title: Text(l10n.restoreData),
+                        subtitle: Text(l10n.restoreSubtitle),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () => _restoreData(l10n),
                       ),
                     ],
                   ),
@@ -691,6 +754,87 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _backupData(AppLocalizations l10n) async {
+    final json = await BackupService(DatabaseHelper()).createBackupJson();
+    final fileName =
+        'time_register_backup_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.json';
+    final dir = await getTemporaryDirectory();
+    final file = File('${dir.path}/$fileName');
+    await file.writeAsString(json);
+
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(file.path, mimeType: 'application/json')],
+        fileNameOverrides: [fileName],
+        subject: l10n.appTitle,
+      ),
+    );
+  }
+
+  Future<void> _restoreData(AppLocalizations l10n) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Row(
+          children: [
+            const FaIcon(
+              FontAwesomeIcons.triangleExclamation,
+              color: Colors.orange,
+            ),
+            const SizedBox(width: 8),
+            Expanded(child: Text(l10n.restoreConfirmTitle)),
+          ],
+        ),
+        content: Text(l10n.restoreConfirmMsg),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l10n.restore),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    const typeGroup = XTypeGroup(
+      label: 'JSON',
+      extensions: ['json'],
+      mimeTypes: ['application/json', 'text/plain'],
+    );
+    final file = await openFile(acceptedTypeGroups: [typeGroup]);
+    if (file == null || !mounted) return;
+
+    try {
+      final content = await file.readAsString();
+      await BackupService(DatabaseHelper()).restoreFromJson(content);
+      if (!mounted) return;
+      context.read<SettingsBloc>().add(LoadSettings());
+      context.read<TimeTrackingBloc>().add(LoadWorkEntries());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.restoreSuccess),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.restoreInvalidFile),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _showPrivacyPolicyDialog(AppLocalizations l10n) {

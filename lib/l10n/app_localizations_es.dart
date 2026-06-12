@@ -335,6 +335,40 @@ class AppLocalizationsEs extends AppLocalizations {
       'Este símbolo se muestra junto a todos los montos en la app.';
 
   @override
+  String get dataSection => 'Datos';
+
+  @override
+  String get backupData => 'Respaldar Datos';
+
+  @override
+  String get backupSubtitle =>
+      'Guarda todas tus entradas y ajustes en un archivo';
+
+  @override
+  String get restoreData => 'Restaurar Datos';
+
+  @override
+  String get restoreSubtitle =>
+      'Carga entradas y ajustes desde un archivo de respaldo';
+
+  @override
+  String get restoreConfirmTitle => '¿Restaurar desde respaldo?';
+
+  @override
+  String get restoreConfirmMsg =>
+      'Esto reemplazará TODAS las entradas y ajustes actuales con el contenido del respaldo. No se puede deshacer.';
+
+  @override
+  String get restore => 'Restaurar';
+
+  @override
+  String get restoreSuccess => 'Respaldo restaurado correctamente';
+
+  @override
+  String get restoreInvalidFile =>
+      'El archivo seleccionado no es un respaldo válido de Time Register';
+
+  @override
   String get exportCsv => 'Exportar CSV';
 
   @override

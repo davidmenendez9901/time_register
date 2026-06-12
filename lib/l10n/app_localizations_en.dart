@@ -331,6 +331,38 @@ class AppLocalizationsEn extends AppLocalizations {
       'This symbol is shown next to all amounts in the app.';
 
   @override
+  String get dataSection => 'Data';
+
+  @override
+  String get backupData => 'Back Up Data';
+
+  @override
+  String get backupSubtitle => 'Save all your entries and settings to a file';
+
+  @override
+  String get restoreData => 'Restore Data';
+
+  @override
+  String get restoreSubtitle => 'Load entries and settings from a backup file';
+
+  @override
+  String get restoreConfirmTitle => 'Restore from backup?';
+
+  @override
+  String get restoreConfirmMsg =>
+      'This will replace ALL current entries and settings with the backup contents. This cannot be undone.';
+
+  @override
+  String get restore => 'Restore';
+
+  @override
+  String get restoreSuccess => 'Backup restored successfully';
+
+  @override
+  String get restoreInvalidFile =>
+      'The selected file is not a valid Time Register backup';
+
+  @override
   String get exportCsv => 'Export CSV';
 
   @override

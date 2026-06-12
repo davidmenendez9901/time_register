@@ -716,6 +716,66 @@ abstract class AppLocalizations {
   /// **'This symbol is shown next to all amounts in the app.'**
   String get currencySubtitle;
 
+  /// No description provided for @dataSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get dataSection;
+
+  /// No description provided for @backupData.
+  ///
+  /// In en, this message translates to:
+  /// **'Back Up Data'**
+  String get backupData;
+
+  /// No description provided for @backupSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save all your entries and settings to a file'**
+  String get backupSubtitle;
+
+  /// No description provided for @restoreData.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Data'**
+  String get restoreData;
+
+  /// No description provided for @restoreSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Load entries and settings from a backup file'**
+  String get restoreSubtitle;
+
+  /// No description provided for @restoreConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from backup?'**
+  String get restoreConfirmTitle;
+
+  /// No description provided for @restoreConfirmMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'This will replace ALL current entries and settings with the backup contents. This cannot be undone.'**
+  String get restoreConfirmMsg;
+
+  /// No description provided for @restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get restore;
+
+  /// No description provided for @restoreSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup restored successfully'**
+  String get restoreSuccess;
+
+  /// No description provided for @restoreInvalidFile.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected file is not a valid Time Register backup'**
+  String get restoreInvalidFile;
+
   /// No description provided for @exportCsv.
   ///
   /// In en, this message translates to:

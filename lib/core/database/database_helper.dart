@@ -218,4 +218,21 @@ class DatabaseHelper {
       whereArgs: [id],
     );
   }
+
+  /// Atomically replaces all work entries and settings (used by restore).
+  Future<void> restoreAll({
+    required Map<String, dynamic> settings,
+    required List<Map<String, dynamic>> entries,
+  }) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete('work_entries');
+      for (final entry in entries) {
+        await txn.insert('work_entries', entry);
+      }
+      if (settings.isNotEmpty) {
+        await txn.update('settings', settings, where: 'id = ?', whereArgs: [1]);
+      }
+    });
+  }
 }
