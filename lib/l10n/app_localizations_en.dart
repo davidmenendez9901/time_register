@@ -331,6 +331,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'This symbol is shown next to all amounts in the app.';
 
   @override
+  String get exportCsv => 'Export CSV';
+
+  @override
+  String get nothingToExport => 'No entries to export';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
   String get privacyPolicySubtitle => 'How your data is handled';
 
   @override

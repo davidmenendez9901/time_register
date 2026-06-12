@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../core/entities/work_entry.dart';
+import '../../core/utils/csv_exporter.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/time_tracking/time_tracking_state.dart';
@@ -100,6 +105,58 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
     );
   }
 
+  void _exportEntries() {
+    final state = context.read<TimeTrackingBloc>().state;
+    final entries = state is TimeTrackingLoaded
+        ? _filterEntries(state.entries)
+        : <WorkEntry>[];
+    _exportCsv(entries);
+  }
+
+  Future<void> _exportCsv(List<WorkEntry> entries) async {
+    final l10n = AppLocalizations.of(context)!;
+    if (entries.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.nothingToExport)));
+      return;
+    }
+
+    final csv = CsvExporter.buildCsv(
+      entries,
+      CsvLabels(
+        date: l10n.date,
+        startTime: l10n.startTime,
+        endTime: l10n.endTime,
+        lunchBreak: l10n.lunchBreak,
+        lunchStart: l10n.lunchStart,
+        lunchEnd: l10n.lunchEnd,
+        totalHours: l10n.totalHours,
+        hourlyRate: l10n.hourlyRate,
+        earnings: l10n.earnings,
+        paid: l10n.paid,
+        description: l10n.descriptionNote,
+        total: l10n.total,
+        yes: l10n.yes,
+        no: l10n.no,
+      ),
+    );
+
+    final fileName =
+        'time_register_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.csv';
+    final dir = await getTemporaryDirectory();
+    final file = File('${dir.path}/$fileName');
+    await file.writeAsString(csv);
+
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(file.path, mimeType: 'text/csv')],
+        fileNameOverrides: [fileName],
+        subject: l10n.appTitle,
+      ),
+    );
+  }
+
   void _deleteEntry(WorkEntry entry) {
     final l10n = AppLocalizations.of(context)!;
     showDialog(
@@ -132,6 +189,11 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
         title: Text(l10n.weeklySummary),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const FaIcon(FontAwesomeIcons.fileExport),
+            tooltip: l10n.exportCsv,
+            onPressed: _exportEntries,
+          ),
           PopupMenuButton<String>(
             icon: const FaIcon(FontAwesomeIcons.filter),
             onSelected: (value) {

@@ -716,6 +716,36 @@ abstract class AppLocalizations {
   /// **'This symbol is shown next to all amounts in the app.'**
   String get currencySubtitle;
 
+  /// No description provided for @exportCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get exportCsv;
+
+  /// No description provided for @nothingToExport.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries to export'**
+  String get nothingToExport;
+
+  /// No description provided for @total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get total;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
   /// No description provided for @privacyPolicySubtitle.
   ///
   /// In en, this message translates to:
