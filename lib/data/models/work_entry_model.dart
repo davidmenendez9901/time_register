@@ -36,26 +36,40 @@ class WorkEntryModel extends WorkEntry {
   }
 
   factory WorkEntryModel.fromMap(Map<String, dynamic> map) {
+    final startTime = DateTime.parse('${map['date']} ${map['start_time']}');
+    var endTime = DateTime.parse('${map['date']} ${map['end_time']}');
+    // Times are stored as HH:mm; an end time earlier than the start time
+    // means the shift crosses midnight and ends the next day.
+    if (endTime.isBefore(startTime)) {
+      endTime = endTime.add(const Duration(days: 1));
+    }
+
     DateTime? lunchStart;
     DateTime? lunchEnd;
 
     if (map['lunch_start_time'] != null) {
       lunchStart = DateTime.parse('${map['date']} ${map['lunch_start_time']}');
+      if (lunchStart.isBefore(startTime)) {
+        lunchStart = lunchStart.add(const Duration(days: 1));
+      }
     }
 
     if (map['lunch_end_time'] != null) {
       lunchEnd = DateTime.parse('${map['date']} ${map['lunch_end_time']}');
+      if (lunchStart != null && lunchEnd.isBefore(lunchStart)) {
+        lunchEnd = lunchEnd.add(const Duration(days: 1));
+      }
     }
 
     return WorkEntryModel(
       id: map['id'] as int?,
       date: DateTime.parse(map['date'] as String),
-      startTime: DateTime.parse('${map['date']} ${map['start_time']}'),
-      endTime: DateTime.parse('${map['date']} ${map['end_time']}'),
+      startTime: startTime,
+      endTime: endTime,
       lunchTaken: (map['lunch_taken'] as int) == 1,
-      totalHours: map['total_hours'] as double,
-      hourlyRate: map['hourly_rate'] as double,
-      earnings: map['earnings'] as double,
+      totalHours: (map['total_hours'] as num).toDouble(),
+      hourlyRate: (map['hourly_rate'] as num).toDouble(),
+      earnings: (map['earnings'] as num).toDouble(),
       isPaid: (map['is_paid'] as int) == 1,
       lunchStartTime: lunchStart,
       lunchEndTime: lunchEnd,

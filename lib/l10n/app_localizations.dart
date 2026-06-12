@@ -619,6 +619,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change your hourly rate in Settings. New entries will use the updated rate.'**
   String get helpUpdateRateDesc;
+
+  /// No description provided for @lunchStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch Start'**
+  String get lunchStart;
+
+  /// No description provided for @lunchEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch End'**
+  String get lunchEnd;
+
+  /// No description provided for @descriptionNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Description / Note'**
+  String get descriptionNote;
+
+  /// No description provided for @descriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add details about this work entry...'**
+  String get descriptionHint;
+
+  /// No description provided for @lunchWithinShift.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch break must be within the work shift'**
+  String get lunchWithinShift;
+
+  /// No description provided for @endsNextDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends the next day'**
+  String get endsNextDay;
+
+  /// No description provided for @paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get paid;
+
+  /// No description provided for @unpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpaid'**
+  String get unpaid;
+
+  /// No description provided for @markedAsPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as paid'**
+  String get markedAsPaid;
+
+  /// No description provided for @markedAsUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as unpaid'**
+  String get markedAsUnpaid;
+
+  /// No description provided for @currency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get currency;
+
+  /// No description provided for @editCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Currency Symbol'**
+  String get editCurrency;
+
+  /// No description provided for @enterCurrencySymbol.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the symbol shown next to amounts'**
+  String get enterCurrencySymbol;
+
+  /// No description provided for @enterSymbolValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a symbol'**
+  String get enterSymbolValidation;
+
+  /// No description provided for @currencyUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency symbol updated'**
+  String get currencyUpdated;
+
+  /// No description provided for @currencySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This symbol is shown next to all amounts in the app.'**
+  String get currencySubtitle;
 }
 
 class _AppLocalizationsDelegate

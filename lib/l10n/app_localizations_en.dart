@@ -280,4 +280,53 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get helpUpdateRateDesc =>
       'Change your hourly rate in Settings. New entries will use the updated rate.';
+
+  @override
+  String get lunchStart => 'Lunch Start';
+
+  @override
+  String get lunchEnd => 'Lunch End';
+
+  @override
+  String get descriptionNote => 'Description / Note';
+
+  @override
+  String get descriptionHint => 'Add details about this work entry...';
+
+  @override
+  String get lunchWithinShift => 'Lunch break must be within the work shift';
+
+  @override
+  String get endsNextDay => 'Ends the next day';
+
+  @override
+  String get paid => 'Paid';
+
+  @override
+  String get unpaid => 'Unpaid';
+
+  @override
+  String get markedAsPaid => 'Marked as paid';
+
+  @override
+  String get markedAsUnpaid => 'Marked as unpaid';
+
+  @override
+  String get currency => 'Currency';
+
+  @override
+  String get editCurrency => 'Edit Currency Symbol';
+
+  @override
+  String get enterCurrencySymbol => 'Enter the symbol shown next to amounts';
+
+  @override
+  String get enterSymbolValidation => 'Please enter a symbol';
+
+  @override
+  String get currencyUpdated => 'Currency symbol updated';
+
+  @override
+  String get currencySubtitle =>
+      'This symbol is shown next to all amounts in the app.';
 }

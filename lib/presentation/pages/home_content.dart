@@ -8,6 +8,7 @@ import '../../core/entities/work_entry.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/time_tracking/time_tracking_state.dart';
+import '../utils/currency.dart';
 import 'work_entry_form_page.dart';
 
 class HomeContent extends StatefulWidget {
@@ -72,12 +73,11 @@ class _HomeContentState extends State<HomeContent> {
     dynamic entry,
     AppLocalizations l10n,
   ) {
-    context.read<TimeTrackingBloc>().add(
-      MarkEntryAsPaid(entry.id!, !entry.isPaid),
-    );
+    final isPaid = !entry.isPaid;
+    context.read<TimeTrackingBloc>().add(MarkEntryAsPaid(entry.id!, isPaid));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(entry.isPaid ? l10n.markAsUnpaid : l10n.markAsPaid),
+        content: Text(isPaid ? l10n.markedAsPaid : l10n.markedAsUnpaid),
         duration: const Duration(seconds: 1),
       ),
     );
@@ -88,6 +88,7 @@ class _HomeContentState extends State<HomeContent> {
     WorkEntry entry,
     AppLocalizations l10n,
   ) {
+    final symbol = currencySymbolOf(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: OpenContainer(
@@ -149,7 +150,7 @@ class _HomeContentState extends State<HomeContent> {
                                   ),
                                 ),
                                 Text(
-                                  '\$${entry.earnings.toStringAsFixed(2)}',
+                                  '$symbol${entry.earnings.toStringAsFixed(2)}',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -238,7 +239,7 @@ class _HomeContentState extends State<HomeContent> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            '\$${entry.hourlyRate.toStringAsFixed(2)}/hr',
+                            '$symbol${entry.hourlyRate.toStringAsFixed(2)}/hr',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey.shade600,
@@ -279,7 +280,7 @@ class _HomeContentState extends State<HomeContent> {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                entry.isPaid ? 'Paid' : 'Unpaid',
+                                entry.isPaid ? l10n.paid : l10n.unpaid,
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -316,7 +317,7 @@ class _HomeContentState extends State<HomeContent> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(
+            icon: FaIcon(
               _selectedDate != null
                   ? FontAwesomeIcons.calendarCheck
                   : FontAwesomeIcons.calendar,
@@ -423,7 +424,10 @@ class _HomeContentState extends State<HomeContent> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              DateFormat('EEEE, MMM d').format(date),
+                              DateFormat(
+                                'EEEE, MMM d',
+                                l10n.localeName,
+                              ).format(date),
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -431,7 +435,7 @@ class _HomeContentState extends State<HomeContent> {
                               ),
                             ),
                             Text(
-                              '${dailyHours.toStringAsFixed(1)}h • \$${dailyEarnings.toStringAsFixed(2)}',
+                              '${dailyHours.toStringAsFixed(1)}h • ${currencySymbolOf(context)}${dailyEarnings.toStringAsFixed(2)}',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,

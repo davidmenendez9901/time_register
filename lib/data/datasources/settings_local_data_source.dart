@@ -7,6 +7,7 @@ abstract class SettingsLocalDataSource {
   Future<void> updateHourlyRate(double rate);
   Future<void> updateThemeMode(ThemeMode themeMode);
   Future<void> updateAppPalette(AppPalette palette);
+  Future<void> updateCurrencySymbol(String symbol);
 }
 
 class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
@@ -33,5 +34,10 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   @override
   Future<void> updateAppPalette(AppPalette palette) async {
     await databaseHelper.updateAppPalette(palette.name);
+  }
+
+  @override
+  Future<void> updateCurrencySymbol(String symbol) async {
+    await databaseHelper.updateCurrencySymbol(symbol);
   }
 }

@@ -9,6 +9,7 @@ import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/settings/settings_bloc.dart';
 import '../blocs/settings/settings_event.dart';
 import '../blocs/settings/settings_state.dart';
+import '../utils/currency.dart';
 
 import 'package:time_register/l10n/app_localizations.dart';
 
@@ -173,7 +174,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
         _startTime.minute,
       );
 
-      final endDateTime = DateTime(
+      var endDateTime = DateTime(
         _selectedDate.year,
         _selectedDate.month,
         _selectedDate.day,
@@ -181,9 +182,13 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
         _endTime.minute,
       );
 
-      // Validate that end time is after start time
-      if (endDateTime.isBefore(startDateTime) ||
-          endDateTime.isAtSameMomentAs(startDateTime)) {
+      // An end time earlier than the start time means the shift crosses
+      // midnight and ends the next day (e.g. 22:00 - 06:00).
+      if (endDateTime.isBefore(startDateTime)) {
+        endDateTime = endDateTime.add(const Duration(days: 1));
+      }
+
+      if (endDateTime.isAtSameMomentAs(startDateTime)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.endTimeAfterStart),
@@ -213,12 +218,20 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
           _lunchEndTime.minute,
         );
 
-        // Validate lunch times
-        if (lunchEndDateTime.isBefore(lunchStartDateTime) ||
-            lunchEndDateTime.isAtSameMomentAs(lunchStartDateTime)) {
+        // Same midnight handling for lunch on overnight shifts
+        if (lunchStartDateTime.isBefore(startDateTime)) {
+          lunchStartDateTime = lunchStartDateTime.add(const Duration(days: 1));
+        }
+        if (lunchEndDateTime.isBefore(lunchStartDateTime)) {
+          lunchEndDateTime = lunchEndDateTime.add(const Duration(days: 1));
+        }
+
+        // Validate that lunch falls inside the shift
+        if (lunchEndDateTime.isAtSameMomentAs(lunchStartDateTime) ||
+            lunchEndDateTime.isAfter(endDateTime)) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Lunch end time must be after lunch start time'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.lunchWithinShift),
               backgroundColor: Colors.red,
             ),
           );
@@ -319,6 +332,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final symbol = currencySymbolOf(context);
     final appBarTitle = _isEditMode ? l10n.editWorkEntry : l10n.addWorkEntry;
     final saveButtonText = _isEditMode ? l10n.saveChanges : l10n.saveEntry;
 
@@ -364,7 +378,10 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                     ),
                     title: Text(l10n.date),
                     subtitle: Text(
-                      DateFormat('EEEE, MMMM d, y').format(_selectedDate),
+                      DateFormat(
+                        'EEEE, MMMM d, y',
+                        l10n.localeName,
+                      ).format(_selectedDate),
                     ),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () => _selectDate(context),
@@ -397,7 +414,11 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                       color: Colors.red,
                     ),
                     title: Text(l10n.endTime),
-                    subtitle: Text(_endTime.format(context)),
+                    subtitle: Text(
+                      _isOvernight
+                          ? '${_endTime.format(context)} • ${l10n.endsNextDay}'
+                          : _endTime.format(context),
+                    ),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () => _selectEndTime(context),
                   ),
@@ -433,7 +454,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                           leading: const SizedBox(
                             width: 24,
                           ), // Spacer for alignment
-                          title: const Text('Lunch Start'),
+                          title: Text(l10n.lunchStart),
                           trailing: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
@@ -460,7 +481,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                           leading: const SizedBox(
                             width: 24,
                           ), // Spacer for alignment
-                          title: const Text('Lunch End'),
+                          title: Text(l10n.lunchEnd),
                           trailing: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
@@ -494,17 +515,17 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            FaIcon(
+                            const FaIcon(
                               FontAwesomeIcons.noteSticky,
                               color: Colors.purple,
                               size: 20,
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Text(
-                              'Description / Note',
-                              style: TextStyle(
+                              l10n.descriptionNote,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.normal,
                               ),
@@ -515,10 +536,10 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                         TextFormField(
                           controller: _descriptionController,
                           maxLines: 3,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'Add details about this work entry...',
-                            contentPadding: EdgeInsets.all(12),
+                          decoration: InputDecoration(
+                            border: const OutlineInputBorder(),
+                            hintText: l10n.descriptionHint,
+                            contentPadding: const EdgeInsets.all(12),
                           ),
                         ),
                       ],
@@ -589,7 +610,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                             ),
                           ],
                           decoration: InputDecoration(
-                            prefixText: '\$ ',
+                            prefixText: '$symbol ',
                             border: const OutlineInputBorder(),
                             helperText: _isEditMode
                                 ? l10n.rateForEntry
@@ -645,7 +666,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                         const Divider(),
                         _buildSummaryRow(
                           l10n.hourlyRate,
-                          '\$${_hourlyRate.toStringAsFixed(2)}',
+                          '$symbol${_hourlyRate.toStringAsFixed(2)}',
                         ),
                         _buildSummaryRow(
                           l10n.totalHours,
@@ -653,7 +674,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                         ),
                         _buildSummaryRow(
                           l10n.estimatedEarnings,
-                          '\$${_calculateDisplayEarnings().toStringAsFixed(2)}',
+                          '$symbol${_calculateDisplayEarnings().toStringAsFixed(2)}',
                           isTotal: true,
                         ),
                       ],
@@ -724,6 +745,13 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
     return WorkEntry.calculateEarnings(hours, _hourlyRate);
   }
 
+  // True when the end time falls on the next day (shift crosses midnight)
+  bool get _isOvernight {
+    final start = _startTime.hour * 60 + _startTime.minute;
+    final end = _endTime.hour * 60 + _endTime.minute;
+    return end < start;
+  }
+
   double _calculateDisplayHours() {
     final startDateTime = DateTime(
       _selectedDate.year,
@@ -733,7 +761,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
       _startTime.minute,
     );
 
-    final endDateTime = DateTime(
+    var endDateTime = DateTime(
       _selectedDate.year,
       _selectedDate.month,
       _selectedDate.day,
@@ -741,8 +769,11 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
       _endTime.minute,
     );
 
-    if (endDateTime.isBefore(startDateTime) ||
-        endDateTime.isAtSameMomentAs(startDateTime)) {
+    if (endDateTime.isBefore(startDateTime)) {
+      endDateTime = endDateTime.add(const Duration(days: 1));
+    }
+
+    if (endDateTime.isAtSameMomentAs(startDateTime)) {
       return 0.0;
     }
 
@@ -765,6 +796,13 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
         _lunchEndTime.hour,
         _lunchEndTime.minute,
       );
+
+      if (lunchStart.isBefore(startDateTime)) {
+        lunchStart = lunchStart.add(const Duration(days: 1));
+      }
+      if (lunchEnd.isBefore(lunchStart)) {
+        lunchEnd = lunchEnd.add(const Duration(days: 1));
+      }
     }
 
     return WorkEntry.calculateTotalHours(

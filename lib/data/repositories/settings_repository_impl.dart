@@ -27,4 +27,9 @@ class SettingsRepositoryImpl implements SettingsRepository {
   Future<void> updateAppPalette(AppPalette palette) async {
     await localDataSource.updateAppPalette(palette);
   }
+
+  @override
+  Future<void> updateCurrencySymbol(String symbol) async {
+    await localDataSource.updateCurrencySymbol(symbol);
+  }
 }

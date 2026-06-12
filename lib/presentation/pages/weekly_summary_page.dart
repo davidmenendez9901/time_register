@@ -8,6 +8,7 @@ import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/time_tracking/time_tracking_state.dart';
 import 'package:time_register/l10n/app_localizations.dart';
 import 'package:animations/animations.dart';
+import '../utils/currency.dart';
 import 'work_entry_form_page.dart';
 
 class WeeklySummaryPage extends StatefulWidget {
@@ -51,9 +52,10 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
     final sortedEntries = List<WorkEntry>.from(entries)
       ..sort((a, b) => b.date.compareTo(a.date));
 
+    final localeName = AppLocalizations.of(context)!.localeName;
     for (var entry in sortedEntries) {
       final weekStart = _getWeekStart(entry.date);
-      final weekKey = DateFormat('MMM d, y').format(weekStart);
+      final weekKey = DateFormat('MMM d, y', localeName).format(weekStart);
 
       if (!grouped.containsKey(weekKey)) {
         grouped[weekKey] = [];
@@ -85,18 +87,14 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
   }
 
   void _togglePaidStatus(WorkEntry entry) {
-    // Need context for localization here, but method doesn't take context explicitly except via closure capture or direct usage if in State.
-    // However, ScaffoldMessenger needs context anyway.
     final l10n = AppLocalizations.of(context)!;
-    final updatedEntry = entry.copyWith(isPaid: !entry.isPaid);
-    context.read<TimeTrackingBloc>().add(UpdateWorkEntry(updatedEntry));
+    final isPaid = !entry.isPaid;
+    context.read<TimeTrackingBloc>().add(MarkEntryAsPaid(entry.id!, isPaid));
 
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          updatedEntry.isPaid ? l10n.markAsPaid : l10n.markAsUnpaid,
-        ),
+        content: Text(isPaid ? l10n.markedAsPaid : l10n.markedAsUnpaid),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -216,15 +214,14 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
             final totalUnpaidAmount = _calculateTotalEarnings(unpaidEntries);
 
             // 2. Current Week
-            final currentWeekStart = _getWeekStart(now);
+            final today = DateTime(now.year, now.month, now.day);
+            final currentWeekStart = _getWeekStart(today);
             // End of week is start + 7 days (exclusive)
             final currentWeekEnd = currentWeekStart.add(
               const Duration(days: 7),
             );
             final currentWeekEntries = allEntries.where((e) {
-              return e.date.isAfter(
-                    currentWeekStart.subtract(const Duration(seconds: 1)),
-                  ) &&
+              return !e.date.isBefore(currentWeekStart) &&
                   e.date.isBefore(currentWeekEnd);
             }).toList();
             final weekHours = _calculateTotalHours(currentWeekEntries);
@@ -297,7 +294,10 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                       _buildSummaryCard(
                         context,
                         title: l10n.thisMonth,
-                        subtitle: DateFormat('MMMM').format(now),
+                        subtitle: DateFormat(
+                          'MMMM',
+                          l10n.localeName,
+                        ).format(now),
                         hours: monthHours,
                         amount: monthEarnings,
                         icon: FontAwesomeIcons.calendar,
@@ -374,7 +374,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
-                          '${weekTotalHours.toStringAsFixed(1)}h • \$${weekTotalEarnings.toStringAsFixed(2)}',
+                          '${weekTotalHours.toStringAsFixed(1)}h • ${currencySymbolOf(context)}${weekTotalEarnings.toStringAsFixed(2)}',
                           style: TextStyle(color: Colors.grey.shade600),
                         ),
                         children: weekEntries.map((entry) {
@@ -405,7 +405,10 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                                   size: 18,
                                 ),
                                 title: Text(
-                                  DateFormat('EEEE, MMM d').format(entry.date),
+                                  DateFormat(
+                                    'EEEE, MMM d',
+                                    l10n.localeName,
+                                  ).format(entry.date),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -428,7 +431,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                                           CrossAxisAlignment.end,
                                       children: [
                                         Text(
-                                          '\$${entry.earnings.toStringAsFixed(2)}',
+                                          '${currencySymbolOf(context)}${entry.earnings.toStringAsFixed(2)}',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -585,7 +588,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
     required String subtitle,
     required double hours,
     required double amount,
-    required IconData icon,
+    required FaIconData icon,
     required Color color,
     required Color backgroundColor,
   }) {
@@ -641,7 +644,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                     color: color.withValues(alpha: 0.3),
                   ),
                   _buildStatItem(
-                    '\$${amount.toStringAsFixed(2)}',
+                    '${currencySymbolOf(context)}${amount.toStringAsFixed(2)}',
                     l10n.earnings,
                     color, // Colors.black87,
                     isCurrency: true,

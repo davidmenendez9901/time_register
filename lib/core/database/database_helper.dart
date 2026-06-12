@@ -22,7 +22,7 @@ class DatabaseHelper {
     String path = join(documentsDirectory.path, 'time_register.db');
     return await openDatabase(
       path,
-      version: 4,
+      version: 5,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -35,7 +35,8 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         hourly_rate REAL NOT NULL DEFAULT 0.0,
         theme_mode TEXT NOT NULL DEFAULT 'system',
-        app_palette TEXT NOT NULL DEFAULT 'Blue'
+        app_palette TEXT NOT NULL DEFAULT 'Blue',
+        currency_symbol TEXT NOT NULL DEFAULT '\$'
       )
     ''');
 
@@ -63,6 +64,7 @@ class DatabaseHelper {
       'hourly_rate': 14.0,
       'theme_mode': 'system',
       'app_palette': 'Blue',
+      'currency_symbol': '\$',
     });
   }
 
@@ -89,6 +91,12 @@ class DatabaseHelper {
       );
       await db.execute('ALTER TABLE work_entries ADD COLUMN description TEXT');
     }
+    if (oldVersion < 5) {
+      // Add currency_symbol column to settings table
+      await db.execute(
+        "ALTER TABLE settings ADD COLUMN currency_symbol TEXT NOT NULL DEFAULT '\$'",
+      );
+    }
   }
 
   // Settings operations
@@ -98,12 +106,17 @@ class DatabaseHelper {
     if (result.isNotEmpty) {
       return result.first;
     }
-    return {'hourly_rate': 14.0, 'theme_mode': 'system', 'app_palette': 'Blue'};
+    return {
+      'hourly_rate': 14.0,
+      'theme_mode': 'system',
+      'app_palette': 'Blue',
+      'currency_symbol': '\$',
+    };
   }
 
   Future<double> getHourlyRate() async {
     final settings = await getSettings();
-    return settings['hourly_rate'] as double;
+    return (settings['hourly_rate'] as num).toDouble();
   }
 
   Future<void> updateHourlyRate(double rate) async {
@@ -131,6 +144,16 @@ class DatabaseHelper {
     await db.update(
       'settings',
       {'app_palette': paletteName},
+      where: 'id = ?',
+      whereArgs: [1],
+    );
+  }
+
+  Future<void> updateCurrencySymbol(String symbol) async {
+    final db = await database;
+    await db.update(
+      'settings',
+      {'currency_symbol': symbol},
       where: 'id = ?',
       whereArgs: [1],
     );

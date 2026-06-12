@@ -18,6 +18,7 @@ import 'core/usecases/update_hourly_rate.dart' as hourly_rate_usecase;
 import 'core/usecases/update_theme_mode.dart' as theme_mode_usecase;
 import 'core/usecases/mark_entry_as_paid.dart';
 import 'core/usecases/update_app_palette.dart' as palette_usecase;
+import 'core/usecases/update_currency_symbol.dart' as currency_usecase;
 import 'core/theme/app_palette.dart';
 import 'presentation/blocs/time_tracking/time_tracking_bloc.dart';
 import 'presentation/blocs/settings/settings_bloc.dart';
@@ -53,6 +54,9 @@ void main() async {
     settingsRepository,
   );
   final updateAppPalette = palette_usecase.UpdateAppPalette(settingsRepository);
+  final updateCurrencySymbol = currency_usecase.UpdateCurrencySymbol(
+    settingsRepository,
+  );
 
   runApp(
     MyApp(
@@ -65,6 +69,7 @@ void main() async {
       updateHourlyRate: updateHourlyRate,
       updateThemeMode: updateThemeMode,
       updateAppPalette: updateAppPalette,
+      updateCurrencySymbol: updateCurrencySymbol,
     ),
   );
 }
@@ -79,6 +84,7 @@ class MyApp extends StatelessWidget {
   final hourly_rate_usecase.UpdateHourlyRate updateHourlyRate;
   final theme_mode_usecase.UpdateThemeMode updateThemeMode;
   final palette_usecase.UpdateAppPalette updateAppPalette;
+  final currency_usecase.UpdateCurrencySymbol updateCurrencySymbol;
 
   const MyApp({
     super.key,
@@ -91,6 +97,7 @@ class MyApp extends StatelessWidget {
     required this.updateHourlyRate,
     required this.updateThemeMode,
     required this.updateAppPalette,
+    required this.updateCurrencySymbol,
   });
 
   @override
@@ -116,6 +123,7 @@ class MyApp extends StatelessWidget {
             updateHourlyRate: updateHourlyRate,
             updateThemeMode: updateThemeMode,
             updateAppPalette: updateAppPalette,
+            updateCurrencySymbol: updateCurrencySymbol,
           )..add(LoadSettings()),
         ),
       ],

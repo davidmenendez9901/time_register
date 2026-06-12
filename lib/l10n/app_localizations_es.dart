@@ -281,4 +281,56 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get helpUpdateRateDesc =>
       'Cambia tu tarifa en Ajustes. Nuevas entradas usarán la nueva tarifa.';
+
+  @override
+  String get lunchStart => 'Inicio del Almuerzo';
+
+  @override
+  String get lunchEnd => 'Fin del Almuerzo';
+
+  @override
+  String get descriptionNote => 'Descripción / Nota';
+
+  @override
+  String get descriptionHint =>
+      'Agrega detalles sobre esta entrada de trabajo...';
+
+  @override
+  String get lunchWithinShift =>
+      'El almuerzo debe estar dentro del turno de trabajo';
+
+  @override
+  String get endsNextDay => 'Termina al día siguiente';
+
+  @override
+  String get paid => 'Pagado';
+
+  @override
+  String get unpaid => 'No Pagado';
+
+  @override
+  String get markedAsPaid => 'Marcado como pagado';
+
+  @override
+  String get markedAsUnpaid => 'Marcado como no pagado';
+
+  @override
+  String get currency => 'Moneda';
+
+  @override
+  String get editCurrency => 'Editar Símbolo de Moneda';
+
+  @override
+  String get enterCurrencySymbol =>
+      'Ingresa el símbolo que se muestra junto a los montos';
+
+  @override
+  String get enterSymbolValidation => 'Ingresa un símbolo';
+
+  @override
+  String get currencyUpdated => 'Símbolo de moneda actualizado';
+
+  @override
+  String get currencySubtitle =>
+      'Este símbolo se muestra junto a todos los montos en la app.';
 }

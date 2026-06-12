@@ -22,3 +22,9 @@ class UpdateAppPalette extends SettingsEvent {
 
   UpdateAppPalette(this.palette);
 }
+
+class UpdateCurrencySymbol extends SettingsEvent {
+  final String symbol;
+
+  UpdateCurrencySymbol(this.symbol);
+}

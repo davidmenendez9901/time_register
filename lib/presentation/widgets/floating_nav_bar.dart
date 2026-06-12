@@ -73,7 +73,7 @@ class FloatingNavBar extends StatelessWidget {
 
   Widget _buildNavItem(
     BuildContext context, {
-    required IconData icon,
+    required FaIconData icon,
     required int index,
     required String label,
     required bool isSelected,

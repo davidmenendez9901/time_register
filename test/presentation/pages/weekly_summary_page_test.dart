@@ -4,8 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:time_register/core/entities/settings.dart' as app_settings;
 import 'package:time_register/core/entities/work_entry.dart';
 import 'package:time_register/l10n/app_localizations.dart';
+import 'package:time_register/presentation/blocs/settings/settings_bloc.dart';
+import 'package:time_register/presentation/blocs/settings/settings_event.dart';
+import 'package:time_register/presentation/blocs/settings/settings_state.dart';
 import 'package:time_register/presentation/blocs/time_tracking/time_tracking_bloc.dart';
 import 'package:time_register/presentation/blocs/time_tracking/time_tracking_event.dart';
 import 'package:time_register/presentation/blocs/time_tracking/time_tracking_state.dart';
@@ -15,11 +19,19 @@ class MockTimeTrackingBloc
     extends MockBloc<TimeTrackingEvent, TimeTrackingState>
     implements TimeTrackingBloc {}
 
+class MockSettingsBloc extends MockBloc<SettingsEvent, SettingsState>
+    implements SettingsBloc {}
+
 void main() {
   late MockTimeTrackingBloc mockTimeTrackingBloc;
+  late MockSettingsBloc mockSettingsBloc;
 
   setUp(() {
     mockTimeTrackingBloc = MockTimeTrackingBloc();
+    mockSettingsBloc = MockSettingsBloc();
+    when(() => mockSettingsBloc.state).thenReturn(
+      SettingsLoaded(app_settings.AppSettings(hourlyRate: 10)),
+    );
   });
 
   Widget createWidgetUnderTest() {
@@ -31,8 +43,11 @@ void main() {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('en')],
-      home: BlocProvider<TimeTrackingBloc>(
-        create: (_) => mockTimeTrackingBloc,
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider<TimeTrackingBloc>(create: (_) => mockTimeTrackingBloc),
+          BlocProvider<SettingsBloc>(create: (_) => mockSettingsBloc),
+        ],
         child: const WeeklySummaryPage(),
       ),
     );

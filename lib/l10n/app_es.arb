@@ -85,5 +85,21 @@
     "helpViewSummaryTitle": "3. Ver Resumen",
     "helpViewSummaryDesc": "Revisa la pestaña Resumen para ver tus ganancias y horas semanales.",
     "helpUpdateRateTitle": "4. Actualizar Tarifa",
-    "helpUpdateRateDesc": "Cambia tu tarifa en Ajustes. Nuevas entradas usarán la nueva tarifa."
+    "helpUpdateRateDesc": "Cambia tu tarifa en Ajustes. Nuevas entradas usarán la nueva tarifa.",
+    "lunchStart": "Inicio del Almuerzo",
+    "lunchEnd": "Fin del Almuerzo",
+    "descriptionNote": "Descripción / Nota",
+    "descriptionHint": "Agrega detalles sobre esta entrada de trabajo...",
+    "lunchWithinShift": "El almuerzo debe estar dentro del turno de trabajo",
+    "endsNextDay": "Termina al día siguiente",
+    "paid": "Pagado",
+    "unpaid": "No Pagado",
+    "markedAsPaid": "Marcado como pagado",
+    "markedAsUnpaid": "Marcado como no pagado",
+    "currency": "Moneda",
+    "editCurrency": "Editar Símbolo de Moneda",
+    "enterCurrencySymbol": "Ingresa el símbolo que se muestra junto a los montos",
+    "enterSymbolValidation": "Ingresa un símbolo",
+    "currencyUpdated": "Símbolo de moneda actualizado",
+    "currencySubtitle": "Este símbolo se muestra junto a todos los montos en la app."
 }

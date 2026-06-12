@@ -19,6 +19,8 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   final _formKey = GlobalKey<FormState>();
   final _rateController = TextEditingController();
+  final _currencyFormKey = GlobalKey<FormState>();
+  final _currencyController = TextEditingController();
 
   @override
   void initState() {
@@ -29,11 +31,77 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void dispose() {
     _rateController.dispose();
+    _currencyController.dispose();
     super.dispose();
+  }
+
+  void _showEditCurrencyDialog(String currentSymbol, AppLocalizations l10n) {
+    _currencyController.text = currentSymbol;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              const FaIcon(FontAwesomeIcons.coins, color: Colors.amber),
+              const SizedBox(width: 8),
+              Text(l10n.editCurrency),
+            ],
+          ),
+          content: Form(
+            key: _currencyFormKey,
+            child: TextFormField(
+              controller: _currencyController,
+              maxLength: 5,
+              decoration: InputDecoration(
+                labelText: l10n.currency,
+                border: const OutlineInputBorder(),
+                helperText: l10n.enterCurrencySymbol,
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return l10n.enterSymbolValidation;
+                }
+                return null;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(l10n.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_currencyFormKey.currentState!.validate()) {
+                  final symbol = _currencyController.text.trim();
+                  context.read<SettingsBloc>().add(
+                    UpdateCurrencySymbol(symbol),
+                  );
+                  Navigator.pop(dialogContext);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l10n.currencyUpdated),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              },
+              child: Text(l10n.saveEntry),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showEditRateDialog(double currentRate, AppLocalizations l10n) {
     _rateController.text = currentRate.toStringAsFixed(2);
+    final settingsState = context.read<SettingsBloc>().state;
+    final symbol = settingsState is SettingsLoaded
+        ? settingsState.settings.currencySymbol
+        : '\$';
 
     showDialog(
       context: context,
@@ -58,7 +126,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
               decoration: InputDecoration(
                 labelText: l10n.hourlyRate,
-                prefixText: '\$ ',
+                prefixText: '$symbol ',
                 border: const OutlineInputBorder(),
                 helperText: l10n.enterHourlyRate,
               ),
@@ -192,7 +260,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
-                          '\$${state.settings.hourlyRate.toStringAsFixed(2)} ${l10n.perHour}',
+                          '${state.settings.currencySymbol}${state.settings.hourlyRate.toStringAsFixed(2)} ${l10n.perHour}',
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.green,
@@ -211,6 +279,58 @@ class _SettingsPageState extends State<SettingsPage> {
                         padding: const EdgeInsets.all(16),
                         child: Text(
                           l10n.hourlyRateSubtitle,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).textTheme.bodySmall?.color,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Currency Section
+                Card(
+                  elevation: 2,
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const FaIcon(
+                            FontAwesomeIcons.coins,
+                            color: Colors.amber,
+                          ),
+                        ),
+                        title: Text(
+                          l10n.currency,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          state.settings.currencySymbol,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.amber,
+                          ),
+                        ),
+                        trailing: IconButton(
+                          icon: const FaIcon(FontAwesomeIcons.penToSquare),
+                          onPressed: () => _showEditCurrencyDialog(
+                            state.settings.currencySymbol,
+                            l10n,
+                          ),
+                        ),
+                      ),
+                      const Divider(height: 1),
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          l10n.currencySubtitle,
                           style: TextStyle(
                             fontSize: 12,
                             color: Theme.of(context).textTheme.bodySmall?.color,
@@ -445,7 +565,7 @@ class _SettingsPageState extends State<SettingsPage> {
     BuildContext dialogContext,
     app_settings.ThemeMode mode,
     String label,
-    IconData icon,
+    FaIconData icon,
     app_settings.ThemeMode currentMode,
   ) {
     final isSelected = mode == currentMode;

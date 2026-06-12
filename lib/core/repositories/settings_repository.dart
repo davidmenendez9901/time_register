@@ -6,4 +6,5 @@ abstract class SettingsRepository {
   Future<void> updateHourlyRate(double rate);
   Future<void> updateThemeMode(ThemeMode themeMode);
   Future<void> updateAppPalette(AppPalette palette);
+  Future<void> updateCurrencySymbol(String symbol);
 }

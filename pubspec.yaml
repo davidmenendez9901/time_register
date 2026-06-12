@@ -41,7 +41,7 @@ dependencies:
   sqflite: ^2.3.0
 
   # Icons
-  font_awesome_flutter: ^10.7.0
+  font_awesome_flutter: ^11.0.0
 
   # Fonts
   google_fonts: ^6.1.0
