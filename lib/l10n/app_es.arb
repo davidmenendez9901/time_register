@@ -102,6 +102,17 @@
     "enterSymbolValidation": "Ingresa un símbolo",
     "currencyUpdated": "Símbolo de moneda actualizado",
     "currencySubtitle": "Este símbolo se muestra junto a todos los montos en la app.",
+    "clockIn": "Fichar Entrada",
+    "clockOut": "Fichar Salida",
+    "shiftInProgress": "Turno en curso",
+    "shiftStartedAt": "Iniciado a las {time}",
+    "@shiftStartedAt": {
+        "placeholders": {
+            "time": {
+                "type": "String"
+            }
+        }
+    },
     "dataSection": "Datos",
     "backupData": "Respaldar Datos",
     "backupSubtitle": "Guarda todas tus entradas y ajustes en un archivo",

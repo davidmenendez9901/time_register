@@ -8,7 +8,9 @@ import '../../core/entities/work_entry.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/time_tracking/time_tracking_state.dart';
+import '../blocs/shift_timer/shift_timer_cubit.dart';
 import '../utils/currency.dart';
+import '../widgets/active_shift_banner.dart';
 import 'work_entry_form_page.dart';
 
 class HomeContent extends StatefulWidget {
@@ -54,6 +56,27 @@ class _HomeContentState extends State<HomeContent> {
     setState(() {
       _selectedDate = null;
     });
+  }
+
+  Future<void> _clockOut() async {
+    final start = context.read<ShiftTimerCubit>().state;
+    if (start == null) return;
+
+    // Open the entry form prefilled with the live shift times. The shift is
+    // only cleared when the entry is actually saved, so backing out keeps
+    // the timer running.
+    final saved = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            WorkEntryFormPage(initialStart: start, initialEnd: DateTime.now()),
+      ),
+    );
+    if (!mounted || saved != true) return;
+
+    await context.read<ShiftTimerCubit>().stop();
+    if (!mounted) return;
+    context.read<TimeTrackingBloc>().add(LoadWorkEntries());
   }
 
   Map<DateTime, List<WorkEntry>> _groupEntries(List<WorkEntry> entries) {
@@ -316,6 +339,16 @@ class _HomeContentState extends State<HomeContent> {
         ),
         centerTitle: true,
         actions: [
+          BlocBuilder<ShiftTimerCubit, DateTime?>(
+            builder: (context, shiftStart) {
+              if (shiftStart != null) return const SizedBox.shrink();
+              return IconButton(
+                icon: const FaIcon(FontAwesomeIcons.play),
+                tooltip: l10n.clockIn,
+                onPressed: () => context.read<ShiftTimerCubit>().start(),
+              );
+            },
+          ),
           IconButton(
             icon: FaIcon(
               _selectedDate != null
@@ -342,124 +375,141 @@ class _HomeContentState extends State<HomeContent> {
           widget.onScroll(notification);
           return true;
         },
-        child: BlocBuilder<TimeTrackingBloc, TimeTrackingState>(
-          builder: (context, state) {
-            if (state is TimeTrackingLoading) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (state is TimeTrackingLoaded) {
-              var entries = state.entries;
-
-              // Apply Date Filter
-              if (_selectedDate != null) {
-                entries = entries.where((entry) {
-                  return entry.date.year == _selectedDate!.year &&
-                      entry.date.month == _selectedDate!.month &&
-                      entry.date.day == _selectedDate!.day;
-                }).toList();
-              }
-
-              if (entries.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(32),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: FaIcon(
-                          FontAwesomeIcons.calendarXmark,
-                          size: 64,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.5),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        _selectedDate != null
-                            ? l10n.noEntriesFilter
-                            : l10n.noEntries,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
+        child: Column(
+          children: [
+            BlocBuilder<ShiftTimerCubit, DateTime?>(
+              builder: (context, shiftStart) {
+                if (shiftStart == null) return const SizedBox.shrink();
+                return ActiveShiftBanner(
+                  start: shiftStart,
+                  onClockOut: _clockOut,
                 );
-              }
-
-              // Group Entries
-              final groupedEntries = _groupEntries(entries);
-              final sortedDates = groupedEntries.keys.toList()
-                ..sort((a, b) => b.compareTo(a));
-
-              return ListView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                itemCount: sortedDates.length,
-                itemBuilder: (context, index) {
-                  final date = sortedDates[index];
-                  final dayEntries = groupedEntries[date]!;
-
-                  // Calculate daily totals
-                  double dailyHours = 0;
-                  double dailyEarnings = 0;
-                  for (var entry in dayEntries) {
-                    dailyHours += entry.totalHours;
-                    dailyEarnings += entry.earnings;
-                  }
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              DateFormat(
-                                'EEEE, MMM d',
-                                l10n.localeName,
-                              ).format(date),
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                            Text(
-                              '${dailyHours.toStringAsFixed(1)}h • ${currencySymbolOf(context)}${dailyEarnings.toStringAsFixed(2)}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      ...dayEntries.map(
-                        (entry) => _buildEntryCard(context, entry, l10n),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                  );
-                },
-              );
-            } else if (state is TimeTrackingError) {
-              return Center(child: Text(l10n.errorMsg(state.message)));
-            }
-            return const SizedBox.shrink();
-          },
+              },
+            ),
+            Expanded(child: _buildEntryList(context, l10n)),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildEntryList(BuildContext context, AppLocalizations l10n) {
+    return BlocBuilder<TimeTrackingBloc, TimeTrackingState>(
+      builder: (context, state) {
+        if (state is TimeTrackingLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is TimeTrackingLoaded) {
+          var entries = state.entries;
+
+          // Apply Date Filter
+          if (_selectedDate != null) {
+            entries = entries.where((entry) {
+              return entry.date.year == _selectedDate!.year &&
+                  entry.date.month == _selectedDate!.month &&
+                  entry.date.day == _selectedDate!.day;
+            }).toList();
+          }
+
+          if (entries.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: FaIcon(
+                      FontAwesomeIcons.calendarXmark,
+                      size: 64,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    _selectedDate != null
+                        ? l10n.noEntriesFilter
+                        : l10n.noEntries,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          // Group Entries
+          final groupedEntries = _groupEntries(entries);
+          final sortedDates = groupedEntries.keys.toList()
+            ..sort((a, b) => b.compareTo(a));
+
+          return ListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+            itemCount: sortedDates.length,
+            itemBuilder: (context, index) {
+              final date = sortedDates[index];
+              final dayEntries = groupedEntries[date]!;
+
+              // Calculate daily totals
+              double dailyHours = 0;
+              double dailyEarnings = 0;
+              for (var entry in dayEntries) {
+                dailyHours += entry.totalHours;
+                dailyEarnings += entry.earnings;
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          DateFormat(
+                            'EEEE, MMM d',
+                            l10n.localeName,
+                          ).format(date),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                        Text(
+                          '${dailyHours.toStringAsFixed(1)}h • ${currencySymbolOf(context)}${dailyEarnings.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ...dayEntries.map(
+                    (entry) => _buildEntryCard(context, entry, l10n),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              );
+            },
+          );
+        } else if (state is TimeTrackingError) {
+          return Center(child: Text(l10n.errorMsg(state.message)));
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 }

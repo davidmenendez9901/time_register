@@ -335,6 +335,20 @@ class AppLocalizationsEs extends AppLocalizations {
       'Este símbolo se muestra junto a todos los montos en la app.';
 
   @override
+  String get clockIn => 'Fichar Entrada';
+
+  @override
+  String get clockOut => 'Fichar Salida';
+
+  @override
+  String get shiftInProgress => 'Turno en curso';
+
+  @override
+  String shiftStartedAt(String time) {
+    return 'Iniciado a las $time';
+  }
+
+  @override
   String get dataSection => 'Datos';
 
   @override

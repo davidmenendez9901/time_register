@@ -116,6 +116,17 @@
     "enterSymbolValidation": "Please enter a symbol",
     "currencyUpdated": "Currency symbol updated",
     "currencySubtitle": "This symbol is shown next to all amounts in the app.",
+    "clockIn": "Clock In",
+    "clockOut": "Clock Out",
+    "shiftInProgress": "Shift in progress",
+    "shiftStartedAt": "Started at {time}",
+    "@shiftStartedAt": {
+        "placeholders": {
+            "time": {
+                "type": "String"
+            }
+        }
+    },
     "dataSection": "Data",
     "backupData": "Back Up Data",
     "backupSubtitle": "Save all your entries and settings to a file",

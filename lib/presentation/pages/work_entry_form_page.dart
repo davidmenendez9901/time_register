@@ -16,7 +16,16 @@ import 'package:time_register/l10n/app_localizations.dart';
 class WorkEntryFormPage extends StatefulWidget {
   final WorkEntry? entry; // null = agregar, no null = editar
 
-  const WorkEntryFormPage({super.key, this.entry});
+  /// Prefill values for add mode (used when clocking out of a live shift).
+  final DateTime? initialStart;
+  final DateTime? initialEnd;
+
+  const WorkEntryFormPage({
+    super.key,
+    this.entry,
+    this.initialStart,
+    this.initialEnd,
+  });
 
   @override
   State<WorkEntryFormPage> createState() => _WorkEntryFormPageState();
@@ -81,10 +90,14 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
       _isPaid = widget.entry!.isPaid;
       _descriptionController.text = widget.entry!.description ?? '';
     } else {
-      // Modo Agregar - usar valores por defecto
-      _selectedDate = DateTime.now();
-      _startTime = const TimeOfDay(hour: 9, minute: 0);
-      _endTime = const TimeOfDay(hour: 17, minute: 0);
+      // Modo Agregar - usar valores por defecto o los del turno en vivo
+      _selectedDate = widget.initialStart ?? DateTime.now();
+      _startTime = widget.initialStart != null
+          ? TimeOfDay.fromDateTime(widget.initialStart!)
+          : const TimeOfDay(hour: 9, minute: 0);
+      _endTime = widget.initialEnd != null
+          ? TimeOfDay.fromDateTime(widget.initialEnd!)
+          : const TimeOfDay(hour: 17, minute: 0);
       _lunchTaken = false;
       _lunchStartTime = const TimeOfDay(hour: 12, minute: 0);
       _lunchEndTime = const TimeOfDay(hour: 12, minute: 30);
@@ -283,7 +296,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
         context.read<TimeTrackingBloc>().add(AddWorkEntry(entry));
       }
 
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     }
   }
 

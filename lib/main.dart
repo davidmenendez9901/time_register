@@ -21,7 +21,9 @@ import 'core/usecases/mark_entry_as_paid.dart';
 import 'core/usecases/update_app_palette.dart' as palette_usecase;
 import 'core/usecases/update_currency_symbol.dart' as currency_usecase;
 import 'core/theme/app_palette.dart';
+import 'core/repositories/settings_repository.dart';
 import 'presentation/blocs/time_tracking/time_tracking_bloc.dart';
+import 'presentation/blocs/shift_timer/shift_timer_cubit.dart';
 import 'presentation/blocs/settings/settings_bloc.dart';
 import 'presentation/blocs/settings/settings_event.dart';
 import 'presentation/blocs/settings/settings_state.dart';
@@ -75,6 +77,7 @@ void main() async {
       updateThemeMode: updateThemeMode,
       updateAppPalette: updateAppPalette,
       updateCurrencySymbol: updateCurrencySymbol,
+      settingsRepository: settingsRepository,
     ),
   );
 }
@@ -90,6 +93,7 @@ class MyApp extends StatelessWidget {
   final theme_mode_usecase.UpdateThemeMode updateThemeMode;
   final palette_usecase.UpdateAppPalette updateAppPalette;
   final currency_usecase.UpdateCurrencySymbol updateCurrencySymbol;
+  final SettingsRepository settingsRepository;
 
   const MyApp({
     super.key,
@@ -103,6 +107,7 @@ class MyApp extends StatelessWidget {
     required this.updateThemeMode,
     required this.updateAppPalette,
     required this.updateCurrencySymbol,
+    required this.settingsRepository,
   });
 
   @override
@@ -130,6 +135,10 @@ class MyApp extends StatelessWidget {
             updateAppPalette: updateAppPalette,
             updateCurrencySymbol: updateCurrencySymbol,
           )..add(LoadSettings()),
+        ),
+        // Live shift timer (clock in/out)
+        BlocProvider(
+          create: (context) => ShiftTimerCubit(settingsRepository)..load(),
         ),
       ],
       //

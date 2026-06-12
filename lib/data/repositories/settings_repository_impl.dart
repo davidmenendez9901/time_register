@@ -32,4 +32,14 @@ class SettingsRepositoryImpl implements SettingsRepository {
   Future<void> updateCurrencySymbol(String symbol) async {
     await localDataSource.updateCurrencySymbol(symbol);
   }
+
+  @override
+  Future<DateTime?> getActiveShiftStart() async {
+    return await localDataSource.getActiveShiftStart();
+  }
+
+  @override
+  Future<void> setActiveShiftStart(DateTime? start) async {
+    await localDataSource.setActiveShiftStart(start);
+  }
 }

@@ -22,7 +22,7 @@ class DatabaseHelper {
     String path = join(documentsDirectory.path, 'time_register.db');
     return await openDatabase(
       path,
-      version: 5,
+      version: 6,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -36,7 +36,8 @@ class DatabaseHelper {
         hourly_rate REAL NOT NULL DEFAULT 0.0,
         theme_mode TEXT NOT NULL DEFAULT 'system',
         app_palette TEXT NOT NULL DEFAULT 'Blue',
-        currency_symbol TEXT NOT NULL DEFAULT '\$'
+        currency_symbol TEXT NOT NULL DEFAULT '\$',
+        active_shift_start TEXT
       )
     ''');
 
@@ -97,6 +98,12 @@ class DatabaseHelper {
         "ALTER TABLE settings ADD COLUMN currency_symbol TEXT NOT NULL DEFAULT '\$'",
       );
     }
+    if (oldVersion < 6) {
+      // Track the start of a running shift (clock in/out)
+      await db.execute(
+        'ALTER TABLE settings ADD COLUMN active_shift_start TEXT',
+      );
+    }
   }
 
   // Settings operations
@@ -154,6 +161,21 @@ class DatabaseHelper {
     await db.update(
       'settings',
       {'currency_symbol': symbol},
+      where: 'id = ?',
+      whereArgs: [1],
+    );
+  }
+
+  Future<String?> getActiveShiftStart() async {
+    final settings = await getSettings();
+    return settings['active_shift_start'] as String?;
+  }
+
+  Future<void> setActiveShiftStart(String? startIso) async {
+    final db = await database;
+    await db.update(
+      'settings',
+      {'active_shift_start': startIso},
       where: 'id = ?',
       whereArgs: [1],
     );

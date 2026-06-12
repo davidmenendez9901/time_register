@@ -8,6 +8,8 @@ abstract class SettingsLocalDataSource {
   Future<void> updateThemeMode(ThemeMode themeMode);
   Future<void> updateAppPalette(AppPalette palette);
   Future<void> updateCurrencySymbol(String symbol);
+  Future<DateTime?> getActiveShiftStart();
+  Future<void> setActiveShiftStart(DateTime? start);
 }
 
 class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
@@ -39,5 +41,16 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   @override
   Future<void> updateCurrencySymbol(String symbol) async {
     await databaseHelper.updateCurrencySymbol(symbol);
+  }
+
+  @override
+  Future<DateTime?> getActiveShiftStart() async {
+    final iso = await databaseHelper.getActiveShiftStart();
+    return iso != null ? DateTime.tryParse(iso) : null;
+  }
+
+  @override
+  Future<void> setActiveShiftStart(DateTime? start) async {
+    await databaseHelper.setActiveShiftStart(start?.toIso8601String());
   }
 }

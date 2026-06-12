@@ -7,4 +7,6 @@ abstract class SettingsRepository {
   Future<void> updateThemeMode(ThemeMode themeMode);
   Future<void> updateAppPalette(AppPalette palette);
   Future<void> updateCurrencySymbol(String symbol);
+  Future<DateTime?> getActiveShiftStart();
+  Future<void> setActiveShiftStart(DateTime? start);
 }

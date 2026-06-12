@@ -716,6 +716,30 @@ abstract class AppLocalizations {
   /// **'This symbol is shown next to all amounts in the app.'**
   String get currencySubtitle;
 
+  /// No description provided for @clockIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock In'**
+  String get clockIn;
+
+  /// No description provided for @clockOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Clock Out'**
+  String get clockOut;
+
+  /// No description provided for @shiftInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift in progress'**
+  String get shiftInProgress;
+
+  /// No description provided for @shiftStartedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Started at {time}'**
+  String shiftStartedAt(String time);
+
   /// No description provided for @dataSection.
   ///
   /// In en, this message translates to:
