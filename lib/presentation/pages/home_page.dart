@@ -43,6 +43,33 @@ class _HomePageState extends State<HomePage> {
               SettingsPage(),
             ],
           ),
+          // Fade the content out as it scrolls behind the floating nav bar
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 150,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Theme.of(
+                        context,
+                      ).scaffoldBackgroundColor.withValues(alpha: 0),
+                      Theme.of(
+                        context,
+                      ).scaffoldBackgroundColor.withValues(alpha: 0.9),
+                      Theme.of(context).scaffoldBackgroundColor,
+                    ],
+                    stops: const [0.0, 0.55, 1.0],
+                  ),
+                ),
+              ),
+            ),
+          ),
           FloatingNavBar(
             selectedIndex: _selectedIndex,
             onItemSelected: _onItemTapped,
