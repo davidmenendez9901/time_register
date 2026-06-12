@@ -29,9 +29,9 @@ void main() {
   setUp(() {
     mockTimeTrackingBloc = MockTimeTrackingBloc();
     mockSettingsBloc = MockSettingsBloc();
-    when(() => mockSettingsBloc.state).thenReturn(
-      SettingsLoaded(app_settings.AppSettings(hourlyRate: 10)),
-    );
+    when(
+      () => mockSettingsBloc.state,
+    ).thenReturn(SettingsLoaded(app_settings.AppSettings(hourlyRate: 10)));
   });
 
   Widget createWidgetUnderTest() {

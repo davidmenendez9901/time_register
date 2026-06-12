@@ -31,7 +31,10 @@ class WorkEntryLocalDataSourceImpl implements WorkEntryLocalDataSource {
   @override
   Future<WorkEntryModel?> getWorkEntry(int id) async {
     final maps = await databaseHelper.getWorkEntries();
-    final entryMap = maps.firstWhere((map) => map['id'] == id, orElse: () => {});
+    final entryMap = maps.firstWhere(
+      (map) => map['id'] == id,
+      orElse: () => {},
+    );
     if (entryMap.isEmpty) return null;
     return WorkEntryModel.fromMap(entryMap);
   }
