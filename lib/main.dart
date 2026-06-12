@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'l10n/app_localizations.dart';
 import 'core/database/database_helper.dart';
 import 'core/theme/app_theme.dart';
@@ -28,6 +29,10 @@ import 'presentation/pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Fonts are bundled in assets/google_fonts/; the app is fully offline and
+  // the release build has no network permission, so never fetch at runtime.
+  GoogleFonts.config.allowRuntimeFetching = false;
 
   // Initialize database
   final databaseHelper = DatabaseHelper();

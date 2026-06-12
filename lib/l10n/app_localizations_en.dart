@@ -329,4 +329,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get currencySubtitle =>
       'This symbol is shown next to all amounts in the app.';
+
+  @override
+  String get privacyPolicySubtitle => 'How your data is handled';
+
+  @override
+  String get privacyPolicyContent =>
+      'Time Register does not collect, transmit, or share any personal data.\n\nEverything you enter (work entries, rates, notes, and settings) is stored only in a local database on your device. The app does not connect to the internet, has no analytics, and shows no ads.\n\nUninstalling the app permanently deletes all of its data. The full policy is available in the project repository on GitHub.';
 }

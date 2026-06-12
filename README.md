@@ -142,7 +142,10 @@ CREATE TABLE settings (
 
 - **Local Data**: All information stored on device
 - **No Cloud**: No external services or data transmission
+- **No Network Permission**: The Android release build cannot access the internet
 - **User Control**: Complete ownership of personal data
+
+See the full [Privacy Policy](PRIVACY_POLICY.md).
 
 ## 📱 Platform Support
 

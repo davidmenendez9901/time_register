@@ -386,6 +386,24 @@ class _SettingsPageState extends State<SettingsPage> {
                         title: Text(l10n.appTitle),
                         subtitle: Text(l10n.appDescription),
                       ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const FaIcon(
+                            FontAwesomeIcons.shieldHalved,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        title: Text(l10n.privacyPolicy),
+                        subtitle: Text(l10n.privacyPolicySubtitle),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: () => _showPrivacyPolicyDialog(l10n),
+                      ),
                     ],
                   ),
                 ),
@@ -672,6 +690,35 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showPrivacyPolicyDialog(AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              const FaIcon(FontAwesomeIcons.shieldHalved, color: Colors.blue),
+              const SizedBox(width: 8),
+              Expanded(child: Text(l10n.privacyPolicy)),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Text(
+              l10n.privacyPolicyContent,
+              style: const TextStyle(fontSize: 14),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.gotIt),
+            ),
+          ],
+        );
+      },
     );
   }
 
