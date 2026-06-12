@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import '../../core/entities/job.dart';
 import '../../core/entities/work_entry.dart';
+import '../blocs/jobs/jobs_cubit.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/settings/settings_bloc.dart';
@@ -41,7 +43,9 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
   late TimeOfDay _lunchEndTime;
   late double _hourlyRate;
   late bool _isPaid;
+  int? _jobId;
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _rateController = TextEditingController();
 
   // Getters para determinar el modo
   bool get _isEditMode => widget.entry != null;
@@ -60,6 +64,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
   @override
   void dispose() {
     _descriptionController.dispose();
+    _rateController.dispose();
     super.dispose();
   }
 
@@ -88,6 +93,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
       }
       _hourlyRate = widget.entry!.hourlyRate;
       _isPaid = widget.entry!.isPaid;
+      _jobId = widget.entry!.jobId;
       _descriptionController.text = widget.entry!.description ?? '';
     } else {
       // Modo Agregar - usar valores por defecto o los del turno en vivo
@@ -111,8 +117,10 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
       }
 
       _isPaid = false;
+      _jobId = null;
       _descriptionController.text = '';
     }
+    _rateController.text = _hourlyRate.toStringAsFixed(2);
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -276,6 +284,8 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
           lunchStartTime: lunchStartDateTime,
           lunchEndTime: lunchEndDateTime,
           description: _descriptionController.text,
+          jobId: _jobId,
+          clearJobId: _jobId == null,
         );
         context.read<TimeTrackingBloc>().add(UpdateWorkEntry(updatedEntry));
       } else {
@@ -292,6 +302,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
           lunchStartTime: lunchStartDateTime,
           lunchEndTime: lunchEndDateTime,
           description: _descriptionController.text,
+          jobId: _jobId,
         );
         context.read<TimeTrackingBloc>().add(AddWorkEntry(entry));
       }
@@ -367,10 +378,12 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
       ),
       body: BlocListener<SettingsBloc, SettingsState>(
         listener: (context, state) {
-          // Solo actualizar la tarifa horaria en modo agregar cuando se cargan los settings
-          if (!_isEditMode && state is SettingsLoaded) {
+          // Solo actualizar la tarifa horaria en modo agregar cuando se
+          // cargan los settings, y sin pisar la tarifa de un trabajo elegido
+          if (!_isEditMode && _jobId == null && state is SettingsLoaded) {
             setState(() {
               _hourlyRate = state.settings.hourlyRate;
+              _rateController.text = _hourlyRate.toStringAsFixed(2);
             });
           }
         },
@@ -520,6 +533,87 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                 ),
                 const SizedBox(height: 16),
 
+                // Job selector (only when jobs exist)
+                BlocBuilder<JobsCubit, List<Job>>(
+                  builder: (context, jobs) {
+                    final selectable = jobs
+                        .where((j) => !j.archived || j.id == _jobId)
+                        .toList();
+                    if (selectable.isEmpty) return const SizedBox.shrink();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Card(
+                          elevation: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
+                            child: Row(
+                              children: [
+                                const FaIcon(
+                                  FontAwesomeIcons.briefcase,
+                                  color: Colors.indigo,
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: DropdownButtonFormField<int?>(
+                                    initialValue: _jobId,
+                                    decoration: InputDecoration(
+                                      labelText: l10n.job,
+                                      border: InputBorder.none,
+                                    ),
+                                    items: [
+                                      DropdownMenuItem<int?>(
+                                        value: null,
+                                        child: Text(l10n.noJob),
+                                      ),
+                                      for (final job in selectable)
+                                        DropdownMenuItem<int?>(
+                                          value: job.id,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                width: 14,
+                                                height: 14,
+                                                decoration: BoxDecoration(
+                                                  color: Color(job.colorValue),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(job.name),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _jobId = value;
+                                        final job = context
+                                            .read<JobsCubit>()
+                                            .byId(value);
+                                        if (job?.hourlyRate != null) {
+                                          _hourlyRate = job!.hourlyRate!;
+                                          _rateController.text = _hourlyRate
+                                              .toStringAsFixed(2);
+                                        }
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    );
+                  },
+                ),
+
                 // Description
                 Card(
                   elevation: 2,
@@ -613,7 +707,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
-                          initialValue: _hourlyRate.toStringAsFixed(2),
+                          controller: _rateController,
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),

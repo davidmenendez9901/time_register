@@ -11,6 +11,8 @@ All data stays on your device — no account, no cloud, no tracking.
 
 ### ⏰ Time Tracking
 - **Easy Entry Creation**: Simple form to log work hours with start/end times
+- **Live Timer**: Clock in/out from the home screen; the running shift survives app restarts
+- **Jobs / Clients**: Organize entries by job, each with its own color and optional hourly rate
 - **Overnight Shifts**: Shifts that cross midnight (e.g. 22:00 – 06:00) are handled automatically
 - **Lunch Break Control**: Optional lunch break with custom start/end times
 - **Notes**: Attach a description to any entry
@@ -23,6 +25,7 @@ All data stays on your device — no account, no cloud, no tracking.
 - **Filtering**: View all, paid only, or unpaid entries
 - **Per-Entry Rate**: Each entry keeps the hourly rate it was created with
 - **CSV Export**: Share your entries (all, paid, or unpaid) as a spreadsheet-ready file
+- **Backup & Restore**: Save everything to a file and load it on a new device
 
 ### 📊 Summaries
 - **Weekly Grouping**: Entries organized by work weeks with expandable details
@@ -157,10 +160,10 @@ See the full [Privacy Policy](PRIVACY_POLICY.md).
 ## 🚀 Roadmap
 
 - [x] CSV export
+- [x] Backup and restore
+- [x] Live timer (clock in / clock out)
+- [x] Multiple jobs/clients with per-job rates
 - [ ] PDF export
-- [ ] Backup and restore
-- [ ] Live timer (clock in / clock out)
-- [ ] Multiple jobs/clients with per-job rates
 - [ ] Overtime rules (1.5x / 2x after N hours)
 - [ ] Charts and analytics
 - [ ] Shift templates

@@ -9,6 +9,7 @@ import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/time_tracking/time_tracking_state.dart';
 import '../blocs/shift_timer/shift_timer_cubit.dart';
+import '../blocs/jobs/jobs_cubit.dart';
 import '../utils/currency.dart';
 import '../widgets/active_shift_banner.dart';
 import 'work_entry_form_page.dart';
@@ -112,6 +113,10 @@ class _HomeContentState extends State<HomeContent> {
     AppLocalizations l10n,
   ) {
     final symbol = currencySymbolOf(context);
+    final job = context.watch<JobsCubit>().byId(entry.jobId);
+    final jobColor = job != null
+        ? Color(job.colorValue)
+        : Theme.of(context).colorScheme.primary;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: OpenContainer(
@@ -146,15 +151,13 @@ class _HomeContentState extends State<HomeContent> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.1),
+                          color: jobColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: FaIcon(
                           FontAwesomeIcons.briefcase,
                           size: 16,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: jobColor,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -211,6 +214,29 @@ class _HomeContentState extends State<HomeContent> {
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                                if (job != null) ...[
+                                  const SizedBox(width: 12),
+                                  Container(
+                                    width: 10,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      color: jobColor,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      job.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey.shade600,
+                                      ),
                                     ),
                                   ),
                                 ],

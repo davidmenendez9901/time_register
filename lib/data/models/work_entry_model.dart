@@ -14,6 +14,7 @@ class WorkEntryModel extends WorkEntry {
     super.lunchStartTime,
     super.lunchEndTime,
     super.description,
+    super.jobId,
     super.createdAt,
   });
 
@@ -31,6 +32,7 @@ class WorkEntryModel extends WorkEntry {
       lunchStartTime: entry.lunchStartTime,
       lunchEndTime: entry.lunchEndTime,
       description: entry.description,
+      jobId: entry.jobId,
       createdAt: entry.createdAt,
     );
   }
@@ -74,6 +76,7 @@ class WorkEntryModel extends WorkEntry {
       lunchStartTime: lunchStart,
       lunchEndTime: lunchEnd,
       description: map['description'] as String?,
+      jobId: map['job_id'] as int?,
       createdAt: DateTime.parse(map['created_at'] as String),
     );
   }
@@ -99,6 +102,7 @@ class WorkEntryModel extends WorkEntry {
           ? '${lunchEndTime!.hour.toString().padLeft(2, '0')}:${lunchEndTime!.minute.toString().padLeft(2, '0')}'
           : null,
       'description': description,
+      'job_id': jobId,
       'created_at': createdAt.toIso8601String(),
     };
   }

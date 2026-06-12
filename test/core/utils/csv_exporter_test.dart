@@ -4,6 +4,7 @@ import 'package:time_register/core/utils/csv_exporter.dart';
 
 const labels = CsvLabels(
   date: 'Date',
+  job: 'Job',
   startTime: 'Start',
   endTime: 'End',
   lunchBreak: 'Lunch',
@@ -25,6 +26,7 @@ WorkEntry entry({
   double earnings = 80,
   bool isPaid = false,
   String? description,
+  int? jobId,
 }) {
   return WorkEntry(
     date: date,
@@ -36,6 +38,7 @@ WorkEntry entry({
     earnings: earnings,
     isPaid: isPaid,
     description: description,
+    jobId: jobId,
   );
 }
 
@@ -48,9 +51,24 @@ void main() {
 
     final lines = csv.split('\r\n');
     expect(lines, hasLength(4));
-    expect(lines.first, startsWith('Date,Start,End,Lunch'));
-    expect(lines[1], startsWith('2026-06-10,09:00,17:00,No'));
-    expect(lines.last, 'Total,,,,,,12.00,,120.00,,');
+    expect(lines.first, startsWith('Date,Job,Start,End,Lunch'));
+    expect(lines[1], startsWith('2026-06-10,,09:00,17:00,No'));
+    expect(lines.last, 'Total,,,,,,,12.00,,120.00,,');
+  });
+
+  test('resolves job names from the provided map', () {
+    final csv = CsvExporter.buildCsv(
+      [
+        entry(date: DateTime(2026, 6, 10), jobId: 7),
+        entry(date: DateTime(2026, 6, 11)),
+      ],
+      labels,
+      jobNames: {7: 'Acme Corp'},
+    );
+
+    final lines = csv.split('\r\n');
+    expect(lines[1], startsWith('2026-06-10,Acme Corp,'));
+    expect(lines[2], startsWith('2026-06-11,,'));
   });
 
   test('sorts entries by date ascending', () {

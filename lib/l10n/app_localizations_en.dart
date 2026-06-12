@@ -331,6 +331,56 @@ class AppLocalizationsEn extends AppLocalizations {
       'This symbol is shown next to all amounts in the app.';
 
   @override
+  String get jobs => 'Jobs / Clients';
+
+  @override
+  String get jobsSubtitle => 'Manage jobs and their hourly rates';
+
+  @override
+  String get addJob => 'Add Job';
+
+  @override
+  String get editJob => 'Edit Job';
+
+  @override
+  String get jobName => 'Name';
+
+  @override
+  String get enterNameValidation => 'Please enter a name';
+
+  @override
+  String get jobRateOptional => 'Hourly rate (optional)';
+
+  @override
+  String get jobRateHelper => 'Overrides the default rate for this job';
+
+  @override
+  String get jobColor => 'Color';
+
+  @override
+  String get deleteJob => 'Delete Job';
+
+  @override
+  String get deleteJobConfirm =>
+      'Delete this job? Its entries will be kept, without a job.';
+
+  @override
+  String get noJobs =>
+      'No jobs yet. Add one to organize your entries by client.';
+
+  @override
+  String get job => 'Job';
+
+  @override
+  String get noJob => 'No job';
+
+  @override
+  String get archiveJob => 'Archived (hidden for new entries)';
+
+  @override
+  String get defaultRateLabel => 'Default rate';
+
+  @override
   String get clockIn => 'Clock In';
 
   @override

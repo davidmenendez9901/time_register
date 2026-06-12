@@ -4,8 +4,13 @@ import 'dart:convert';
 class BackupData {
   final Map<String, dynamic> settings;
   final List<Map<String, dynamic>> entries;
+  final List<Map<String, dynamic>> jobs;
 
-  const BackupData({required this.settings, required this.entries});
+  const BackupData({
+    required this.settings,
+    required this.entries,
+    this.jobs = const [],
+  });
 }
 
 /// Encodes/decodes full app backups as JSON. Pure logic, no I/O.
@@ -37,7 +42,10 @@ class BackupCodec {
     'lunch_start_time',
     'lunch_end_time',
     'description',
+    'job_id',
   };
+
+  static const _jobKeys = {'id', 'name', 'color', 'hourly_rate', 'archived'};
 
   static const _requiredEntryKeys = {
     'date',
@@ -52,12 +60,14 @@ class BackupCodec {
     required Map<String, dynamic> settings,
     required List<Map<String, dynamic>> entries,
     required DateTime exportedAt,
+    List<Map<String, dynamic>> jobs = const [],
   }) {
     return const JsonEncoder.withIndent('  ').convert({
       'format': format,
       'version': version,
       'exported_at': exportedAt.toIso8601String(),
       'settings': _filterKeys(settings, _settingsKeys),
+      'jobs': [for (final j in jobs) _filterKeys(j, _jobKeys)],
       'work_entries': [for (final e in entries) _filterKeys(e, _entryKeys)],
     });
   }
@@ -90,9 +100,24 @@ class BackupCodec {
       parsedEntries.add(_filterKeys(entry, _entryKeys));
     }
 
+    // Jobs are optional so backups from before multi-job support restore.
+    final jobs = root['jobs'];
+    final parsedJobs = <Map<String, dynamic>>[];
+    if (jobs is List) {
+      for (final job in jobs) {
+        if (job is! Map<String, dynamic> ||
+            job['name'] is! String ||
+            job['color'] is! int) {
+          throw const FormatException('Malformed job in backup');
+        }
+        parsedJobs.add(_filterKeys(job, _jobKeys));
+      }
+    }
+
     return BackupData(
       settings: _filterKeys(settings, _settingsKeys),
       entries: parsedEntries,
+      jobs: parsedJobs,
     );
   }
 

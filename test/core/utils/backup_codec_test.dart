@@ -25,16 +25,36 @@ final entry = {
 };
 
 void main() {
-  test('encode/decode roundtrip preserves settings and entries', () {
+  test('encode/decode roundtrip preserves settings, entries and jobs', () {
+    final job = {
+      'id': 7,
+      'name': 'Acme Corp',
+      'color': 0xFF2563EB,
+      'hourly_rate': 20.0,
+      'archived': 0,
+    };
     final json = BackupCodec.encode(
       settings: settings,
       entries: [entry],
+      jobs: [job],
       exportedAt: DateTime(2026, 6, 12),
     );
     final data = BackupCodec.decode(json);
 
     expect(data.settings, settings);
     expect(data.entries, [entry]);
+    expect(data.jobs, [job]);
+  });
+
+  test('decode accepts backups without a jobs section', () {
+    final json = BackupCodec.encode(
+      settings: settings,
+      entries: [entry],
+      exportedAt: DateTime(2026, 6, 12),
+    ).replaceAll('"jobs": [],', '');
+
+    final data = BackupCodec.decode(json);
+    expect(data.jobs, isEmpty);
   });
 
   test('encode strips the settings row id and unknown keys', () {

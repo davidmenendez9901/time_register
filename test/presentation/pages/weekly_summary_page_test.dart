@@ -4,9 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:time_register/core/entities/job.dart';
 import 'package:time_register/core/entities/settings.dart' as app_settings;
 import 'package:time_register/core/entities/work_entry.dart';
 import 'package:time_register/l10n/app_localizations.dart';
+import 'package:time_register/presentation/blocs/jobs/jobs_cubit.dart';
 import 'package:time_register/presentation/blocs/settings/settings_bloc.dart';
 import 'package:time_register/presentation/blocs/settings/settings_event.dart';
 import 'package:time_register/presentation/blocs/settings/settings_state.dart';
@@ -22,16 +24,22 @@ class MockTimeTrackingBloc
 class MockSettingsBloc extends MockBloc<SettingsEvent, SettingsState>
     implements SettingsBloc {}
 
+class MockJobsCubit extends MockCubit<List<Job>> implements JobsCubit {}
+
 void main() {
   late MockTimeTrackingBloc mockTimeTrackingBloc;
   late MockSettingsBloc mockSettingsBloc;
+  late MockJobsCubit mockJobsCubit;
 
   setUp(() {
     mockTimeTrackingBloc = MockTimeTrackingBloc();
     mockSettingsBloc = MockSettingsBloc();
+    mockJobsCubit = MockJobsCubit();
     when(
       () => mockSettingsBloc.state,
     ).thenReturn(SettingsLoaded(app_settings.AppSettings(hourlyRate: 10)));
+    when(() => mockJobsCubit.state).thenReturn(const []);
+    when(() => mockJobsCubit.byId(any())).thenReturn(null);
   });
 
   Widget createWidgetUnderTest() {
@@ -47,6 +55,7 @@ void main() {
         providers: [
           BlocProvider<TimeTrackingBloc>(create: (_) => mockTimeTrackingBloc),
           BlocProvider<SettingsBloc>(create: (_) => mockSettingsBloc),
+          BlocProvider<JobsCubit>(create: (_) => mockJobsCubit),
         ],
         child: const WeeklySummaryPage(),
       ),

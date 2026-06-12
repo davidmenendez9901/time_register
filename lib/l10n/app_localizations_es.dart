@@ -335,6 +335,57 @@ class AppLocalizationsEs extends AppLocalizations {
       'Este símbolo se muestra junto a todos los montos en la app.';
 
   @override
+  String get jobs => 'Trabajos / Clientes';
+
+  @override
+  String get jobsSubtitle => 'Gestiona trabajos y sus tarifas por hora';
+
+  @override
+  String get addJob => 'Agregar Trabajo';
+
+  @override
+  String get editJob => 'Editar Trabajo';
+
+  @override
+  String get jobName => 'Nombre';
+
+  @override
+  String get enterNameValidation => 'Ingresa un nombre';
+
+  @override
+  String get jobRateOptional => 'Tarifa por hora (opcional)';
+
+  @override
+  String get jobRateHelper =>
+      'Reemplaza la tarifa por defecto para este trabajo';
+
+  @override
+  String get jobColor => 'Color';
+
+  @override
+  String get deleteJob => 'Eliminar Trabajo';
+
+  @override
+  String get deleteJobConfirm =>
+      '¿Eliminar este trabajo? Sus entradas se conservarán, sin trabajo asignado.';
+
+  @override
+  String get noJobs =>
+      'Aún no hay trabajos. Agrega uno para organizar tus entradas por cliente.';
+
+  @override
+  String get job => 'Trabajo';
+
+  @override
+  String get noJob => 'Sin trabajo';
+
+  @override
+  String get archiveJob => 'Archivado (oculto para nuevas entradas)';
+
+  @override
+  String get defaultRateLabel => 'Tarifa por defecto';
+
+  @override
   String get clockIn => 'Fichar Entrada';
 
   @override

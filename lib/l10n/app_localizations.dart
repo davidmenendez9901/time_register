@@ -716,6 +716,102 @@ abstract class AppLocalizations {
   /// **'This symbol is shown next to all amounts in the app.'**
   String get currencySubtitle;
 
+  /// No description provided for @jobs.
+  ///
+  /// In en, this message translates to:
+  /// **'Jobs / Clients'**
+  String get jobs;
+
+  /// No description provided for @jobsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage jobs and their hourly rates'**
+  String get jobsSubtitle;
+
+  /// No description provided for @addJob.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Job'**
+  String get addJob;
+
+  /// No description provided for @editJob.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Job'**
+  String get editJob;
+
+  /// No description provided for @jobName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get jobName;
+
+  /// No description provided for @enterNameValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a name'**
+  String get enterNameValidation;
+
+  /// No description provided for @jobRateOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Hourly rate (optional)'**
+  String get jobRateOptional;
+
+  /// No description provided for @jobRateHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Overrides the default rate for this job'**
+  String get jobRateHelper;
+
+  /// No description provided for @jobColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get jobColor;
+
+  /// No description provided for @deleteJob.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Job'**
+  String get deleteJob;
+
+  /// No description provided for @deleteJobConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this job? Its entries will be kept, without a job.'**
+  String get deleteJobConfirm;
+
+  /// No description provided for @noJobs.
+  ///
+  /// In en, this message translates to:
+  /// **'No jobs yet. Add one to organize your entries by client.'**
+  String get noJobs;
+
+  /// No description provided for @job.
+  ///
+  /// In en, this message translates to:
+  /// **'Job'**
+  String get job;
+
+  /// No description provided for @noJob.
+  ///
+  /// In en, this message translates to:
+  /// **'No job'**
+  String get noJob;
+
+  /// No description provided for @archiveJob.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived (hidden for new entries)'**
+  String get archiveJob;
+
+  /// No description provided for @defaultRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Default rate'**
+  String get defaultRateLabel;
+
   /// No description provided for @clockIn.
   ///
   /// In en, this message translates to:

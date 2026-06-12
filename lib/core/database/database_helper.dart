@@ -22,7 +22,7 @@ class DatabaseHelper {
     String path = join(documentsDirectory.path, 'time_register.db');
     return await openDatabase(
       path,
-      version: 6,
+      version: 7,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -56,7 +56,19 @@ class DatabaseHelper {
         created_at TEXT NOT NULL,
         lunch_start_time TEXT,
         lunch_end_time TEXT,
-        description TEXT
+        description TEXT,
+        job_id INTEGER
+      )
+    ''');
+
+    // Create jobs table
+    await db.execute('''
+      CREATE TABLE jobs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        color INTEGER NOT NULL,
+        hourly_rate REAL,
+        archived INTEGER NOT NULL DEFAULT 0
       )
     ''');
 
@@ -103,6 +115,19 @@ class DatabaseHelper {
       await db.execute(
         'ALTER TABLE settings ADD COLUMN active_shift_start TEXT',
       );
+    }
+    if (oldVersion < 7) {
+      // Multiple jobs/clients support
+      await db.execute('''
+        CREATE TABLE jobs (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          color INTEGER NOT NULL,
+          hourly_rate REAL,
+          archived INTEGER NOT NULL DEFAULT 0
+        )
+      ''');
+      await db.execute('ALTER TABLE work_entries ADD COLUMN job_id INTEGER');
     }
   }
 
@@ -241,14 +266,49 @@ class DatabaseHelper {
     );
   }
 
-  /// Atomically replaces all work entries and settings (used by restore).
+  // Jobs operations
+  Future<List<Map<String, dynamic>>> getJobs() async {
+    final db = await database;
+    return await db.query('jobs', orderBy: 'archived ASC, name ASC');
+  }
+
+  Future<int> insertJob(Map<String, dynamic> job) async {
+    final db = await database;
+    return await db.insert('jobs', job);
+  }
+
+  Future<int> updateJob(int id, Map<String, dynamic> job) async {
+    final db = await database;
+    return await db.update('jobs', job, where: 'id = ?', whereArgs: [id]);
+  }
+
+  /// Deletes a job and unlinks its work entries (entries are kept).
+  Future<void> deleteJob(int id) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.update(
+        'work_entries',
+        {'job_id': null},
+        where: 'job_id = ?',
+        whereArgs: [id],
+      );
+      await txn.delete('jobs', where: 'id = ?', whereArgs: [id]);
+    });
+  }
+
+  /// Atomically replaces all work entries, jobs and settings (restore).
   Future<void> restoreAll({
     required Map<String, dynamic> settings,
     required List<Map<String, dynamic>> entries,
+    List<Map<String, dynamic>> jobs = const [],
   }) async {
     final db = await database;
     await db.transaction((txn) async {
       await txn.delete('work_entries');
+      await txn.delete('jobs');
+      for (final job in jobs) {
+        await txn.insert('jobs', job);
+      }
       for (final entry in entries) {
         await txn.insert('work_entries', entry);
       }

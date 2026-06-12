@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/entities/work_entry.dart';
 import '../../core/utils/csv_exporter.dart';
+import '../blocs/jobs/jobs_cubit.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/time_tracking/time_tracking_state.dart';
@@ -122,10 +123,13 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
       return;
     }
 
+    final jobs = context.read<JobsCubit>().state;
     final csv = CsvExporter.buildCsv(
       entries,
+      jobNames: {for (final job in jobs) job.id!: job.name},
       CsvLabels(
         date: l10n.date,
+        job: l10n.job,
         startTime: l10n.startTime,
         endTime: l10n.endTime,
         lunchBreak: l10n.lunchBreak,
@@ -451,6 +455,9 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                             closedElevation: 0,
                             closedColor: Colors.transparent,
                             closedBuilder: (context, openContainer) {
+                              final job = context.watch<JobsCubit>().byId(
+                                entry.jobId,
+                              );
                               return ListTile(
                                 onTap: openContainer,
                                 contentPadding: const EdgeInsets.symmetric(
@@ -477,7 +484,10 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                                 ),
                                 subtitle: Text(
                                   '${entry.startTime.hour}:${entry.startTime.minute.toString().padLeft(2, '0')} - '
-                                  '${entry.endTime.hour}:${entry.endTime.minute.toString().padLeft(2, '0')}',
+                                  '${entry.endTime.hour}:${entry.endTime.minute.toString().padLeft(2, '0')}'
+                                  '${job != null ? ' • ${job.name}' : ''}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey.shade600,

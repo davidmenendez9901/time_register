@@ -7,6 +7,7 @@ import '../entities/work_entry.dart';
 /// fills these from AppLocalizations so this class stays UI-framework free.
 class CsvLabels {
   final String date;
+  final String job;
   final String startTime;
   final String endTime;
   final String lunchBreak;
@@ -23,6 +24,7 @@ class CsvLabels {
 
   const CsvLabels({
     required this.date,
+    required this.job,
     required this.startTime,
     required this.endTime,
     required this.lunchBreak,
@@ -45,13 +47,18 @@ class CsvLabels {
 class CsvExporter {
   static final _time = DateFormat('HH:mm');
 
-  static String buildCsv(List<WorkEntry> entries, CsvLabels labels) {
+  static String buildCsv(
+    List<WorkEntry> entries,
+    CsvLabels labels, {
+    Map<int, String> jobNames = const {},
+  }) {
     final sorted = List<WorkEntry>.from(entries)
       ..sort((a, b) => a.date.compareTo(b.date));
 
     final rows = <List<dynamic>>[
       [
         labels.date,
+        labels.job,
         labels.startTime,
         labels.endTime,
         labels.lunchBreak,
@@ -66,6 +73,7 @@ class CsvExporter {
       for (final e in sorted)
         [
           DateFormat('yyyy-MM-dd').format(e.date),
+          jobNames[e.jobId] ?? '',
           _time.format(e.startTime),
           _time.format(e.endTime),
           e.lunchTaken ? labels.yes : labels.no,
@@ -79,6 +87,7 @@ class CsvExporter {
         ],
       [
         labels.total,
+        '',
         '',
         '',
         '',

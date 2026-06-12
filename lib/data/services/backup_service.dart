@@ -10,9 +10,11 @@ class BackupService {
   Future<String> createBackupJson() async {
     final settings = await databaseHelper.getSettings();
     final entries = await databaseHelper.getWorkEntries();
+    final jobs = await databaseHelper.getJobs();
     return BackupCodec.encode(
       settings: settings,
       entries: entries,
+      jobs: jobs,
       exportedAt: DateTime.now(),
     );
   }
@@ -24,6 +26,7 @@ class BackupService {
     await databaseHelper.restoreAll(
       settings: data.settings,
       entries: data.entries,
+      jobs: data.jobs,
     );
   }
 }

@@ -8,8 +8,10 @@ import 'core/theme/app_theme.dart';
 import 'core/entities/settings.dart' as app_settings;
 import 'data/datasources/work_entry_local_data_source.dart';
 import 'data/datasources/settings_local_data_source.dart';
+import 'data/datasources/job_local_data_source.dart';
 import 'data/repositories/work_entry_repository_impl.dart';
 import 'data/repositories/settings_repository_impl.dart';
+import 'data/repositories/job_repository_impl.dart';
 import 'core/usecases/get_work_entries.dart';
 import 'core/usecases/add_work_entry.dart';
 import 'core/usecases/update_work_entry.dart';
@@ -22,8 +24,10 @@ import 'core/usecases/update_app_palette.dart' as palette_usecase;
 import 'core/usecases/update_currency_symbol.dart' as currency_usecase;
 import 'core/theme/app_palette.dart';
 import 'core/repositories/settings_repository.dart';
+import 'core/repositories/job_repository.dart';
 import 'presentation/blocs/time_tracking/time_tracking_bloc.dart';
 import 'presentation/blocs/shift_timer/shift_timer_cubit.dart';
+import 'presentation/blocs/jobs/jobs_cubit.dart';
 import 'presentation/blocs/settings/settings_bloc.dart';
 import 'presentation/blocs/settings/settings_event.dart';
 import 'presentation/blocs/settings/settings_state.dart';
@@ -42,10 +46,12 @@ void main() async {
   // Initialize data sources
   final workEntryDataSource = WorkEntryLocalDataSourceImpl(databaseHelper);
   final settingsDataSource = SettingsLocalDataSourceImpl(databaseHelper);
+  final jobDataSource = JobLocalDataSourceImpl(databaseHelper);
 
   // Initialize repositories
   final workEntryRepository = WorkEntryRepositoryImpl(workEntryDataSource);
   final settingsRepository = SettingsRepositoryImpl(settingsDataSource);
+  final jobRepository = JobRepositoryImpl(jobDataSource);
 
   // Initialize use cases
   final getWorkEntries = GetWorkEntries(workEntryRepository);
@@ -78,6 +84,7 @@ void main() async {
       updateAppPalette: updateAppPalette,
       updateCurrencySymbol: updateCurrencySymbol,
       settingsRepository: settingsRepository,
+      jobRepository: jobRepository,
     ),
   );
 }
@@ -94,6 +101,7 @@ class MyApp extends StatelessWidget {
   final palette_usecase.UpdateAppPalette updateAppPalette;
   final currency_usecase.UpdateCurrencySymbol updateCurrencySymbol;
   final SettingsRepository settingsRepository;
+  final JobRepository jobRepository;
 
   const MyApp({
     super.key,
@@ -108,6 +116,7 @@ class MyApp extends StatelessWidget {
     required this.updateAppPalette,
     required this.updateCurrencySymbol,
     required this.settingsRepository,
+    required this.jobRepository,
   });
 
   @override
@@ -140,6 +149,8 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => ShiftTimerCubit(settingsRepository)..load(),
         ),
+        // Jobs/clients
+        BlocProvider(create: (context) => JobsCubit(jobRepository)..load()),
       ],
       //
       child: BlocBuilder<SettingsBloc, SettingsState>(

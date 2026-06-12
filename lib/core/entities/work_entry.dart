@@ -12,6 +12,7 @@ class WorkEntry {
   final DateTime? lunchStartTime;
   final DateTime? lunchEndTime;
   final String? description;
+  final int? jobId;
 
   WorkEntry({
     this.id,
@@ -26,6 +27,7 @@ class WorkEntry {
     this.lunchStartTime,
     this.lunchEndTime,
     this.description,
+    this.jobId,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -98,6 +100,7 @@ class WorkEntry {
       lunchStartTime: lunchStart,
       lunchEndTime: lunchEnd,
       description: map['description'] as String?,
+      jobId: map['job_id'] as int?,
       createdAt: DateTime.parse(map['created_at'] as String),
     );
   }
@@ -123,6 +126,7 @@ class WorkEntry {
           ? '${lunchEndTime!.hour.toString().padLeft(2, '0')}:${lunchEndTime!.minute.toString().padLeft(2, '0')}'
           : null,
       'description': description,
+      'job_id': jobId,
       'created_at': createdAt.toIso8601String(),
     };
   }
@@ -141,6 +145,8 @@ class WorkEntry {
     DateTime? lunchStartTime,
     DateTime? lunchEndTime,
     String? description,
+    int? jobId,
+    bool clearJobId = false,
     DateTime? createdAt,
   }) {
     return WorkEntry(
@@ -156,6 +162,7 @@ class WorkEntry {
       lunchStartTime: lunchStartTime ?? this.lunchStartTime,
       lunchEndTime: lunchEndTime ?? this.lunchEndTime,
       description: description ?? this.description,
+      jobId: clearJobId ? null : (jobId ?? this.jobId),
       createdAt: createdAt ?? this.createdAt,
     );
   }
