@@ -9,6 +9,8 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/entities/work_entry.dart';
 import '../../core/utils/csv_exporter.dart';
 import '../blocs/jobs/jobs_cubit.dart';
+import '../blocs/settings/settings_bloc.dart';
+import '../blocs/settings/settings_state.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/time_tracking/time_tracking_state.dart';
@@ -665,6 +667,11 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
     required Color backgroundColor,
   }) {
     final l10n = AppLocalizations.of(context)!;
+    final settingsState = context.watch<SettingsBloc>().state;
+    final appSettings = settingsState is SettingsLoaded
+        ? settingsState.settings
+        : null;
+    final showNet = appSettings?.deductionsEnabled ?? false;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       child: Card(
@@ -723,6 +730,18 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                   ),
                 ],
               ),
+              if (showNet) ...[
+                const SizedBox(height: 4),
+                Text(
+                  '${l10n.estimatedNet}: '
+                  '${currencySymbolOf(context)}${appSettings!.netOf(amount).toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: color.withValues(alpha: 0.8),
+                  ),
+                ),
+              ],
               const Spacer(),
             ],
           ),

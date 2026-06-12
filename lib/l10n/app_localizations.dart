@@ -716,6 +716,60 @@ abstract class AppLocalizations {
   /// **'This symbol is shown next to all amounts in the app.'**
   String get currencySubtitle;
 
+  /// No description provided for @deductions.
+  ///
+  /// In en, this message translates to:
+  /// **'Deductions'**
+  String get deductions;
+
+  /// No description provided for @deductionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate taxes or other deductions as a percentage of your earnings. When disabled, deductions are not shown anywhere in the app.'**
+  String get deductionsSubtitle;
+
+  /// No description provided for @enableDeductions.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable deductions'**
+  String get enableDeductions;
+
+  /// No description provided for @deductionRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Deduction percentage'**
+  String get deductionRate;
+
+  /// No description provided for @editDeductionRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Deduction Percentage'**
+  String get editDeductionRate;
+
+  /// No description provided for @enterPercentValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a percentage between 0 and 100'**
+  String get enterPercentValidation;
+
+  /// No description provided for @net.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get net;
+
+  /// No description provided for @estimatedNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated net'**
+  String get estimatedNet;
+
+  /// No description provided for @deductionsUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deductions updated'**
+  String get deductionsUpdated;
+
   /// No description provided for @jobs.
   ///
   /// In en, this message translates to:

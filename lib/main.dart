@@ -22,6 +22,7 @@ import 'core/usecases/update_theme_mode.dart' as theme_mode_usecase;
 import 'core/usecases/mark_entry_as_paid.dart';
 import 'core/usecases/update_app_palette.dart' as palette_usecase;
 import 'core/usecases/update_currency_symbol.dart' as currency_usecase;
+import 'core/usecases/update_deductions.dart' as deductions_usecase;
 import 'core/theme/app_palette.dart';
 import 'core/repositories/settings_repository.dart';
 import 'core/repositories/job_repository.dart';
@@ -70,6 +71,9 @@ void main() async {
   final updateCurrencySymbol = currency_usecase.UpdateCurrencySymbol(
     settingsRepository,
   );
+  final updateDeductions = deductions_usecase.UpdateDeductions(
+    settingsRepository,
+  );
 
   runApp(
     MyApp(
@@ -83,6 +87,7 @@ void main() async {
       updateThemeMode: updateThemeMode,
       updateAppPalette: updateAppPalette,
       updateCurrencySymbol: updateCurrencySymbol,
+      updateDeductions: updateDeductions,
       settingsRepository: settingsRepository,
       jobRepository: jobRepository,
     ),
@@ -100,6 +105,7 @@ class MyApp extends StatelessWidget {
   final theme_mode_usecase.UpdateThemeMode updateThemeMode;
   final palette_usecase.UpdateAppPalette updateAppPalette;
   final currency_usecase.UpdateCurrencySymbol updateCurrencySymbol;
+  final deductions_usecase.UpdateDeductions updateDeductions;
   final SettingsRepository settingsRepository;
   final JobRepository jobRepository;
 
@@ -115,6 +121,7 @@ class MyApp extends StatelessWidget {
     required this.updateThemeMode,
     required this.updateAppPalette,
     required this.updateCurrencySymbol,
+    required this.updateDeductions,
     required this.settingsRepository,
     required this.jobRepository,
   });
@@ -143,6 +150,7 @@ class MyApp extends StatelessWidget {
             updateThemeMode: updateThemeMode,
             updateAppPalette: updateAppPalette,
             updateCurrencySymbol: updateCurrencySymbol,
+            updateDeductions: updateDeductions,
           )..add(LoadSettings()),
         ),
         // Live shift timer (clock in/out)

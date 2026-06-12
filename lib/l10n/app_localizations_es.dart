@@ -335,6 +335,34 @@ class AppLocalizationsEs extends AppLocalizations {
       'Este símbolo se muestra junto a todos los montos en la app.';
 
   @override
+  String get deductions => 'Deducciones';
+
+  @override
+  String get deductionsSubtitle =>
+      'Estima impuestos u otras deducciones como porcentaje de tus ganancias. Si está deshabilitado, las deducciones no se muestran en ninguna parte de la app.';
+
+  @override
+  String get enableDeductions => 'Habilitar deducciones';
+
+  @override
+  String get deductionRate => 'Porcentaje de deducción';
+
+  @override
+  String get editDeductionRate => 'Editar Porcentaje de Deducción';
+
+  @override
+  String get enterPercentValidation => 'Ingresa un porcentaje entre 0 y 100';
+
+  @override
+  String get net => 'Neto';
+
+  @override
+  String get estimatedNet => 'Neto estimado';
+
+  @override
+  String get deductionsUpdated => 'Deducciones actualizadas';
+
+  @override
   String get jobs => 'Trabajos / Clientes';
 
   @override

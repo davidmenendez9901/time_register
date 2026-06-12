@@ -22,7 +22,7 @@ class DatabaseHelper {
     String path = join(documentsDirectory.path, 'time_register.db');
     return await openDatabase(
       path,
-      version: 7,
+      version: 8,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -37,7 +37,9 @@ class DatabaseHelper {
         theme_mode TEXT NOT NULL DEFAULT 'system',
         app_palette TEXT NOT NULL DEFAULT 'Blue',
         currency_symbol TEXT NOT NULL DEFAULT '\$',
-        active_shift_start TEXT
+        active_shift_start TEXT,
+        deductions_enabled INTEGER NOT NULL DEFAULT 0,
+        deduction_rate REAL NOT NULL DEFAULT 0.0
       )
     ''');
 
@@ -129,6 +131,15 @@ class DatabaseHelper {
       ''');
       await db.execute('ALTER TABLE work_entries ADD COLUMN job_id INTEGER');
     }
+    if (oldVersion < 8) {
+      // Optional deduction estimate (taxes etc.) as a percentage
+      await db.execute(
+        'ALTER TABLE settings ADD COLUMN deductions_enabled INTEGER NOT NULL DEFAULT 0',
+      );
+      await db.execute(
+        'ALTER TABLE settings ADD COLUMN deduction_rate REAL NOT NULL DEFAULT 0.0',
+      );
+    }
   }
 
   // Settings operations
@@ -143,6 +154,8 @@ class DatabaseHelper {
       'theme_mode': 'system',
       'app_palette': 'Blue',
       'currency_symbol': '\$',
+      'deductions_enabled': 0,
+      'deduction_rate': 0.0,
     };
   }
 
@@ -186,6 +199,19 @@ class DatabaseHelper {
     await db.update(
       'settings',
       {'currency_symbol': symbol},
+      where: 'id = ?',
+      whereArgs: [1],
+    );
+  }
+
+  Future<void> updateDeductions({
+    required bool enabled,
+    required double rate,
+  }) async {
+    final db = await database;
+    await db.update(
+      'settings',
+      {'deductions_enabled': enabled ? 1 : 0, 'deduction_rate': rate},
       where: 'id = ?',
       whereArgs: [1],
     );

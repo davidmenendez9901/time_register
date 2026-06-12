@@ -36,6 +36,7 @@ All data stays on your device — no account, no cloud, no tracking.
 ### ⚙️ Customization
 - **Hourly Rate**: Configurable default rate for new entries
 - **Currency Symbol**: Use $, €, or any symbol you like
+- **Deduction Estimates**: Optional percentage (taxes etc.) showing net earnings; fully hidden when disabled
 - **Theme Support**: Light, dark, and system theme modes with four color palettes
 - **Languages**: English and Spanish
 - **Persistent Settings**: All configurations saved locally
@@ -163,11 +164,11 @@ See the full [Privacy Policy](PRIVACY_POLICY.md).
 - [x] Backup and restore
 - [x] Live timer (clock in / clock out)
 - [x] Multiple jobs/clients with per-job rates
+- [x] Tax/deduction estimates (optional, off by default)
 - [ ] PDF export
 - [ ] Overtime rules (1.5x / 2x after N hours)
 - [ ] Charts and analytics
 - [ ] Shift templates
-- [ ] Tax/deduction estimates
 
 ## 🤝 Contributing
 

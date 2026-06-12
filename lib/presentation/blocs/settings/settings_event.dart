@@ -28,3 +28,10 @@ class UpdateCurrencySymbol extends SettingsEvent {
 
   UpdateCurrencySymbol(this.symbol);
 }
+
+class UpdateDeductions extends SettingsEvent {
+  final bool enabled;
+  final double rate;
+
+  UpdateDeductions({required this.enabled, required this.rate});
+}

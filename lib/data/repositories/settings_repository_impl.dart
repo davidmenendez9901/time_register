@@ -34,6 +34,14 @@ class SettingsRepositoryImpl implements SettingsRepository {
   }
 
   @override
+  Future<void> updateDeductions({
+    required bool enabled,
+    required double rate,
+  }) async {
+    await localDataSource.updateDeductions(enabled: enabled, rate: rate);
+  }
+
+  @override
   Future<DateTime?> getActiveShiftStart() async {
     return await localDataSource.getActiveShiftStart();
   }

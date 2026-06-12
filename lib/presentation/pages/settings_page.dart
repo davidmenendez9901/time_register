@@ -32,6 +32,8 @@ class _SettingsPageState extends State<SettingsPage> {
   final _rateController = TextEditingController();
   final _currencyFormKey = GlobalKey<FormState>();
   final _currencyController = TextEditingController();
+  final _deductionFormKey = GlobalKey<FormState>();
+  final _deductionController = TextEditingController();
 
   @override
   void initState() {
@@ -43,7 +45,81 @@ class _SettingsPageState extends State<SettingsPage> {
   void dispose() {
     _rateController.dispose();
     _currencyController.dispose();
+    _deductionController.dispose();
     super.dispose();
+  }
+
+  void _showEditDeductionDialog(
+    app_settings.AppSettings settings,
+    AppLocalizations l10n,
+  ) {
+    _deductionController.text = settings.deductionRate.toStringAsFixed(1);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              const FaIcon(FontAwesomeIcons.percent, color: Colors.deepPurple),
+              const SizedBox(width: 8),
+              Expanded(child: Text(l10n.editDeductionRate)),
+            ],
+          ),
+          content: Form(
+            key: _deductionFormKey,
+            child: TextFormField(
+              controller: _deductionController,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+              ],
+              decoration: InputDecoration(
+                labelText: l10n.deductionRate,
+                suffixText: '%',
+                border: const OutlineInputBorder(),
+              ),
+              validator: (value) {
+                final rate = double.tryParse(value ?? '');
+                if (rate == null || rate < 0 || rate > 100) {
+                  return l10n.enterPercentValidation;
+                }
+                return null;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(l10n.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_deductionFormKey.currentState!.validate()) {
+                  final rate = double.parse(_deductionController.text);
+                  context.read<SettingsBloc>().add(
+                    UpdateDeductions(
+                      enabled: settings.deductionsEnabled,
+                      rate: rate,
+                    ),
+                  );
+                  Navigator.pop(dialogContext);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l10n.deductionsUpdated),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              },
+              child: Text(l10n.saveEntry),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showEditCurrencyDialog(String currentSymbol, AppLocalizations l10n) {
@@ -342,6 +418,72 @@ class _SettingsPageState extends State<SettingsPage> {
                         padding: const EdgeInsets.all(16),
                         child: Text(
                           l10n.currencySubtitle,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).textTheme.bodySmall?.color,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Deductions Section
+                Card(
+                  elevation: 2,
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        secondary: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.deepPurple.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const FaIcon(
+                            FontAwesomeIcons.percent,
+                            color: Colors.deepPurple,
+                          ),
+                        ),
+                        title: Text(
+                          l10n.deductions,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(l10n.enableDeductions),
+                        value: state.settings.deductionsEnabled,
+                        onChanged: (enabled) {
+                          context.read<SettingsBloc>().add(
+                            UpdateDeductions(
+                              enabled: enabled,
+                              rate: state.settings.deductionRate,
+                            ),
+                          );
+                        },
+                      ),
+                      if (state.settings.deductionsEnabled) ...[
+                        const Divider(height: 1),
+                        ListTile(
+                          title: Text(l10n.deductionRate),
+                          subtitle: Text(
+                            '${state.settings.deductionRate.toStringAsFixed(1)} %',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
+                          trailing: IconButton(
+                            icon: const FaIcon(FontAwesomeIcons.penToSquare),
+                            onPressed: () =>
+                                _showEditDeductionDialog(state.settings, l10n),
+                          ),
+                        ),
+                      ],
+                      const Divider(height: 1),
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          l10n.deductionsSubtitle,
                           style: TextStyle(
                             fontSize: 12,
                             color: Theme.of(context).textTheme.bodySmall?.color,

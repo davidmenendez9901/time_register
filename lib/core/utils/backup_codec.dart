@@ -26,6 +26,8 @@ class BackupCodec {
     'theme_mode',
     'app_palette',
     'currency_symbol',
+    'deductions_enabled',
+    'deduction_rate',
   };
 
   static const _entryKeys = {

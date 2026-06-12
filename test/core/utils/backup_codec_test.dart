@@ -6,6 +6,8 @@ final settings = {
   'theme_mode': 'dark',
   'app_palette': 'Green',
   'currency_symbol': '€',
+  'deductions_enabled': 1,
+  'deduction_rate': 13.5,
 };
 
 final entry = {

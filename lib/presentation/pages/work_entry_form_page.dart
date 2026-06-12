@@ -784,6 +784,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
                           '$symbol${_calculateDisplayEarnings().toStringAsFixed(2)}',
                           isTotal: true,
                         ),
+                        ..._buildDeductionRows(context, l10n, symbol),
                       ],
                     ),
                   ),
@@ -810,6 +811,33 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
         ),
       ),
     );
+  }
+
+  // Deduction estimate rows, only when deductions are enabled in settings
+  List<Widget> _buildDeductionRows(
+    BuildContext context,
+    AppLocalizations l10n,
+    String symbol,
+  ) {
+    final settingsState = context.watch<SettingsBloc>().state;
+    if (settingsState is! SettingsLoaded ||
+        !settingsState.settings.deductionsEnabled) {
+      return const [];
+    }
+    final settings = settingsState.settings;
+    final gross = _calculateDisplayEarnings();
+    final net = settings.netOf(gross);
+    return [
+      _buildSummaryRow(
+        '${l10n.deductions} (${settings.deductionRate.toStringAsFixed(1)}%)',
+        '-$symbol${(gross - net).toStringAsFixed(2)}',
+      ),
+      _buildSummaryRow(
+        l10n.estimatedNet,
+        '$symbol${net.toStringAsFixed(2)}',
+        isTotal: true,
+      ),
+    ];
   }
 
   Widget _buildSummaryRow(String label, String value, {bool isTotal = false}) {
