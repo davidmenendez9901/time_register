@@ -25,9 +25,9 @@ esta máquina** para no repetir este trámite.
       Este build lleva **2**; debe ser mayor que el existente. Si ya subiste
       un 2 o superior, sube `version:` en `pubspec.yaml` (p. ej. `1.1.0+3`)
       y recompila.
-- [ ] **Package**: el de Play Console debe ser exactamente
-      `dev.davidmenendez.time_register`. Si no coincide, avísame antes de
-      subir nada.
+- [x] **Package**: Play Console registró la app como
+      `time_register.davidmenendez.dev`; el `applicationId` del proyecto ya
+      se ajustó para coincidir (2026-07-06).
 - [ ] **Subir `app-release.aab`** a **prueba interna** primero.
 - [ ] **Probar la actualización** en un dispositivo que tenga la versión
       vieja instalada (las migraciones de base de datos v4 → v8 deben
