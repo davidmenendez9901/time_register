@@ -267,7 +267,9 @@ class _SettingsPageState extends State<SettingsPage> {
             return const Center(child: CircularProgressIndicator());
           } else if (state is SettingsLoaded) {
             return ListView(
-              padding: const EdgeInsets.all(16),
+              // Extra bottom padding so the last item clears the floating
+              // nav bar, matching the other tabs.
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
               children: [
                 // Theme Section
                 Card(

@@ -312,6 +312,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get markedAsUnpaid => 'Marked as unpaid';
 
   @override
+  String get entrySaved => 'Entry saved';
+
+  @override
+  String get changesSaved => 'Changes saved';
+
+  @override
+  String get fixFormErrors => 'Please review the fields marked in red';
+
+  @override
   String get currency => 'Currency';
 
   @override

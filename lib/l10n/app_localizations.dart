@@ -680,6 +680,24 @@ abstract class AppLocalizations {
   /// **'Marked as unpaid'**
   String get markedAsUnpaid;
 
+  /// No description provided for @entrySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry saved'**
+  String get entrySaved;
+
+  /// No description provided for @changesSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes saved'**
+  String get changesSaved;
+
+  /// No description provided for @fixFormErrors.
+  ///
+  /// In en, this message translates to:
+  /// **'Please review the fields marked in red'**
+  String get fixFormErrors;
+
   /// No description provided for @currency.
   ///
   /// In en, this message translates to:

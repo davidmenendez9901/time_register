@@ -186,7 +186,18 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
   }
 
   void _saveEntry() {
-    if (_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) {
+      // The inline field errors can be scrolled out of view, so also
+      // surface the failure where the user is looking.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.fixFormErrors),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    {
       final startDateTime = DateTime(
         _selectedDate.year,
         _selectedDate.month,
@@ -307,6 +318,14 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
         context.read<TimeTrackingBloc>().add(AddWorkEntry(entry));
       }
 
+      final l10n = AppLocalizations.of(context)!;
+      // The root messenger keeps the snackbar visible after popping back.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_isEditMode ? l10n.changesSaved : l10n.entrySaved),
+          duration: const Duration(seconds: 2),
+        ),
+      );
       Navigator.pop(context, true);
     }
   }
