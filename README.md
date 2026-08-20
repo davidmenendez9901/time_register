@@ -157,7 +157,8 @@ CREATE TABLE settings (
 - **No Network Permission**: The Android release build cannot access the internet
 - **User Control**: Complete ownership of personal data
 
-See the full [Privacy Policy](PRIVACY_POLICY.md).
+See the full [Privacy Policy](https://davidmenendez9901.github.io/time_register/privacy.html)
+(also available in this repo as [PRIVACY_POLICY.md](PRIVACY_POLICY.md)).
 
 ## 📱 Platform Support
 

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Time Register</title>
+  <meta name="description" content="Time Register collects no data at all. Everything you enter stays in a local database on your device: no account, no cloud, no ads, no analytics, no network permission.">
+  <link rel="canonical" href="https://davidmenendez9901.github.io/time_register/privacy.html">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Privacy Policy — Time Register">
+  <meta property="og:description" content="Time Register collects no data at all. Everything stays on your device.">
+  <meta property="og:url" content="https://davidmenendez9901.github.io/time_register/privacy.html">
+  <meta property="og:image" content="https://davidmenendez9901.github.io/time_register/assets/icon.png">
+  <meta name="twitter:card" content="summary">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --accent-bg: #eff6ff;
+      --link: #2563eb;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --text: #e2e8f0;
+        --text-muted: #94a3b8;
+        --border: #334155;
+        --accent-bg: #1e3a5f;
+        --link: #60a5fa;
+      }
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .hero {
+      background: linear-gradient(160deg, #3b82f6, #1e40af);
+      color: #fff;
+      text-align: center;
+      padding: 52px 24px 60px;
+      position: relative;
+    }
+    .lang-toggle {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.4);
+      border-radius: 999px;
+      color: #fff;
+      padding: 6px 16px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .lang-toggle:hover { background: rgba(255,255,255,0.25); }
+    .back {
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .back:hover { opacity: 1; text-decoration: underline; }
+    .hero img.icon {
+      width: 76px;
+      height: 76px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.32);
+      margin-bottom: 18px;
+    }
+    .hero h1 { font-size: 34px; font-weight: 900; letter-spacing: -0.4px; }
+    .hero .updated { margin-top: 10px; font-size: 15px; opacity: 0.88; }
+
+    main { max-width: 760px; margin: 0 auto; padding: 48px 24px 24px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+    }
+    .highlight {
+      background: var(--accent-bg);
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--primary);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 32px;
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .card > p.intro { color: var(--text-muted); margin-bottom: 28px; }
+    h2 {
+      font-size: 21px;
+      font-weight: 900;
+      margin: 34px 0 12px;
+      letter-spacing: -0.2px;
+    }
+    h2:first-of-type { margin-top: 0; }
+    ul { margin: 12px 0 0 22px; }
+    li { margin-bottom: 9px; }
+    p { margin-bottom: 10px; }
+    a { color: var(--link); font-weight: 700; }
+    .card a { word-break: break-word; }
+
+    footer {
+      text-align: center;
+      padding: 32px 24px 52px;
+      color: var(--text-muted);
+      font-size: 14.5px;
+    }
+    footer a { color: var(--link); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .sep { margin: 0 8px; opacity: 0.5; }
+
+    /* Both languages render when JavaScript is unavailable; the toggle
+       hides one only after the script runs. */
+    .js .lang-block[hidden] { display: none; }
+    .lang-block + .lang-block { margin-top: 40px; }
+
+    @media (max-width: 600px) {
+      .hero { padding: 68px 20px 48px; }
+      .hero h1 { font-size: 27px; }
+      main { padding: 32px 16px 16px; }
+      .card { padding: 26px 22px; border-radius: 16px; }
+      h2 { font-size: 19px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <a class="back" href="./" id="backLink">← Time Register</a>
+    <button class="lang-toggle" id="langToggle" aria-label="Change language">ES</button>
+    <img class="icon" src="assets/icon.png" alt="Time Register icon">
+    <h1 id="pageTitle">Privacy Policy</h1>
+    <p class="updated" id="pageUpdated">Last updated: June 12, 2026</p>
+  </header>
+
+  <main>
+    <!-- ENGLISH -->
+    <section class="lang-block card" data-lang="en" lang="en">
+      <div class="highlight">Time Register does not collect, transmit, store remotely, or share any personal data.</div>
+
+      <p class="intro">Time Register (&ldquo;the app&rdquo;) is an open source application for tracking work hours and earnings, developed by David Menendez.</p>
+
+      <h2>Data collection</h2>
+      <ul>
+        <li>All information you enter (work entries, hours, hourly rates, notes, and settings) is stored <strong>only in a local database on your device</strong>.</li>
+        <li>The app does not require an account and has no sign-up of any kind.</li>
+        <li>The app does not connect to the internet, and the Android release build does not request the network permission.</li>
+        <li>The app contains no analytics, no advertising, and no third-party tracking SDKs.</li>
+      </ul>
+
+      <h2>Data control and deletion</h2>
+      <p>You have full control of your data:</p>
+      <ul>
+        <li>Your data never leaves your device.</li>
+        <li>Uninstalling the app permanently deletes all data stored by it.</li>
+        <li>Individual entries can be deleted at any time from within the app.</li>
+      </ul>
+
+      <h2>Permissions</h2>
+      <p>The app does not request any sensitive Android permissions (no location, camera, contacts, storage, or network access).</p>
+
+      <h2>Children&rsquo;s privacy</h2>
+      <p>The app does not collect data from anyone, including children.</p>
+
+      <h2>Changes to this policy</h2>
+      <p>Any future change to this policy will be published in this repository and noted in the release notes. Because the app is fully offline, changes can only ever increase transparency, never enable hidden collection.</p>
+
+      <h2>Contact</h2>
+      <p>For questions about this policy, open an issue at <a href="https://github.com/davidmenendez9901/time_register/issues">github.com/davidmenendez9901/time_register/issues</a>.</p>
+    </section>
+
+    <!-- ESPAÑOL -->
+    <section class="lang-block card" data-lang="es" lang="es">
+      <div class="highlight">Time Register no recolecta, transmite, almacena remotamente ni comparte ningún dato personal.</div>
+
+      <p class="intro">Time Register (&laquo;la app&raquo;) es una aplicación de código abierto para registrar horas de trabajo y ganancias, desarrollada por David Menendez.</p>
+
+      <h2>Recolección de datos</h2>
+      <ul>
+        <li>Toda la información que ingresas (entradas de trabajo, horas, tarifas, notas y ajustes) se guarda <strong>únicamente en una base de datos local en tu dispositivo</strong>.</li>
+        <li>La app no requiere cuenta ni registro de ningún tipo.</li>
+        <li>La app no se conecta a internet, y la versión de Android publicada no solicita el permiso de red.</li>
+        <li>La app no contiene analíticas, publicidad ni SDKs de rastreo de terceros.</li>
+      </ul>
+
+      <h2>Control y eliminación de datos</h2>
+      <p>Tienes control total de tus datos:</p>
+      <ul>
+        <li>Tus datos nunca salen de tu dispositivo.</li>
+        <li>Desinstalar la app elimina permanentemente todos los datos que almacena.</li>
+        <li>Puedes eliminar entradas individuales en cualquier momento desde la app.</li>
+      </ul>
+
+      <h2>Permisos</h2>
+      <p>La app no solicita ningún permiso sensible de Android (sin ubicación, cámara, contactos, almacenamiento ni acceso a red).</p>
+
+      <h2>Privacidad de menores</h2>
+      <p>La app no recolecta datos de ninguna persona, incluidos menores.</p>
+
+      <h2>Cambios a esta política</h2>
+      <p>Cualquier cambio futuro se publicará en este repositorio y se indicará en las notas de versión. Como la app es totalmente offline, los cambios solo pueden aumentar la transparencia, nunca habilitar recolección oculta.</p>
+
+      <h2>Contacto</h2>
+      <p>Para preguntas sobre esta política, abre un issue en <a href="https://github.com/davidmenendez9901/time_register/issues">github.com/davidmenendez9901/time_register/issues</a>.</p>
+    </section>
+  </main>
+
+  <footer>
+    <span id="footerText">Open source under the MIT license. Built with Flutter.</span>
+    <br>
+    <a href="./" id="footerHome">Home</a>
+    <span class="sep">·</span>
+    <a href="https://github.com/davidmenendez9901/time_register">GitHub</a>
+  </footer>
+
+  <script>
+    document.documentElement.classList.add("js");
+
+    var chrome = {
+      en: {
+        title: "Privacy Policy",
+        updated: "Last updated: June 12, 2026",
+        back: "← Time Register",
+        footer: "Open source under the MIT license. Built with Flutter.",
+        home: "Home",
+        toggle: "ES",
+        toggleLabel: "Cambiar a español"
+      },
+      es: {
+        title: "Política de Privacidad",
+        updated: "Última actualización: 12 de junio de 2026",
+        back: "← Time Register",
+        footer: "Open source bajo licencia MIT. Hecha con Flutter.",
+        home: "Inicio",
+        toggle: "EN",
+        toggleLabel: "Switch to English"
+      }
+    };
+
+    var stored = null;
+    try { stored = localStorage.getItem("tr-lang"); } catch (e) { /* private mode */ }
+    var lang = stored === "es" || stored === "en"
+      ? stored
+      : ((navigator.language || "en").toLowerCase().indexOf("es") === 0 ? "es" : "en");
+
+    var toggle = document.getElementById("langToggle");
+
+    function applyLang() {
+      var t = chrome[lang];
+      document.documentElement.lang = lang;
+      document.getElementById("pageTitle").textContent = t.title;
+      document.getElementById("pageUpdated").textContent = t.updated;
+      document.getElementById("backLink").textContent = t.back;
+      document.getElementById("footerText").textContent = t.footer;
+      document.getElementById("footerHome").textContent = t.home;
+      toggle.textContent = t.toggle;
+      toggle.setAttribute("aria-label", t.toggleLabel);
+      document.title = t.title + " — Time Register";
+      document.querySelectorAll(".lang-block").forEach(function (el) {
+        el.hidden = el.dataset.lang !== lang;
+      });
+    }
+
+    toggle.addEventListener("click", function () {
+      lang = lang === "en" ? "es" : "en";
+      try { localStorage.setItem("tr-lang", lang); } catch (e) { /* private mode */ }
+      applyLang();
+    });
+
+    applyLang();
+  </script>
+</body>
+</html>

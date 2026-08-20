@@ -2,6 +2,9 @@
 
 **Last updated: June 12, 2026**
 
+> Also published as a web page at
+> <https://davidmenendez9901.github.io/time_register/privacy.html>
+
 Time Register ("the app") is an open source application for tracking work hours and earnings, developed by David Menendez.
 
 ## Data collection

@@ -42,7 +42,8 @@ esta máquina** para no repetir este trámite.
         (nombre, corta y completa, dentro de los límites de caracteres).
   - [ ] Sitio web: `https://davidmenendez9901.github.io/time_register/`
 - [ ] **Política de privacidad**:
-      `https://github.com/davidmenendez9901/time_register/blob/main/PRIVACY_POLICY.md`
+      `https://davidmenendez9901.github.io/time_register/privacy.html`
+      (página web propia, bilingüe; sustituye al enlace al Markdown de GitHub)
 - [ ] **Seguridad de los datos**: declarar que **no se recolecta ni comparte
       ningún dato**. Si el formulario anterior decía otra cosa, actualízalo —
       ahora es verificable: la app ya no pide el permiso de internet.
