@@ -173,5 +173,9 @@
     "yes": "Sí",
     "no": "No",
     "privacyPolicySubtitle": "Cómo se manejan tus datos",
-    "privacyPolicyContent": "Time Register no recolecta, transmite ni comparte ningún dato personal.\n\nTodo lo que ingresas (entradas de trabajo, tarifas, notas y ajustes) se guarda únicamente en una base de datos local en tu dispositivo. La app no se conecta a internet, no tiene analíticas y no muestra publicidad.\n\nDesinstalar la app elimina permanentemente todos sus datos. La política completa está disponible en el repositorio del proyecto en GitHub."
+    "privacyPolicyContent": "Time Register no recolecta, transmite ni comparte ningún dato personal.\n\nTodo lo que ingresas (entradas de trabajo, tarifas, notas y ajustes) se guarda únicamente en una base de datos local en tu dispositivo. La app no se conecta a internet, no tiene analíticas y no muestra publicidad.\n\nDesinstalar la app elimina permanentemente todos sus datos. Pulsa \"Ver en la web\" para leer la política completa en el sitio web.",
+    "website": "Sitio web",
+    "websiteSubtitle": "Abre la página de Time Register en tu navegador",
+    "viewOnline": "Ver en la web",
+    "couldNotOpenLink": "No se pudo abrir el enlace"
 }

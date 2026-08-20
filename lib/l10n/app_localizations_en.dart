@@ -513,5 +513,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyPolicyContent =>
-      'Time Register does not collect, transmit, or share any personal data.\n\nEverything you enter (work entries, rates, notes, and settings) is stored only in a local database on your device. The app does not connect to the internet, has no analytics, and shows no ads.\n\nUninstalling the app permanently deletes all of its data. The full policy is available in the project repository on GitHub.';
+      'Time Register does not collect, transmit, or share any personal data.\n\nEverything you enter (work entries, rates, notes, and settings) is stored only in a local database on your device. The app does not connect to the internet, has no analytics, and shows no ads.\n\nUninstalling the app permanently deletes all of its data. Tap \"View online\" to read the full policy on the website.';
+
+  @override
+  String get website => 'Website';
+
+  @override
+  String get websiteSubtitle => 'Open the Time Register page in your browser';
+
+  @override
+  String get viewOnline => 'View online';
+
+  @override
+  String get couldNotOpenLink => 'Could not open the link';
 }

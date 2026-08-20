@@ -69,6 +69,7 @@ dependencies:
 
   # Charts
   fl_chart: ^1.1.1
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

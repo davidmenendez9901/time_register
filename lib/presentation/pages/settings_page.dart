@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:time_register/l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/database/database_helper.dart';
 import '../../core/entities/settings.dart' as app_settings;
 import '../../core/theme/app_palette.dart';
@@ -19,6 +20,11 @@ import '../blocs/settings/settings_state.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
 import 'jobs_page.dart';
+
+/// Public pages published from the repository's `docs/` folder.
+const _websiteUrl = 'https://davidmenendez9901.github.io/time_register/';
+const _privacyPolicyUrl =
+    'https://davidmenendez9901.github.io/time_register/privacy.html';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -624,6 +630,27 @@ class _SettingsPageState extends State<SettingsPage> {
                         leading: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
+                            color: Colors.indigo.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const FaIcon(
+                            FontAwesomeIcons.globe,
+                            color: Colors.indigo,
+                          ),
+                        ),
+                        title: Text(l10n.website),
+                        subtitle: Text(l10n.websiteSubtitle),
+                        trailing: const FaIcon(
+                          FontAwesomeIcons.arrowUpRightFromSquare,
+                          size: 14,
+                        ),
+                        onTap: () => _openUrl(_websiteUrl, l10n),
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
                             color: Colors.blue.shade100,
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -1009,6 +1036,27 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  /// Hands the URL to the system browser. The app has no INTERNET
+  /// permission and does no networking itself; the browser does the loading.
+  Future<void> _openUrl(String url, AppLocalizations l10n) async {
+    var opened = false;
+    try {
+      opened = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+    } on PlatformException {
+      opened = false;
+    }
+    if (!mounted || opened) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.couldNotOpenLink),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
   void _showPrivacyPolicyDialog(AppLocalizations l10n) {
     showDialog(
       context: context,
@@ -1028,6 +1076,13 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _openUrl(_privacyPolicyUrl, l10n);
+              },
+              child: Text(l10n.viewOnline),
+            ),
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(l10n.gotIt),
