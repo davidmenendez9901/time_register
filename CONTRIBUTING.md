@@ -13,6 +13,19 @@ Thanks for your interest in contributing! This document explains how to get set 
    flutter run
    ```
 
+### Running on desktop
+
+Android is the primary target, but you can run the app on Linux, macOS or
+Windows without an emulator. `sqflite` has no desktop implementation, so use
+the dev entrypoint that installs the FFI database factory first:
+
+```bash
+flutter run -d linux -t tool/main_desktop.dart   # or -d macos / -d windows
+```
+
+Nothing under `lib/` is involved, and `sqflite_common_ffi` is a dev
+dependency, so the shipped mobile builds are unaffected.
+
 ## Before opening a pull request
 
 CI runs these checks on every PR, so make sure they pass locally:
