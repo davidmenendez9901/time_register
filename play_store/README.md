@@ -14,9 +14,11 @@ nuevo (firmado con la clave nueva) será rechazado hasta restablecerla:
 5. Envía la solicitud. Google la procesa normalmente en ~2 días hábiles y
    avisa por correo cuando la clave nueva queda activa.
 
-La clave nueva vive en `/home/david/keystores/time_register-release.jks`
-(contraseña en `android/key.properties`). **Respalda ambos archivos fuera de
-esta máquina** para no repetir este trámite.
+La clave de subida (todas tus apps) está en
+`/Users/d/Documents/keystores/menendez-upload.jks`
+(alias `upload`; contraseña en `android/key.properties`, que no se versiona).
+**Respalda el `.jks` y la contraseña fuera de esta máquina.** Huella SHA-256 del
+certificado: `A4:79:1E:7A:FC:A1:D2:29:FE:06:10:E9:12:04:37:5B:FF:83:10:D0:F4:02:7B:15:88:A8:C3:34:4C:B8:87:5C`.
 
 ## Checklist de la actualización
 
