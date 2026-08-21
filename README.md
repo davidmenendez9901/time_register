@@ -58,25 +58,26 @@ Check out the landing page: **<https://davidmenendez9901.github.io/time_register
 
 ## 🏗️ Architecture
 
-This app follows **Clean Architecture** principles with clear separation of concerns:
+Clean Architecture, local SQLite, BLoC/Cubit. No backend.
 
-- **Presentation Layer** (`lib/presentation/`): BLoC pattern for state management, pages and widgets
-- **Domain Layer** (`lib/core/`): Entities, use cases, and repository interfaces
-- **Data Layer** (`lib/data/`): Local data sources and repository implementations
-- **Database**: SQLite with versioned migrations
+- **Presentation** (`lib/presentation/`): pages, widgets, `TimeTrackingBloc`, `SettingsBloc`, `ShiftTimerCubit`, `JobsCubit`
+- **Domain** (`lib/core/`): entities, use cases, repository interfaces, migrations, pure exporters/stats
+- **Data** (`lib/data/`): SQLite data sources, repository impls, backup service
 
 ```
 lib/
 ├── core/            # Domain layer
-│   ├── entities/    # Business entities
+│   ├── entities/    # WorkEntry, AppSettings, Job
 │   ├── usecases/    # Business logic
 │   ├── repositories/# Repository interfaces
-│   ├── database/    # SQLite helper and migrations
-│   └── theme/       # App themes and palettes
+│   ├── database/    # SQLite helper (schema v8)
+│   ├── utils/       # CSV/PDF, backup codec, stats
+│   └── theme/       # Material 3 palettes
 ├── data/            # Data layer
 │   ├── datasources/ # Local data sources
 │   ├── models/      # Data models
-│   └── repositories/# Repository implementations
+│   ├── repositories/# Repository implementations
+│   └── services/    # BackupService
 ├── presentation/    # UI layer
 │   ├── blocs/       # State management
 │   ├── pages/       # Screen widgets
@@ -85,12 +86,15 @@ lib/
 └── l10n/            # Localization (en, es)
 ```
 
+Engineering docs: [architecture](docs/ARCHITECTURE.md) · [developer guide](docs/DEVELOPER.md)
+
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Flutter SDK (stable channel)
+- Flutter SDK **3.44.1** (stable; the version CI uses)
+- Dart SDK `^3.9.2` (see `environment.sdk` in `pubspec.yaml`)
 - Android Studio / VS Code
-- Android device or emulator
+- Android device or emulator (primary target; iOS and macOS also build)
 
 ### Installation
 
@@ -109,16 +113,25 @@ flutter analyze
 flutter test
 ```
 
+Setup, migrations, and pitfalls: [docs/DEVELOPER.md](docs/DEVELOPER.md).
+
 ## 📦 Main Dependencies
 
 - **flutter_bloc**: State management
 - **sqflite**: Local SQLite database
 - **intl** + **flutter_localizations**: Date formatting and localization
 - **font_awesome_flutter**: Icons
-- **google_fonts**: Typography
+- **google_fonts**: Typography (runtime fetch disabled; fonts bundled)
 - **animations**: Page transitions
+- **csv** + **pdf** + **share_plus**: Spreadsheet and printable exports
+- **file_selector**: Restore-from-file picker
+- **fl_chart**: Statistics charts
 
 ## 🗄️ Database Schema
+
+SQLite file `time_register.db`, schema **version 8**. Times are stored as `HH:mm`;
+the `date` column is `yyyy-MM-dd`. Overnight shifts (end before start) are resolved
+when the row is read, not by storing a second date.
 
 ### Work Entries Table
 ```sql
@@ -135,7 +148,8 @@ CREATE TABLE work_entries (
   created_at TEXT NOT NULL,
   lunch_start_time TEXT,
   lunch_end_time TEXT,
-  description TEXT
+  description TEXT,
+  job_id INTEGER
 )
 ```
 
@@ -146,9 +160,25 @@ CREATE TABLE settings (
   hourly_rate REAL NOT NULL DEFAULT 0.0,
   theme_mode TEXT NOT NULL DEFAULT 'system',
   app_palette TEXT NOT NULL DEFAULT 'Blue',
-  currency_symbol TEXT NOT NULL DEFAULT '$'
+  currency_symbol TEXT NOT NULL DEFAULT '$',
+  active_shift_start TEXT,
+  deductions_enabled INTEGER NOT NULL DEFAULT 0,
+  deduction_rate REAL NOT NULL DEFAULT 0.0
 )
 ```
+
+### Jobs Table
+```sql
+CREATE TABLE jobs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  color INTEGER NOT NULL,
+  hourly_rate REAL,
+  archived INTEGER NOT NULL DEFAULT 0
+)
+```
+
+Column-level notes and migration history: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## 🔒 Privacy & Security
 
