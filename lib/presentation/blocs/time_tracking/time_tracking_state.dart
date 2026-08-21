@@ -1,19 +1,36 @@
+import 'package:equatable/equatable.dart';
+
 import '../../../core/entities/work_entry.dart';
 
-abstract class TimeTrackingState {}
+abstract class TimeTrackingState extends Equatable {
+  const TimeTrackingState();
 
-class TimeTrackingInitial extends TimeTrackingState {}
+  @override
+  List<Object?> get props => [];
+}
 
-class TimeTrackingLoading extends TimeTrackingState {}
+class TimeTrackingInitial extends TimeTrackingState {
+  const TimeTrackingInitial();
+}
+
+class TimeTrackingLoading extends TimeTrackingState {
+  const TimeTrackingLoading();
+}
 
 class TimeTrackingLoaded extends TimeTrackingState {
   final List<WorkEntry> entries;
 
-  TimeTrackingLoaded(this.entries);
+  const TimeTrackingLoaded(this.entries);
+
+  @override
+  List<Object?> get props => [entries];
 }
 
 class TimeTrackingError extends TimeTrackingState {
   final String message;
 
-  TimeTrackingError(this.message);
+  const TimeTrackingError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }

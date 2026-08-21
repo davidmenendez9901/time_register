@@ -1061,8 +1061,20 @@ abstract class AppLocalizations {
   /// No description provided for @privacyPolicyContent.
   ///
   /// In en, this message translates to:
-  /// **'Time Register does not collect, transmit, or share any personal data.\n\nEverything you enter (work entries, rates, notes, and settings) is stored only in a local database on your device. The app does not connect to the internet, has no analytics, and shows no ads.\n\nUninstalling the app permanently deletes all of its data. The full policy is available in the project repository on GitHub.'**
+  /// **'Time Register does not collect, transmit, or share any personal data.\n\nEverything you enter (work entries, rates, notes, and settings) is stored only in a local database on your device. The app does not connect to the internet, has no analytics, and shows no ads.\n\nUninstalling the app permanently deletes all of its data.'**
   String get privacyPolicyContent;
+
+  /// No description provided for @privacyPolicyOpenWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Open full policy'**
+  String get privacyPolicyOpenWeb;
+
+  /// No description provided for @privacyPolicyOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the link. Make sure a browser is installed.'**
+  String get privacyPolicyOpenFailed;
 }
 
 class _AppLocalizationsDelegate

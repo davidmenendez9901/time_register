@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animations/animations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../blocs/time_tracking/time_tracking_bloc.dart';
-import '../blocs/time_tracking/time_tracking_event.dart';
 import '../widgets/floating_nav_bar.dart';
 import 'work_entry_form_page.dart';
 import 'home_content.dart';
@@ -82,11 +79,6 @@ class _HomePageState extends State<HomePage> {
               child: OpenContainer(
                 transitionDuration: const Duration(milliseconds: 500),
                 openBuilder: (context, _) => const WorkEntryFormPage(),
-                onClosed: (_) {
-                  if (context.mounted) {
-                    context.read<TimeTrackingBloc>().add(LoadWorkEntries());
-                  }
-                },
                 tappable: false,
                 closedShape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(16)),

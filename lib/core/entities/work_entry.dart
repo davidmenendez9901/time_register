@@ -1,4 +1,6 @@
-class WorkEntry {
+import 'package:equatable/equatable.dart';
+
+class WorkEntry extends Equatable {
   final int? id;
   final DateTime date;
   final DateTime startTime;
@@ -166,6 +168,24 @@ class WorkEntry {
       createdAt: createdAt ?? this.createdAt,
     );
   }
+
+  @override
+  List<Object?> get props => [
+    id,
+    date,
+    startTime,
+    endTime,
+    lunchTaken,
+    totalHours,
+    hourlyRate,
+    earnings,
+    isPaid,
+    createdAt,
+    lunchStartTime,
+    lunchEndTime,
+    description,
+    jobId,
+  ];
 
   @override
   String toString() {

@@ -1,6 +1,6 @@
 # Recursos y checklist para la actualización en Play Store
 
-Todo lo necesario para subir la versión **1.1.0 (versionCode 2)** está en esta carpeta.
+Todo lo necesario para subir la versión **1.1.1 (versionCode 4)** está en esta carpeta.
 
 ## ⚠️ PASO 0 — Restablecer la clave de subida (OBLIGATORIO)
 

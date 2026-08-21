@@ -23,7 +23,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required this.updateAppPalette,
     required this.updateCurrencySymbol,
     required this.updateDeductions,
-  }) : super(SettingsInitial()) {
+  }) : super(const SettingsInitial()) {
     on<LoadSettings>(_onLoadSettings);
     on<UpdateHourlyRate>(_onUpdateHourlyRate);
     on<UpdateThemeMode>(_onUpdateThemeMode);
@@ -36,7 +36,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     LoadSettings event,
     Emitter<SettingsState> emit,
   ) async {
-    emit(SettingsLoading());
+    if (state is! SettingsLoaded) {
+      emit(const SettingsLoading());
+    }
     try {
       final settings = await getSettings();
       emit(SettingsLoaded(settings));

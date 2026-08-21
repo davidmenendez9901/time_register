@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'l10n/app_localizations.dart';
 import 'core/database/database_helper.dart';
+import 'core/database/desktop_sqlite.dart';
 import 'core/theme/app_theme.dart';
 import 'core/entities/settings.dart' as app_settings;
 import 'data/datasources/work_entry_local_data_source.dart';
@@ -27,6 +28,8 @@ import 'core/theme/app_palette.dart';
 import 'core/repositories/settings_repository.dart';
 import 'core/repositories/job_repository.dart';
 import 'presentation/blocs/time_tracking/time_tracking_bloc.dart';
+import 'presentation/blocs/time_tracking/time_tracking_event.dart'
+    show LoadWorkEntries;
 import 'presentation/blocs/shift_timer/shift_timer_cubit.dart';
 import 'presentation/blocs/jobs/jobs_cubit.dart';
 import 'presentation/blocs/settings/settings_bloc.dart';
@@ -36,6 +39,7 @@ import 'presentation/pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  initDesktopSqliteIfNeeded();
 
   // Fonts are bundled in assets/google_fonts/; the app is fully offline and
   // the release build has no network permission, so never fetch at runtime.
@@ -133,14 +137,13 @@ class MyApp extends StatelessWidget {
       providers: [
         // Initialize bloc providers
         BlocProvider(
-          // Create time tracking bloc
           create: (context) => TimeTrackingBloc(
             getWorkEntries: getWorkEntries,
             addWorkEntry: addWorkEntry,
             updateWorkEntry: updateWorkEntry,
             deleteWorkEntry: deleteWorkEntry,
             markEntryAsPaid: markEntryAsPaid,
-          ),
+          )..add(LoadWorkEntries()),
         ),
         // Create settings bloc
         BlocProvider(
@@ -162,6 +165,13 @@ class MyApp extends StatelessWidget {
       ],
       //
       child: BlocBuilder<SettingsBloc, SettingsState>(
+        buildWhen: (previous, current) {
+          if (current is SettingsLoaded && previous is SettingsLoaded) {
+            return previous.settings.themeMode != current.settings.themeMode ||
+                previous.settings.palette != current.settings.palette;
+          }
+          return previous.runtimeType != current.runtimeType;
+        },
         builder: (context, state) {
           ThemeMode themeMode = ThemeMode.system;
           AppPalette palette = AppPalette.blue;

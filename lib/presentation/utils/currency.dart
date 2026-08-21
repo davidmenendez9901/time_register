@@ -4,8 +4,9 @@ import '../blocs/settings/settings_bloc.dart';
 import '../blocs/settings/settings_state.dart';
 
 /// Currency symbol from settings, falling back to '$' while loading.
-/// Uses `watch` so widgets rebuild when the symbol changes.
 String currencySymbolOf(BuildContext context) {
-  final state = context.watch<SettingsBloc>().state;
-  return state is SettingsLoaded ? state.settings.currencySymbol : '\$';
+  return context.select<SettingsBloc, String>((bloc) {
+    final state = bloc.state;
+    return state is SettingsLoaded ? state.settings.currencySymbol : '\$';
+  });
 }

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/entities/work_entry.dart';
 import '../../../core/usecases/add_work_entry.dart' as add_usecase;
 import '../../../core/usecases/update_work_entry.dart' as update_usecase;
 import '../../../core/usecases/delete_work_entry.dart' as delete_usecase;
@@ -20,7 +21,7 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
     required this.updateWorkEntry,
     required this.deleteWorkEntry,
     required this.markEntryAsPaid,
-  }) : super(TimeTrackingInitial()) {
+  }) : super(const TimeTrackingInitial()) {
     on<LoadWorkEntries>(_onLoadWorkEntries);
     on<AddWorkEntry>(_onAddWorkEntry);
     on<UpdateWorkEntry>(_onUpdateWorkEntry);
@@ -28,11 +29,28 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
     on<MarkEntryAsPaid>(_onMarkEntryAsPaid);
   }
 
+  List<WorkEntry>? get _loadedEntries {
+    final current = state;
+    return current is TimeTrackingLoaded ? current.entries : null;
+  }
+
+  List<WorkEntry> _sorted(Iterable<WorkEntry> entries) {
+    final copy = entries.toList();
+    copy.sort((a, b) {
+      final byDate = b.date.compareTo(a.date);
+      if (byDate != 0) return byDate;
+      return b.createdAt.compareTo(a.createdAt);
+    });
+    return copy;
+  }
+
   Future<void> _onLoadWorkEntries(
     LoadWorkEntries event,
     Emitter<TimeTrackingState> emit,
   ) async {
-    emit(TimeTrackingLoading());
+    if (state is! TimeTrackingLoaded) {
+      emit(const TimeTrackingLoading());
+    }
     try {
       final entries = await getWorkEntries();
       emit(TimeTrackingLoaded(entries));
@@ -46,9 +64,17 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
     Emitter<TimeTrackingState> emit,
   ) async {
     try {
-      await addWorkEntry(event.entry);
-      final entries = await getWorkEntries();
-      emit(TimeTrackingLoaded(entries));
+      final id = await addWorkEntry(event.entry);
+      final current = _loadedEntries;
+      if (current != null) {
+        emit(
+          TimeTrackingLoaded(
+            _sorted([...current, event.entry.copyWith(id: id)]),
+          ),
+        );
+      } else {
+        emit(TimeTrackingLoaded(await getWorkEntries()));
+      }
     } catch (e) {
       emit(TimeTrackingError(e.toString()));
     }
@@ -60,8 +86,19 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
   ) async {
     try {
       await updateWorkEntry(event.entry);
-      final entries = await getWorkEntries();
-      emit(TimeTrackingLoaded(entries));
+      final current = _loadedEntries;
+      if (current != null) {
+        emit(
+          TimeTrackingLoaded(
+            _sorted([
+              for (final entry in current)
+                if (entry.id == event.entry.id) event.entry else entry,
+            ]),
+          ),
+        );
+      } else {
+        emit(TimeTrackingLoaded(await getWorkEntries()));
+      }
     } catch (e) {
       emit(TimeTrackingError(e.toString()));
     }
@@ -73,8 +110,17 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
   ) async {
     try {
       await deleteWorkEntry(event.id);
-      final entries = await getWorkEntries();
-      emit(TimeTrackingLoaded(entries));
+      final current = _loadedEntries;
+      if (current != null) {
+        emit(
+          TimeTrackingLoaded([
+            for (final entry in current)
+              if (entry.id != event.id) entry,
+          ]),
+        );
+      } else {
+        emit(TimeTrackingLoaded(await getWorkEntries()));
+      }
     } catch (e) {
       emit(TimeTrackingError(e.toString()));
     }
@@ -86,8 +132,20 @@ class TimeTrackingBloc extends Bloc<TimeTrackingEvent, TimeTrackingState> {
   ) async {
     try {
       await markEntryAsPaid(event.id, event.isPaid);
-      final entries = await getWorkEntries();
-      emit(TimeTrackingLoaded(entries));
+      final current = _loadedEntries;
+      if (current != null) {
+        emit(
+          TimeTrackingLoaded([
+            for (final entry in current)
+              if (entry.id == event.id)
+                entry.copyWith(isPaid: event.isPaid)
+              else
+                entry,
+          ]),
+        );
+      } else {
+        emit(TimeTrackingLoaded(await getWorkEntries()));
+      }
     } catch (e) {
       emit(TimeTrackingError(e.toString()));
     }

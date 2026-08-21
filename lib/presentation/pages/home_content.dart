@@ -5,6 +5,7 @@ import 'package:time_register/l10n/app_localizations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import '../../core/entities/work_entry.dart';
+import '../../core/entities/job.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/time_tracking/time_tracking_state.dart';
@@ -69,8 +70,6 @@ class _HomeContentState extends State<HomeContent> {
     if (!mounted || saved != true) return;
 
     await context.read<ShiftTimerCubit>().stop();
-    if (!mounted) return;
-    context.read<TimeTrackingBloc>().add(LoadWorkEntries());
   }
 
   Map<DateTime, List<WorkEntry>> _groupEntries(List<WorkEntry> entries) {
@@ -106,7 +105,9 @@ class _HomeContentState extends State<HomeContent> {
     AppLocalizations l10n,
   ) {
     final symbol = currencySymbolOf(context);
-    final job = context.watch<JobsCubit>().byId(entry.jobId);
+    final job = context.select<JobsCubit, Job?>(
+      (cubit) => cubit.byId(entry.jobId),
+    );
     final jobColor = job != null
         ? Color(job.colorValue)
         : Theme.of(context).colorScheme.primary;
@@ -115,11 +116,6 @@ class _HomeContentState extends State<HomeContent> {
       child: OpenContainer(
         transitionDuration: const Duration(milliseconds: 500),
         openBuilder: (context, _) => WorkEntryFormPage(entry: entry),
-        onClosed: (_) {
-          if (context.mounted) {
-            context.read<TimeTrackingBloc>().add(LoadWorkEntries());
-          }
-        },
         tappable: false,
         closedElevation: 0,
         closedShape: RoundedRectangleBorder(
@@ -485,54 +481,58 @@ class _HomeContentState extends State<HomeContent> {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
             itemCount: sortedDates.length,
             itemBuilder: (context, index) {
-              final date = sortedDates[index];
-              final dayEntries = groupedEntries[date]!;
+              return Builder(
+                builder: (context) {
+                  final date = sortedDates[index];
+                  final dayEntries = groupedEntries[date]!;
 
-              // Calculate daily totals
-              double dailyHours = 0;
-              double dailyEarnings = 0;
-              for (var entry in dayEntries) {
-                dailyHours += entry.totalHours;
-                dailyEarnings += entry.earnings;
-              }
+                  // Calculate daily totals
+                  double dailyHours = 0;
+                  double dailyEarnings = 0;
+                  for (var entry in dayEntries) {
+                    dailyHours += entry.totalHours;
+                    dailyEarnings += entry.earnings;
+                  }
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          DateFormat(
-                            'EEEE, MMM d',
-                            l10n.localeName,
-                          ).format(date),
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              DateFormat(
+                                'EEEE, MMM d',
+                                l10n.localeName,
+                              ).format(date),
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            Text(
+                              '${dailyHours.toStringAsFixed(1)}h • ${currencySymbolOf(context)}${dailyEarnings.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          '${dailyHours.toStringAsFixed(1)}h • ${currencySymbolOf(context)}${dailyEarnings.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ...dayEntries.map(
-                    (entry) => _buildEntryCard(context, entry, l10n),
-                  ),
-                  const SizedBox(height: 8),
-                ],
+                      ),
+                      ...dayEntries.map(
+                        (entry) => _buildEntryCard(context, entry, l10n),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  );
+                },
               );
             },
           );

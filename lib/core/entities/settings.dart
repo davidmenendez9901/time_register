@@ -1,8 +1,10 @@
+import 'package:equatable/equatable.dart';
+
 import '../theme/app_palette.dart';
 
 enum ThemeMode { light, dark, system }
 
-class AppSettings {
+class AppSettings extends Equatable {
   final double hourlyRate;
   final ThemeMode themeMode;
   final AppPalette palette;
@@ -12,7 +14,7 @@ class AppSettings {
   /// Percentage (0-100) deducted from gross earnings when enabled.
   final double deductionRate;
 
-  AppSettings({
+  const AppSettings({
     required this.hourlyRate,
     this.themeMode = ThemeMode.system,
     this.palette = AppPalette.blue,
@@ -70,6 +72,16 @@ class AppSettings {
       deductionRate: deductionRate ?? this.deductionRate,
     );
   }
+
+  @override
+  List<Object?> get props => [
+    hourlyRate,
+    themeMode,
+    palette,
+    currencySymbol,
+    deductionsEnabled,
+    deductionRate,
+  ];
 
   @override
   String toString() {

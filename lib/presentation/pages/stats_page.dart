@@ -11,7 +11,6 @@ import '../../core/entities/job.dart';
 import '../../core/utils/stats.dart';
 import '../blocs/jobs/jobs_cubit.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
-import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/time_tracking/time_tracking_state.dart';
 import '../utils/currency.dart';
 
@@ -24,12 +23,6 @@ class StatsPage extends StatefulWidget {
 
 class _StatsPageState extends State<StatsPage> {
   bool _showEarnings = true;
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<TimeTrackingBloc>().add(LoadWorkEntries());
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -246,7 +239,7 @@ class _StatsPageState extends State<StatsPage> {
     AppLocalizations l10n,
   ) {
     final symbol = currencySymbolOf(context);
-    final jobs = context.watch<JobsCubit>().state;
+    final jobs = context.select<JobsCubit, List<Job>>((cubit) => cubit.state);
     final total = byJob.values.fold(0.0, (sum, v) => sum + v);
 
     if (total == 0) {

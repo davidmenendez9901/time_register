@@ -22,7 +22,7 @@ class DatabaseHelper {
     String path = join(documentsDirectory.path, 'time_register.db');
     return await openDatabase(
       path,
-      version: 8,
+      version: 9,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -81,6 +81,20 @@ class DatabaseHelper {
       'app_palette': 'Blue',
       'currency_symbol': '\$',
     });
+
+    await _createWorkEntryIndexes(db);
+  }
+
+  Future<void> _createWorkEntryIndexes(Database db) async {
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_work_entries_date ON work_entries(date)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_work_entries_job_id ON work_entries(job_id)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_work_entries_is_paid ON work_entries(is_paid)',
+    );
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -139,6 +153,9 @@ class DatabaseHelper {
       await db.execute(
         'ALTER TABLE settings ADD COLUMN deduction_rate REAL NOT NULL DEFAULT 0.0',
       );
+    }
+    if (oldVersion < 9) {
+      await _createWorkEntryIndexes(db);
     }
   }
 

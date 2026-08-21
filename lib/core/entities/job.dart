@@ -1,6 +1,8 @@
+import 'package:equatable/equatable.dart';
+
 /// A job or client that work entries can be assigned to.
 /// [hourlyRate] overrides the global default rate when set.
-class Job {
+class Job extends Equatable {
   final int? id;
   final String name;
   final int colorValue;
@@ -51,6 +53,9 @@ class Job {
       archived: archived ?? this.archived,
     );
   }
+
+  @override
+  List<Object?> get props => [id, name, colorValue, hourlyRate, archived];
 
   @override
   String toString() =>

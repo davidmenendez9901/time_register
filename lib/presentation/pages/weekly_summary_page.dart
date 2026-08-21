@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 import '../../core/entities/work_entry.dart';
+import '../../core/entities/job.dart';
 import '../../core/utils/csv_exporter.dart';
 import '../../core/utils/pdf_exporter.dart';
 import '../blocs/jobs/jobs_cubit.dart';
@@ -34,12 +35,6 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
   bool _showUnpaidOnly = false;
   final PageController _pageController = PageController();
   int _currentPage = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<TimeTrackingBloc>().add(LoadWorkEntries());
-  }
 
   @override
   void dispose() {
@@ -415,87 +410,100 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
             }
 
             final groupedEntries = _groupEntriesByWeek(filteredEntries);
+            final weekSections = groupedEntries.entries.toList();
 
-            return ListView(
+            return ListView.builder(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-              children: [
-                // Slider Section
-                SizedBox(
-                  height: 160,
-                  child: PageView(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentPage = index;
-                      });
-                    },
-                    children: [
-                      _buildSummaryCard(
-                        context,
-                        title: l10n.outstanding,
-                        subtitle: l10n.toCollect,
-                        hours: totalUnpaidHours,
-                        amount: totalUnpaidAmount,
-                        icon: FontAwesomeIcons.circleExclamation,
-                        color: Colors.orange,
-                      ),
-                      _buildSummaryCard(
-                        context,
-                        title: l10n.thisWeek,
-                        subtitle: l10n.performance,
-                        hours: weekHours,
-                        amount: weekEarnings,
-                        icon: FontAwesomeIcons.calendarWeek,
-                        color: Colors.blue,
-                      ),
-                      _buildSummaryCard(
-                        context,
-                        title: l10n.thisMonth,
-                        subtitle: DateFormat(
-                          'MMMM',
-                          l10n.localeName,
-                        ).format(now),
-                        hours: monthHours,
-                        amount: monthEarnings,
-                        icon: FontAwesomeIcons.calendar,
-                        color: Colors.purple,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                // Dots Indicator
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(3, (index) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _currentPage == index
-                            ? Theme.of(context).primaryColor
-                            : Theme.of(context).colorScheme.outlineVariant,
-                      ),
-                    );
-                  }),
-                ),
+              itemCount:
+                  1 + (filteredEntries.isEmpty ? 1 : weekSections.length),
+              itemBuilder: (context, index) {
+                return Builder(
+                  builder: (context) {
+                    if (index == 0) {
+                      return Column(
+                        children: [
+                          // Slider Section
+                          SizedBox(
+                            height: 160,
+                            child: PageView(
+                              controller: _pageController,
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _currentPage = index;
+                                });
+                              },
+                              children: [
+                                _buildSummaryCard(
+                                  context,
+                                  title: l10n.outstanding,
+                                  subtitle: l10n.toCollect,
+                                  hours: totalUnpaidHours,
+                                  amount: totalUnpaidAmount,
+                                  icon: FontAwesomeIcons.circleExclamation,
+                                  color: Colors.orange,
+                                ),
+                                _buildSummaryCard(
+                                  context,
+                                  title: l10n.thisWeek,
+                                  subtitle: l10n.performance,
+                                  hours: weekHours,
+                                  amount: weekEarnings,
+                                  icon: FontAwesomeIcons.calendarWeek,
+                                  color: Colors.blue,
+                                ),
+                                _buildSummaryCard(
+                                  context,
+                                  title: l10n.thisMonth,
+                                  subtitle: DateFormat(
+                                    'MMMM',
+                                    l10n.localeName,
+                                  ).format(now),
+                                  hours: monthHours,
+                                  amount: monthEarnings,
+                                  icon: FontAwesomeIcons.calendar,
+                                  color: Colors.purple,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          // Dots Indicator
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(3, (index) {
+                              return Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: _currentPage == index
+                                      ? Theme.of(context).primaryColor
+                                      : Theme.of(
+                                          context,
+                                        ).colorScheme.outlineVariant,
+                                ),
+                              );
+                            }),
+                          ),
 
-                const SizedBox(height: 24),
-
-                if (filteredEntries.isEmpty)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32.0),
-                      child: Text(l10n.noEntriesFilter),
-                    ),
-                  )
-                else
-                  // Weekly Breakdown List
-                  ...groupedEntries.entries.map((entry) {
-                    final weekKey = entry.key;
-                    final weekEntries = entry.value;
+                          const SizedBox(height: 24),
+                        ],
+                      );
+                    }
+                    if (filteredEntries.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(32.0),
+                          child: Text(l10n.noEntriesFilter),
+                        ),
+                      );
+                    }
+                    final week = weekSections[index - 1];
+                    final weekKey = week.key;
+                    final weekEntries = week.value;
                     final weekTotalHours = _calculateTotalHours(weekEntries);
                     final weekTotalEarnings = _calculateTotalEarnings(
                       weekEntries,
@@ -549,8 +557,8 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                             closedElevation: 0,
                             closedColor: Colors.transparent,
                             closedBuilder: (context, openContainer) {
-                              final job = context.watch<JobsCubit>().byId(
-                                entry.jobId,
+                              final job = context.select<JobsCubit, Job?>(
+                                (cubit) => cubit.byId(entry.jobId),
                               );
                               return ListTile(
                                 onTap: openContainer,
@@ -695,8 +703,9 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
                         }).toList(),
                       ),
                     );
-                  }),
-              ],
+                  },
+                );
+              },
             );
           } else if (state is TimeTrackingError) {
             return Center(

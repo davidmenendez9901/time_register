@@ -8,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:time_register/l10n/app_localizations.dart';
 import '../../core/database/database_helper.dart';
 import '../../core/entities/settings.dart' as app_settings;
@@ -28,18 +29,15 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  static final _privacyPolicyUrl = Uri.parse(
+    'https://davidmenendez9901.github.io/time_register/privacy.html',
+  );
   final _formKey = GlobalKey<FormState>();
   final _rateController = TextEditingController();
   final _currencyFormKey = GlobalKey<FormState>();
   final _currencyController = TextEditingController();
   final _deductionFormKey = GlobalKey<FormState>();
   final _deductionController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<SettingsBloc>().add(LoadSettings());
-  }
 
   @override
   void dispose() {
@@ -601,7 +599,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           ),
                         ),
                         title: Text(l10n.version),
-                        subtitle: const Text('1.1.0'),
+                        subtitle: const Text('1.1.1'),
                       ),
                       const Divider(height: 1),
                       ListTile(
@@ -1009,6 +1007,25 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  Future<void> _openPublishedPrivacyPolicy(AppLocalizations l10n) async {
+    try {
+      final launched = await launchUrl(
+        _privacyPolicyUrl,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.privacyPolicyOpenFailed)));
+      }
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.privacyPolicyOpenFailed)));
+    }
+  }
+
   void _showPrivacyPolicyDialog(AppLocalizations l10n) {
     showDialog(
       context: context,
@@ -1031,6 +1048,13 @@ class _SettingsPageState extends State<SettingsPage> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(l10n.gotIt),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _openPublishedPrivacyPolicy(l10n);
+              },
+              child: Text(l10n.privacyPolicyOpenWeb),
             ),
           ],
         );

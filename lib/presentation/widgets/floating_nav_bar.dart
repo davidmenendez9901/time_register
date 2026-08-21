@@ -90,12 +90,17 @@ class FloatingNavBar extends StatelessWidget {
     // Background bubble color
     final bubbleColor = selectedColor.withValues(alpha: 0.15);
 
-    return InkWell(
+    final item = InkWell(
       onTap: () => onItemSelected(index),
       borderRadius: BorderRadius.circular(24),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        // The selected item also shows its label, so it needs the room the
+        // unselected ones give back.
+        padding: EdgeInsets.symmetric(
+          horizontal: isSelected ? 16 : 12,
+          vertical: 12,
+        ),
         decoration: BoxDecoration(
           color: isSelected ? bubbleColor : Colors.transparent,
           borderRadius: BorderRadius.circular(24),
@@ -127,5 +132,12 @@ class FloatingNavBar extends StatelessWidget {
         ),
       ),
     );
+
+    // Only the selected item carries a label, so it is the only one that can
+    // outgrow the bar. Making it loosely flexible lets it keep its natural
+    // width when there is room and clamp (ellipsizing the label) when there is
+    // not, instead of overflowing — long labels such as "Estadísticas" on a
+    // narrow screen used to blow past the right edge.
+    return isSelected ? Flexible(child: item) : item;
   }
 }

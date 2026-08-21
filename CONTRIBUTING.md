@@ -45,4 +45,8 @@ Open an issue describing:
 - Steps to reproduce (for bugs).
 - Device/OS and app version.
 
-All data in this app is stored locally on the device — please never add code that transmits user data without discussing it in an issue first.
+All data in this app is stored locally on the device. This project is **100% offline** and **open source**:
+
+- Never add analytics, crash reporting, ads, accounts or other network calls without discussing it in an issue first.
+- Keep the Android **release** build free of the `INTERNET` permission.
+- Do not enable Google Fonts runtime fetching (`GoogleFonts.config.allowRuntimeFetching` must stay `false`).

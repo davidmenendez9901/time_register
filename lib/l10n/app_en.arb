@@ -187,5 +187,7 @@
     "yes": "Yes",
     "no": "No",
     "privacyPolicySubtitle": "How your data is handled",
-    "privacyPolicyContent": "Time Register does not collect, transmit, or share any personal data.\n\nEverything you enter (work entries, rates, notes, and settings) is stored only in a local database on your device. The app does not connect to the internet, has no analytics, and shows no ads.\n\nUninstalling the app permanently deletes all of its data. The full policy is available in the project repository on GitHub."
+    "privacyPolicyContent": "Time Register does not collect, transmit, or share any personal data.\n\nEverything you enter (work entries, rates, notes, and settings) is stored only in a local database on your device. The app does not connect to the internet, has no analytics, and shows no ads.\n\nUninstalling the app permanently deletes all of its data.",
+    "privacyPolicyOpenWeb": "Open full policy",
+    "privacyPolicyOpenFailed": "Couldn't open the link. Make sure a browser is installed."
 }

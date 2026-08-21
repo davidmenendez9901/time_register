@@ -94,6 +94,17 @@ void main() {
   );
 
   blocTest<TimeTrackingBloc, TimeTrackingState>(
+    'does not emit Loading when refreshing an already loaded list',
+    build: () {
+      when(() => mockGetWorkEntries()).thenAnswer((_) async => tList);
+      return bloc;
+    },
+    seed: () => TimeTrackingLoaded(tList),
+    act: (bloc) => bloc.add(LoadWorkEntries()),
+    expect: () => <TimeTrackingState>[],
+  );
+
+  blocTest<TimeTrackingBloc, TimeTrackingState>(
     'emits [TimeTrackingLoaded] when AddWorkEntry is added',
     build: () {
       when(() => mockAddWorkEntry(any())).thenAnswer((_) async => 1);
@@ -102,5 +113,21 @@ void main() {
     },
     act: (bloc) => bloc.add(AddWorkEntry(tWorkEntry)),
     expect: () => [isA<TimeTrackingLoaded>()],
+  );
+
+  blocTest<TimeTrackingBloc, TimeTrackingState>(
+    'updates the in-memory list on AddWorkEntry without reloading',
+    build: () {
+      when(() => mockAddWorkEntry(any())).thenAnswer((_) async => 2);
+      return bloc;
+    },
+    seed: () => TimeTrackingLoaded(tList),
+    act: (bloc) => bloc.add(AddWorkEntry(tWorkEntry.copyWith(id: null))),
+    expect: () => [
+      isA<TimeTrackingLoaded>().having((s) => s.entries.length, 'length', 2),
+    ],
+    verify: (_) {
+      verifyNever(() => mockGetWorkEntries());
+    },
   );
 }

@@ -5,7 +5,7 @@
 
 A Flutter application for tracking daily work hours and calculating earnings. Perfect for freelancers, consultants, and hourly workers who need to keep accurate records of their time and income.
 
-All data stays on your device — no account, no cloud, no tracking.
+All data stays on your device — no account, no cloud, no tracking. The app is **100% offline** and released as **open source** under the MIT License.
 
 ## 🎯 Features
 
@@ -152,18 +152,25 @@ CREATE TABLE settings (
 
 ## 🔒 Privacy & Security
 
-- **Local Data**: All information stored on device
-- **No Cloud**: No external services or data transmission
-- **No Network Permission**: The Android release build cannot access the internet
-- **User Control**: Complete ownership of personal data
+Time Register is designed to work **fully offline**:
+
+- **Local data only**: hours, rates and jobs live in SQLite on the device
+- **No accounts, analytics, ads or crash reporters**
+- **No network in release**: Android release has no `INTERNET` permission; fonts are bundled so they are never downloaded
+- **User-controlled backup**: export/import JSON yourself; the OS cloud backup of the database is disabled
+- **Open source**: inspect every line in this repository (MIT)
 
 See the full [Privacy Policy](PRIVACY_POLICY.md).
 
 ## 📱 Platform Support
 
-- ✅ Android (primary target)
+- ✅ Android (primary target, Play Store)
 - ✅ iOS
 - ✅ macOS
+- 🧪 Linux / Windows (SQLite via FFI; not a store target yet)
+- ❌ Flutter web client (the marketing site in `docs/` is static HTML only)
+
+Please do not add network, telemetry or account code without an issue discussing it first — this project stays offline-first and open source.
 
 ## 🚀 Roadmap
 

@@ -6,8 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:time_register/l10n/app_localizations.dart';
 
 /// Banner shown on the home screen while a shift is being tracked live.
-/// Ticks every second to display the elapsed time.
-class ActiveShiftBanner extends StatefulWidget {
+class ActiveShiftBanner extends StatelessWidget {
   final DateTime start;
   final VoidCallback onClockOut;
 
@@ -18,38 +17,9 @@ class ActiveShiftBanner extends StatefulWidget {
   });
 
   @override
-  State<ActiveShiftBanner> createState() => _ActiveShiftBannerState();
-}
-
-class _ActiveShiftBannerState extends State<ActiveShiftBanner> {
-  Timer? _ticker;
-
-  @override
-  void initState() {
-    super.initState();
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    _ticker?.cancel();
-    super.dispose();
-  }
-
-  String _formatElapsed(Duration d) {
-    final hours = d.inHours;
-    final minutes = (d.inMinutes % 60).toString().padLeft(2, '0');
-    final seconds = (d.inSeconds % 60).toString().padLeft(2, '0');
-    return '$hours:$minutes:$seconds';
-  }
-
-  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final colors = Theme.of(context).colorScheme;
-    final elapsed = DateTime.now().difference(widget.start);
 
     return Card(
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
@@ -77,19 +47,14 @@ class _ActiveShiftBannerState extends State<ActiveShiftBanner> {
                       color: colors.onPrimaryContainer.withValues(alpha: 0.8),
                     ),
                   ),
-                  Text(
-                    _formatElapsed(elapsed),
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
+                  RepaintBoundary(
+                    child: _ElapsedClock(
+                      start: start,
                       color: colors.onPrimaryContainer,
-                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
                   Text(
-                    l10n.shiftStartedAt(
-                      DateFormat('HH:mm').format(widget.start),
-                    ),
+                    l10n.shiftStartedAt(DateFormat('HH:mm').format(start)),
                     style: TextStyle(
                       fontSize: 12,
                       color: colors.onPrimaryContainer.withValues(alpha: 0.8),
@@ -99,12 +64,61 @@ class _ActiveShiftBannerState extends State<ActiveShiftBanner> {
               ),
             ),
             FilledButton.icon(
-              onPressed: widget.onClockOut,
+              onPressed: onClockOut,
               icon: const FaIcon(FontAwesomeIcons.stop, size: 14),
               label: Text(l10n.clockOut),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ElapsedClock extends StatefulWidget {
+  final DateTime start;
+  final Color color;
+
+  const _ElapsedClock({required this.start, required this.color});
+
+  @override
+  State<_ElapsedClock> createState() => _ElapsedClockState();
+}
+
+class _ElapsedClockState extends State<_ElapsedClock> {
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  String _formatElapsed(Duration d) {
+    final hours = d.inHours;
+    final minutes = (d.inMinutes % 60).toString().padLeft(2, '0');
+    final seconds = (d.inSeconds % 60).toString().padLeft(2, '0');
+    return '$hours:$minutes:$seconds';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final elapsed = DateTime.now().difference(widget.start);
+    return Text(
+      _formatElapsed(elapsed),
+      style: TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+        color: widget.color,
+        fontFeatures: const [FontFeature.tabularFigures()],
       ),
     );
   }

@@ -9,7 +9,6 @@ import '../blocs/jobs/jobs_cubit.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/settings/settings_bloc.dart';
-import '../blocs/settings/settings_event.dart';
 import '../blocs/settings/settings_state.dart';
 import '../utils/currency.dart';
 
@@ -54,11 +53,6 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
   void initState() {
     super.initState();
     _initializeValues();
-
-    // Cargar settings solo en modo agregar para obtener la tarifa por defecto
-    if (!_isEditMode) {
-      context.read<SettingsBloc>().add(LoadSettings());
-    }
   }
 
   @override
