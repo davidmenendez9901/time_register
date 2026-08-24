@@ -24,15 +24,15 @@ certificado: `A4:79:1E:7A:FC:A1:D2:29:FE:06:10:E9:12:04:37:5B:FF:83:10:D0:F4:02:
 
 - [ ] **Clave de subida restablecida** (paso 0; espera el correo de Google).
 - [ ] **versionCode**: en Play Console revisa el versionCode más alto subido.
-      Este build lleva **2**; debe ser mayor que el existente. Si ya subiste
-      un 2 o superior, sube `version:` en `pubspec.yaml` (p. ej. `1.1.0+3`)
-      y recompila.
+      Este árbol lleva **4** (`1.1.1+4` en `pubspec.yaml`); debe ser mayor
+      que el existente. Si ya subiste un 4 o superior, sube el `+N` de
+      `version:` y recompila.
 - [x] **Package**: Play Console registró la app como
       `time_register.davidmenendez.dev`; el `applicationId` del proyecto ya
       se ajustó para coincidir (2026-07-06).
 - [ ] **Subir `app-release.aab`** a **prueba interna** primero.
 - [ ] **Probar la actualización** en un dispositivo que tenga la versión
-      vieja instalada (las migraciones de base de datos v4 → v8 deben
+      vieja instalada (las migraciones de base de datos v4 → v9 deben
       conservar tus entradas). No desinstales: actualiza encima.
 - [ ] **Notas de versión**: copia `release_notes/es-ES.txt` y `en-US.txt`
       en el formulario de la versión.
@@ -67,7 +67,7 @@ certificado: `A4:79:1E:7A:FC:A1:D2:29:FE:06:10:E9:12:04:37:5B:FF:83:10:D0:F4:02:
 ## Para futuras versiones
 
 ```bash
-# 1. Sube la versión en pubspec.yaml (ej. 1.1.1+3)
+# 1. Sube la versión en pubspec.yaml (ej. 1.1.1+5; el +N es versionCode)
 # 2. Compila firmado:
 flutter build appbundle --release
 # 3. El .aab queda en build/app/outputs/bundle/release/
