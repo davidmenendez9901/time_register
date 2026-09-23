@@ -77,6 +77,9 @@ dependencies:
   # Open the published privacy policy in the system browser
   url_launcher: ^6.3.1
 
+  # Native Liquid Glass controls (tab bar, glass buttons) on iOS and macOS
+  cupertino_native_better: ^1.6.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

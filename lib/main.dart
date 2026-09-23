@@ -1,3 +1,4 @@
+import 'package:cupertino_native_better/cupertino_native_better.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -5,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'l10n/app_localizations.dart';
 import 'core/database/database_helper.dart';
 import 'core/database/desktop_sqlite.dart';
+import 'core/platform/app_platform.dart';
 import 'core/theme/app_theme.dart';
 import 'core/entities/settings.dart' as app_settings;
 import 'data/datasources/work_entry_local_data_source.dart';
@@ -183,6 +185,11 @@ class MyApp extends StatelessWidget {
 
           return MaterialApp(
             debugShowCheckedModeBanner: false,
+            // Keeps the native Liquid Glass views from bleeding through
+            // sheets and dialogs pushed over them.
+            navigatorObservers: [
+              if (isApplePlatform) CNTabBarRouteObserver(),
+            ],
             // Use localized app title if available, otherwise fallback
             onGenerateTitle: (context) =>
                 AppLocalizations.of(context)?.appTitle ?? 'Time Register',
