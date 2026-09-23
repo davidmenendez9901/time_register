@@ -546,7 +546,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get privacyPolicyContent =>
-      'Time Register no recolecta, transmite ni comparte ningún dato personal.\n\nTodo lo que ingresas (entradas de trabajo, tarifas, notas y ajustes) se guarda únicamente en una base de datos local en tu dispositivo. La app no se conecta a internet, no tiene analíticas y no muestra publicidad.\n\nDesinstalar la app elimina permanentemente todos sus datos.';
+      'Time Register no recolecta, transmite ni comparte tus datos personales, y no envía nada a ningún servidor.\n\nTodo lo que ingresas (entradas de trabajo, tarifas, trabajos, notas y ajustes) se guarda únicamente en una base de datos local en tu dispositivo. La app no se conecta a internet, no tiene analíticas y no muestra publicidad.\n\nTus datos solo salen de la app cuando exportas un reporte o creas un respaldo y eliges dónde compartirlo. En iPhone, iPad y Mac, tus respaldos de iCloud o de tu computadora pueden incluir los datos de la app.\n\nDesinstalar la app elimina permanentemente sus datos del dispositivo.';
 
   @override
   String get privacyPolicyOpenWeb => 'Abrir política completa';
