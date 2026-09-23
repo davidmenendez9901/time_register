@@ -1,6 +1,6 @@
 # Privacy Policy — Time Register
 
-**Last updated: June 12, 2026**
+**Last updated: September 23, 2026**
 
 Time Register ("the app") is an open source application for tracking work hours and earnings, developed by David Menendez.
 
@@ -10,7 +10,7 @@ Time Register ("the app") is an open source application for tracking work hours 
 
 - All information you enter (work entries, hours, hourly rates, notes, and settings) is stored **only in a local database on your device**.
 - The app does not require an account and has no sign-up of any kind.
-- The app does not connect to the internet, and the Android release build does not request the network permission.
+- The app does not connect to the internet, and the release builds do not request network access.
 - The app contains no analytics, no advertising, and no third-party tracking SDKs.
 
 ## Data control and deletion
@@ -23,7 +23,7 @@ You have full control of your data:
 
 ## Permissions
 
-The app does not request any sensitive Android permissions (no location, camera, contacts, storage, or network access).
+The app does not request any sensitive permissions on Android or iOS (no location, camera, contacts, storage, or network access).
 
 ## Children's privacy
 
@@ -42,7 +42,7 @@ For questions about this policy, open an issue at
 
 # Política de Privacidad — Time Register
 
-**Última actualización: 12 de junio de 2026**
+**Última actualización: 23 de septiembre de 2026**
 
 Time Register ("la app") es una aplicación de código abierto para registrar horas de trabajo y ganancias, desarrollada por David Menendez.
 
@@ -52,7 +52,7 @@ Time Register ("la app") es una aplicación de código abierto para registrar ho
 
 - Toda la información que ingresas (entradas de trabajo, horas, tarifas, notas y ajustes) se guarda **únicamente en una base de datos local en tu dispositivo**.
 - La app no requiere cuenta ni registro de ningún tipo.
-- La app no se conecta a internet, y la versión de Android publicada no solicita el permiso de red.
+- La app no se conecta a internet, y las versiones publicadas no solicitan acceso a la red.
 - La app no contiene analíticas, publicidad ni SDKs de rastreo de terceros.
 
 ## Control y eliminación de datos
@@ -65,7 +65,7 @@ Tienes control total de tus datos:
 
 ## Permisos
 
-La app no solicita ningún permiso sensible de Android (sin ubicación, cámara, contactos, almacenamiento ni acceso a red).
+La app no solicita ningún permiso sensible en Android ni iOS (sin ubicación, cámara, contactos, almacenamiento ni acceso a red).
 
 ## Privacidad de menores
 

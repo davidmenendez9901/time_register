@@ -19,6 +19,7 @@ import '../blocs/settings/settings_event.dart';
 import '../blocs/settings/settings_state.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
+import '../utils/share_origin.dart';
 import 'jobs_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -927,6 +928,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _backupData(AppLocalizations l10n) async {
+    final shareOrigin = shareOriginOf(context);
     final json = await BackupService(DatabaseHelper()).createBackupJson();
     final fileName =
         'time_register_backup_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.json';
@@ -939,6 +941,7 @@ class _SettingsPageState extends State<SettingsPage> {
         files: [XFile(file.path, mimeType: 'application/json')],
         fileNameOverrides: [fileName],
         subject: l10n.appTitle,
+        sharePositionOrigin: shareOrigin,
       ),
     );
   }
@@ -980,6 +983,8 @@ class _SettingsPageState extends State<SettingsPage> {
       label: 'JSON',
       extensions: ['json'],
       mimeTypes: ['application/json', 'text/plain'],
+      // iOS picker filters by UTI and throws without one.
+      uniformTypeIdentifiers: ['public.json', 'public.plain-text'],
     );
     final file = await openFile(acceptedTypeGroups: [typeGroup]);
     if (file == null || !mounted) return;

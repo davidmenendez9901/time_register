@@ -21,6 +21,7 @@ import '../blocs/time_tracking/time_tracking_state.dart';
 import 'package:time_register/l10n/app_localizations.dart';
 import 'package:animations/animations.dart';
 import '../utils/currency.dart';
+import '../utils/share_origin.dart';
 import 'work_entry_form_page.dart';
 
 class WeeklySummaryPage extends StatefulWidget {
@@ -152,6 +153,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
     final settings = settingsState is SettingsLoaded
         ? settingsState.settings
         : null;
+    final shareOrigin = shareOriginOf(context);
 
     final now = DateTime.now();
     final baseFont = pw.Font.ttf(
@@ -192,6 +194,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
         files: [XFile(file.path, mimeType: 'application/pdf')],
         fileNameOverrides: [fileName],
         subject: l10n.appTitle,
+        sharePositionOrigin: shareOrigin,
       ),
     );
   }
@@ -211,6 +214,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
       jobNames: {for (final job in jobs) job.id!: job.name},
       _buildLabels(l10n),
     );
+    final shareOrigin = shareOriginOf(context);
 
     final fileName =
         'time_register_${DateFormat('yyyy-MM-dd').format(DateTime.now())}.csv';
@@ -223,6 +227,7 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
         files: [XFile(file.path, mimeType: 'text/csv')],
         fileNameOverrides: [fileName],
         subject: l10n.appTitle,
+        sharePositionOrigin: shareOrigin,
       ),
     );
   }
