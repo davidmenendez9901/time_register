@@ -138,7 +138,9 @@ class AppTheme {
     final scheme = ColorScheme.fromSeed(
       seedColor: palette.primary,
       brightness: isDark ? Brightness.dark : Brightness.light,
-      dynamicSchemeVariant: DynamicSchemeVariant.expressive,
+      // Vibrant keeps the chosen palette as the primary hue; the
+      // "expressive" variant rotates it (a blue palette came out green).
+      dynamicSchemeVariant: DynamicSchemeVariant.vibrant,
     );
 
     final baseTextTheme = isDark
