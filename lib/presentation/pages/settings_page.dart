@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:time_register/l10n/app_localizations.dart';
 import '../../core/database/database_helper.dart';
 import '../../core/entities/settings.dart' as app_settings;
+import '../../core/platform/app_platform.dart';
 import '../../core/theme/app_palette.dart';
 import '../../data/services/backup_service.dart';
 import '../blocs/settings/settings_bloc.dart';
@@ -20,6 +22,7 @@ import '../blocs/settings/settings_state.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
 import '../utils/share_origin.dart';
+import '../widgets/settings_list.dart';
 import 'jobs_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -30,6 +33,9 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  /// Wide layouts (iPad, Mac, tablets) center the content at this width.
+  static const double _maxContentWidth = 700;
+
   static final _privacyPolicyUrl = Uri.parse(
     'https://davidmenendez9901.github.io/time_register/privacy.html',
   );
@@ -258,453 +264,219 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final apple = isApplePlatform;
+
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.settingsTab), centerTitle: true),
-      body: BlocBuilder<SettingsBloc, SettingsState>(
-        builder: (context, state) {
-          if (state is SettingsLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is SettingsLoaded) {
-            return ListView(
-              // Extra bottom padding so the last item clears the floating
-              // nav bar, matching the other tabs.
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-              children: [
-                // Theme Section
-                Card(
-                  elevation: 2,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: FaIcon(
-                            FontAwesomeIcons.palette,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        title: Text(
-                          l10n.appearance,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          '${_getThemeModeName(state.settings.themeMode, l10n)} • ${state.settings.palette.name}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        trailing: IconButton(
-                          icon: const FaIcon(FontAwesomeIcons.penToSquare),
-                          onPressed: () =>
-                              _showAppearanceDialog(state.settings, l10n),
-                        ),
-                      ),
-                      const Divider(height: 1),
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          l10n.appearanceSubtitle,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).textTheme.bodySmall?.color,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final gutter = constraints.maxWidth > _maxContentWidth + 32
+              ? (constraints.maxWidth - _maxContentWidth) / 2
+              : 16.0;
+          // Clear the floating tab bar on iPhone.
+          final bottomClearance = constraints.maxWidth < 600 && apple
+              ? 130.0
+              : 32.0;
 
-                // Hourly Rate Section
-                Card(
-                  elevation: 2,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const FaIcon(
-                            FontAwesomeIcons.dollarSign,
-                            color: Colors.green,
-                          ),
-                        ),
-                        title: Text(
-                          l10n.hourlyRate,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          '${state.settings.currencySymbol}${state.settings.hourlyRate.toStringAsFixed(2)} ${l10n.perHour}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.green,
-                          ),
-                        ),
-                        trailing: IconButton(
-                          icon: const FaIcon(FontAwesomeIcons.penToSquare),
-                          onPressed: () => _showEditRateDialog(
-                            state.settings.hourlyRate,
-                            l10n,
-                          ),
-                        ),
+          return BlocBuilder<SettingsBloc, SettingsState>(
+            builder: (context, state) {
+              return CustomScrollView(
+                slivers: [
+                  SliverAppBar.large(title: Text(l10n.settingsTab)),
+                  if (state is SettingsLoading)
+                    const SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: CircularProgressIndicator.adaptive(),
                       ),
-                      const Divider(height: 1),
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          l10n.hourlyRateSubtitle,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).textTheme.bodySmall?.color,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Currency Section
-                Card(
-                  elevation: 2,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.amber.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const FaIcon(
-                            FontAwesomeIcons.coins,
-                            color: Colors.amber,
-                          ),
-                        ),
-                        title: Text(
-                          l10n.currency,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          state.settings.currencySymbol,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.amber,
-                          ),
-                        ),
-                        trailing: IconButton(
-                          icon: const FaIcon(FontAwesomeIcons.penToSquare),
-                          onPressed: () => _showEditCurrencyDialog(
-                            state.settings.currencySymbol,
-                            l10n,
-                          ),
-                        ),
-                      ),
-                      const Divider(height: 1),
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          l10n.currencySubtitle,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).textTheme.bodySmall?.color,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Deductions Section
-                Card(
-                  elevation: 2,
-                  child: Column(
-                    children: [
-                      SwitchListTile(
-                        secondary: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.deepPurple.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const FaIcon(
-                            FontAwesomeIcons.percent,
-                            color: Colors.deepPurple,
-                          ),
-                        ),
-                        title: Text(
-                          l10n.deductions,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(l10n.enableDeductions),
-                        value: state.settings.deductionsEnabled,
-                        onChanged: (enabled) {
-                          context.read<SettingsBloc>().add(
-                            UpdateDeductions(
-                              enabled: enabled,
-                              rate: state.settings.deductionRate,
+                    )
+                  else if (state is SettingsError)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(l10n.errorMsg(state.message)),
+                            const SizedBox(height: 16),
+                            FilledButton(
+                              onPressed: () => context.read<SettingsBloc>().add(
+                                LoadSettings(),
+                              ),
+                              child: Text(l10n.retry),
                             ),
-                          );
-                        },
-                      ),
-                      if (state.settings.deductionsEnabled) ...[
-                        const Divider(height: 1),
-                        ListTile(
-                          title: Text(l10n.deductionRate),
-                          subtitle: Text(
-                            '${state.settings.deductionRate.toStringAsFixed(1)} %',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.deepPurple,
-                            ),
-                          ),
-                          trailing: IconButton(
-                            icon: const FaIcon(FontAwesomeIcons.penToSquare),
-                            onPressed: () =>
-                                _showEditDeductionDialog(state.settings, l10n),
-                          ),
-                        ),
-                      ],
-                      const Divider(height: 1),
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text(
-                          l10n.deductionsSubtitle,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).textTheme.bodySmall?.color,
-                          ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Jobs Section
-                Card(
-                  elevation: 2,
-                  child: ListTile(
-                    leading: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.indigo.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
+                    )
+                  else if (state is SettingsLoaded)
+                    SliverPadding(
+                      padding: EdgeInsets.fromLTRB(
+                        gutter,
+                        8,
+                        gutter,
+                        bottomClearance,
                       ),
-                      child: const FaIcon(
-                        FontAwesomeIcons.briefcase,
-                        color: Colors.indigo,
+                      sliver: SliverList.list(
+                        children: _buildSections(state.settings, l10n, apple),
                       ),
                     ),
-                    title: Text(
-                      l10n.jobs,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(l10n.jobsSubtitle),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const JobsPage()),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Data Section
-                Text(
-                  l10n.dataSection,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Card(
-                  elevation: 2,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.teal.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const FaIcon(
-                            FontAwesomeIcons.fileExport,
-                            color: Colors.teal,
-                          ),
-                        ),
-                        title: Text(l10n.backupData),
-                        subtitle: Text(l10n.backupSubtitle),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () => _backupData(l10n),
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const FaIcon(
-                            FontAwesomeIcons.fileImport,
-                            color: Colors.orange,
-                          ),
-                        ),
-                        title: Text(l10n.restoreData),
-                        subtitle: Text(l10n.restoreSubtitle),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () => _restoreData(l10n),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // App Information Section
-                Text(
-                  l10n.about,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Card(
-                  elevation: 2,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const FaIcon(
-                            FontAwesomeIcons.circleInfo,
-                            color: Colors.green,
-                          ),
-                        ),
-                        title: Text(l10n.version),
-                        subtitle: const Text('1.1.1'),
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.purple.shade100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const FaIcon(
-                            FontAwesomeIcons.clock,
-                            color: Colors.purple,
-                          ),
-                        ),
-                        title: Text(l10n.appTitle),
-                        subtitle: Text(l10n.appDescription),
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const FaIcon(
-                            FontAwesomeIcons.shieldHalved,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        title: Text(l10n.privacyPolicy),
-                        subtitle: Text(l10n.privacyPolicySubtitle),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () => _showPrivacyPolicyDialog(l10n),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Help Section
-                Text(
-                  l10n.help,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Card(
-                  elevation: 2,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.shade100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const FaIcon(
-                            FontAwesomeIcons.circleQuestion,
-                            color: Colors.orange,
-                          ),
-                        ),
-                        title: Text(l10n.howToUse),
-                        subtitle: Text(l10n.howToUseSubtitle),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () {
-                          _showHelpDialog(l10n);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          } else if (state is SettingsError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const FaIcon(
-                    FontAwesomeIcons.triangleExclamation,
-                    size: 64,
-                    color: Colors.red,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(l10n.errorMsg(state.message)),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<SettingsBloc>().add(LoadSettings());
-                    },
-                    child: Text(l10n.retry),
-                  ),
                 ],
-              ),
-            );
-          }
-          return const SizedBox.shrink();
+              );
+            },
+          );
         },
       ),
     );
+  }
+
+  List<Widget> _buildSections(
+    app_settings.AppSettings settings,
+    AppLocalizations l10n,
+    bool apple,
+  ) {
+    // iOS system colors on Apple; the same hues, slightly deeper, on Android.
+    const blue = Color(0xFF007AFF);
+    const green = Color(0xFF34C759);
+    const orange = Color(0xFFFF9500);
+    const purple = Color(0xFFAF52DE);
+    const teal = Color(0xFF30B0C7);
+    const gray = Color(0xFF8E8E93);
+    const indigo = Color(0xFF5856D6);
+
+    return [
+      SettingsSection(
+        footer: l10n.appearanceSubtitle,
+        children: [
+          SettingsTile(
+            icon: apple ? CupertinoIcons.paintbrush_fill : Icons.palette_outlined,
+            color: Theme.of(context).colorScheme.primary,
+            title: l10n.appearance,
+            value:
+                '${_getThemeModeName(settings.themeMode, l10n)} · ${toBeginningOfSentenceCase(settings.palette.name)}',
+            onTap: () => _showAppearanceDialog(settings, l10n),
+          ),
+        ],
+      ),
+      SettingsSection(
+        header: l10n.general,
+        footer: '${l10n.hourlyRateSubtitle} ${l10n.currencySubtitle}',
+        children: [
+          SettingsTile(
+            icon: apple
+                ? CupertinoIcons.money_dollar_circle_fill
+                : Icons.payments_outlined,
+            color: green,
+            title: l10n.hourlyRate,
+            value:
+                '${settings.currencySymbol}${settings.hourlyRate.toStringAsFixed(2)}',
+            onTap: () => _showEditRateDialog(settings.hourlyRate, l10n),
+          ),
+          SettingsTile(
+            icon: apple
+                ? CupertinoIcons.money_euro_circle_fill
+                : Icons.currency_exchange_rounded,
+            color: orange,
+            title: l10n.currency,
+            value: settings.currencySymbol,
+            onTap: () =>
+                _showEditCurrencyDialog(settings.currencySymbol, l10n),
+          ),
+          SettingsTile(
+            icon: apple ? CupertinoIcons.briefcase_fill : Icons.work_outline,
+            color: blue,
+            title: l10n.jobs,
+            subtitle: l10n.jobsSubtitle,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const JobsPage()),
+            ),
+          ),
+        ],
+      ),
+      SettingsSection(
+        header: l10n.deductions,
+        footer: l10n.deductionsSubtitle,
+        children: [
+          SettingsTile.toggle(
+            icon: apple ? CupertinoIcons.percent : Icons.percent_rounded,
+            color: purple,
+            title: l10n.enableDeductions,
+            value: settings.deductionsEnabled,
+            onChanged: (enabled) {
+              context.read<SettingsBloc>().add(
+                UpdateDeductions(enabled: enabled, rate: settings.deductionRate),
+              );
+            },
+          ),
+          if (settings.deductionsEnabled)
+            SettingsTile(
+              icon: apple
+                  ? CupertinoIcons.slider_horizontal_3
+                  : Icons.tune_rounded,
+              color: purple,
+              title: l10n.deductionRate,
+              value: '${settings.deductionRate.toStringAsFixed(1)} %',
+              onTap: () => _showEditDeductionDialog(settings, l10n),
+            ),
+        ],
+      ),
+      SettingsSection(
+        header: l10n.dataSection,
+        children: [
+          SettingsTile(
+            icon: apple
+                ? CupertinoIcons.arrow_up_doc_fill
+                : Icons.backup_outlined,
+            color: teal,
+            title: l10n.backupData,
+            subtitle: l10n.backupSubtitle,
+            onTap: () => _backupData(l10n),
+          ),
+          SettingsTile(
+            icon: apple
+                ? CupertinoIcons.arrow_down_doc_fill
+                : Icons.settings_backup_restore_rounded,
+            color: orange,
+            title: l10n.restoreData,
+            subtitle: l10n.restoreSubtitle,
+            onTap: () => _restoreData(l10n),
+          ),
+        ],
+      ),
+      SettingsSection(
+        header: l10n.about,
+        footer: '${l10n.appTitle} — ${l10n.appDescription}',
+        children: [
+          SettingsTile(
+            icon: apple ? CupertinoIcons.info_circle_fill : Icons.info_outline,
+            color: gray,
+            title: l10n.version,
+            value: '1.1.1',
+          ),
+          SettingsTile(
+            icon: apple ? CupertinoIcons.lock_shield_fill : Icons.shield_outlined,
+            color: blue,
+            title: l10n.privacyPolicy,
+            subtitle: l10n.privacyPolicySubtitle,
+            onTap: () => _showPrivacyPolicyDialog(l10n),
+          ),
+        ],
+      ),
+      SettingsSection(
+        header: l10n.help,
+        children: [
+          SettingsTile(
+            icon: apple
+                ? CupertinoIcons.question_circle_fill
+                : Icons.help_outline_rounded,
+            color: indigo,
+            title: l10n.howToUse,
+            subtitle: l10n.howToUseSubtitle,
+            onTap: () => _showHelpDialog(l10n),
+          ),
+        ],
+      ),
+    ];
   }
 
   String _getThemeModeName(app_settings.ThemeMode mode, AppLocalizations l10n) {
