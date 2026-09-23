@@ -7,6 +7,14 @@
     "outstanding": "Outstanding",
     "toCollect": "To Collect",
     "thisWeek": "This Week",
+    "unpaidEntriesCount": "{count, plural, =1{1 unpaid entry} other{{count} unpaid entries}}",
+    "@unpaidEntriesCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
     "performance": "Performance",
     "thisMonth": "This Month",
     "viewSummary": "View Summary",

@@ -146,6 +146,12 @@ abstract class AppLocalizations {
   /// **'This Week'**
   String get thisWeek;
 
+  /// No description provided for @unpaidEntriesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 unpaid entry} other{{count} unpaid entries}}'**
+  String unpaidEntriesCount(int count);
+
   /// No description provided for @performance.
   ///
   /// In en, this message translates to:

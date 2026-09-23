@@ -33,6 +33,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String get thisWeek => 'Esta Semana';
 
   @override
+  String unpaidEntriesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count entradas sin pagar',
+      one: '1 entrada sin pagar',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get performance => 'Rendimiento';
 
   @override
