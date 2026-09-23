@@ -9,7 +9,7 @@ import java.util.Properties
 import java.io.FileInputStream
 
 android {
-    namespace = "dev.davidmenendez.time_register"
+    namespace = "dev.davidmenendez.timeregister"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
