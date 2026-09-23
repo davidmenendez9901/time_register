@@ -254,10 +254,10 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: pages,
       floatingActionButton: _selectedIndex == 0
-          ? FloatingActionButton.large(
+          ? FloatingActionButton(
               onPressed: _addEntry,
               tooltip: AppLocalizations.of(context)!.addWorkEntry,
-              child: const Icon(Icons.add_rounded, size: 36),
+              child: const Icon(Icons.add_rounded, size: 28),
             )
           : null,
       bottomNavigationBar: NavigationBar(

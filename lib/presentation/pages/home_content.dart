@@ -109,13 +109,13 @@ class _HomeContentState extends State<HomeContent> {
           final gutter = constraints.maxWidth > _maxContentWidth + 32
               ? (constraints.maxWidth - _maxContentWidth) / 2
               : 16.0;
-          // Leave room for the floating tab bar (iPhone) or the large FAB
+          // Leave room for the floating tab bar (iPhone) or the FAB
           // (Android phones); wide layouts have neither at the bottom.
           final bottomClearance = constraints.maxWidth >= 600
               ? 32.0
               : apple
               ? 150.0
-              : 120.0;
+              : 96.0;
 
           return BlocBuilder<TimeTrackingBloc, TimeTrackingState>(
             builder: (context, state) {
