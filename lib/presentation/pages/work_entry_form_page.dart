@@ -1,16 +1,20 @@
+import 'package:cupertino_native_better/cupertino_native_better.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import '../../core/entities/job.dart';
 import '../../core/entities/work_entry.dart';
+import '../../core/platform/app_platform.dart';
 import '../blocs/jobs/jobs_cubit.dart';
 import '../blocs/time_tracking/time_tracking_bloc.dart';
 import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/settings/settings_bloc.dart';
 import '../blocs/settings/settings_state.dart';
 import '../utils/currency.dart';
+import '../widgets/entry_widgets.dart';
+import '../widgets/settings_list.dart';
 
 import 'package:time_register/l10n/app_localizations.dart';
 
@@ -117,66 +121,187 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
     _rateController.text = _hourlyRate.toStringAsFixed(2);
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+  /// Wide layouts (iPad, Mac, tablets) center the form at this width.
+  static const double _maxContentWidth = 640;
+
+  /// iOS wheel picker in a bottom popup; returns null when cancelled.
+  Future<DateTime?> _showCupertinoPicker({
+    required DateTime initial,
+    required CupertinoDatePickerMode mode,
+    DateTime? maximumDate,
+  }) async {
+    final l10n = AppLocalizations.of(context)!;
+    var value = initial;
+    final confirmed = await showCupertinoModalPopup<bool>(
       context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
+      builder: (popupContext) => ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        child: Container(
+          height: 320,
+          color: CupertinoColors.systemBackground.resolveFrom(popupContext),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      onPressed: () => Navigator.pop(popupContext, false),
+                      child: Text(l10n.cancel),
+                    ),
+                    CupertinoButton(
+                      onPressed: () => Navigator.pop(popupContext, true),
+                      child: Text(
+                        l10n.ok,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: CupertinoDatePicker(
+                    mode: mode,
+                    initialDateTime: initial,
+                    maximumDate: maximumDate,
+                    use24hFormat: MediaQuery.alwaysUse24HourFormatOf(
+                      popupContext,
+                    ),
+                    onDateTimeChanged: (picked) => value = picked,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
+    return confirmed == true ? value : null;
+  }
+
+  Future<void> _selectDate() async {
+    DateTime? picked;
+    if (isApplePlatform) {
+      final now = DateTime.now();
+      final endOfToday = DateTime(now.year, now.month, now.day, 23, 59);
+      picked = await _showCupertinoPicker(
+        initial: _selectedDate.isAfter(endOfToday) ? endOfToday : _selectedDate,
+        mode: CupertinoDatePickerMode.date,
+        maximumDate: endOfToday,
+      );
+    } else {
+      picked = await showDatePicker(
+        context: context,
+        initialDate: _selectedDate,
+        firstDate: DateTime(2020),
+        lastDate: DateTime.now(),
+      );
+    }
     if (picked != null && picked != _selectedDate) {
       setState(() {
-        _selectedDate = picked;
+        _selectedDate = picked!;
       });
     }
   }
 
-  Future<void> _selectStartTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: _startTime,
-    );
-    if (picked != null && picked != _startTime) {
-      setState(() {
-        _startTime = picked;
-      });
+  /// Picks a time of day and hands it to [onPicked] when it changed.
+  Future<void> _pickTime(
+    TimeOfDay initial,
+    ValueChanged<TimeOfDay> onPicked,
+  ) async {
+    TimeOfDay? picked;
+    if (isApplePlatform) {
+      final now = DateTime.now();
+      final result = await _showCupertinoPicker(
+        initial: DateTime(
+          now.year,
+          now.month,
+          now.day,
+          initial.hour,
+          initial.minute,
+        ),
+        mode: CupertinoDatePickerMode.time,
+      );
+      if (result != null) picked = TimeOfDay.fromDateTime(result);
+    } else {
+      picked = await showTimePicker(context: context, initialTime: initial);
+    }
+    if (picked != null && picked != initial) {
+      setState(() => onPicked(picked!));
     }
   }
 
-  Future<void> _selectEndTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: _endTime,
-    );
-    if (picked != null && picked != _endTime) {
-      setState(() {
-        _endTime = picked;
-      });
-    }
+  void _setJob(int? jobId) {
+    setState(() {
+      _jobId = jobId;
+      final job = context.read<JobsCubit>().byId(jobId);
+      if (job?.hourlyRate != null) {
+        _hourlyRate = job!.hourlyRate!;
+        _rateController.text = _hourlyRate.toStringAsFixed(2);
+      }
+    });
   }
 
-  Future<void> _selectLunchStartTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: _lunchStartTime,
-    );
-    if (picked != null && picked != _lunchStartTime) {
-      setState(() {
-        _lunchStartTime = picked;
-      });
-    }
-  }
+  /// Job chooser: an action sheet on Apple, a bottom sheet elsewhere.
+  Future<void> _selectJob(List<Job> jobs) async {
+    final l10n = AppLocalizations.of(context)!;
+    // Wrapped so "no job" (null) is distinguishable from dismissing.
+    final choices = <({int? id, String name, Color? color})>[
+      (id: null, name: l10n.noJob, color: null),
+      for (final job in jobs)
+        (id: job.id, name: job.name, color: Color(job.colorValue)),
+    ];
 
-  Future<void> _selectLunchEndTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: _lunchEndTime,
-    );
-    if (picked != null && picked != _lunchEndTime) {
-      setState(() {
-        _lunchEndTime = picked;
-      });
+    if (isApplePlatform) {
+      final picked = await showCupertinoModalPopup<({int? id})>(
+        context: context,
+        builder: (sheetContext) => CupertinoActionSheet(
+          title: Text(l10n.job),
+          actions: [
+            for (final choice in choices)
+              CupertinoActionSheetAction(
+                isDefaultAction: choice.id == _jobId,
+                onPressed: () => Navigator.pop(sheetContext, (id: choice.id)),
+                child: Text(choice.name),
+              ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () => Navigator.pop(sheetContext),
+            child: Text(l10n.cancel),
+          ),
+        ),
+      );
+      if (picked != null) _setJob(picked.id);
+      return;
     }
+
+    final picked = await showModalBottomSheet<({int? id})>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            for (final choice in choices)
+              ListTile(
+                leading: CircleAvatar(
+                  radius: 8,
+                  backgroundColor:
+                      choice.color ??
+                      Theme.of(sheetContext).colorScheme.outlineVariant,
+                ),
+                title: Text(choice.name),
+                trailing: choice.id == _jobId
+                    ? const Icon(Icons.check_rounded)
+                    : null,
+                onTap: () => Navigator.pop(sheetContext, (id: choice.id)),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (picked != null) _setJob(picked.id);
   }
 
   void _saveEntry() {
@@ -326,68 +451,96 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
 
   void _deleteEntry() {
     final l10n = AppLocalizations.of(context)!;
-    showDialog(
+
+    void confirm(BuildContext dialogContext) {
+      context.read<TimeTrackingBloc>().add(DeleteWorkEntry(widget.entry!.id!));
+      Navigator.pop(dialogContext);
+      Navigator.pop(context);
+    }
+
+    showAdaptiveDialog<void>(
       context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              const FaIcon(
-                FontAwesomeIcons.triangleExclamation,
-                color: Colors.red,
-              ),
-              const SizedBox(width: 8),
-              Text(l10n.deleteEntry),
-            ],
-          ),
-          content: Text(l10n.deleteEntryConfirm),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(l10n.cancel),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                context.read<TimeTrackingBloc>().add(
-                  DeleteWorkEntry(widget.entry!.id!),
-                );
-                Navigator.pop(dialogContext);
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-              ),
-              child: Text(l10n.delete),
-            ),
-          ],
-        );
-      },
+      builder: (dialogContext) => AlertDialog.adaptive(
+        title: Text(l10n.deleteEntry),
+        content: Text(l10n.deleteEntryConfirm),
+        actions: isApplePlatform
+            ? [
+                CupertinoDialogAction(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: Text(l10n.cancel),
+                ),
+                CupertinoDialogAction(
+                  isDestructiveAction: true,
+                  onPressed: () => confirm(dialogContext),
+                  child: Text(l10n.delete),
+                ),
+              ]
+            : [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: Text(l10n.cancel),
+                ),
+                TextButton(
+                  onPressed: () => confirm(dialogContext),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                  ),
+                  child: Text(l10n.delete),
+                ),
+              ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final symbol = currencySymbolOf(context);
-    final appBarTitle = _isEditMode ? l10n.editWorkEntry : l10n.addWorkEntry;
-    final saveButtonText = _isEditMode ? l10n.saveChanges : l10n.saveEntry;
+    final apple = isApplePlatform;
+    final title = _isEditMode ? l10n.editWorkEntry : l10n.addWorkEntry;
+    final saveLabel = _isEditMode ? l10n.saveChanges : l10n.saveEntry;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(appBarTitle),
-        // backgroundColor: Theme.of(context).colorScheme.primary,
-        // foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        centerTitle: true,
-        actions: _isEditMode
-            ? [
-                IconButton(
-                  icon: const FaIcon(FontAwesomeIcons.trash),
-                  onPressed: _deleteEntry,
-                  tooltip: l10n.deleteEntry,
+        title: Text(title),
+        leadingWidth: apple ? 64 : null,
+        leading: apple
+            ? Center(
+                child: CNButton.icon(
+                  icon: const CNSymbol('xmark', size: 16),
+                  onPressed: () => Navigator.maybePop(context),
                 ),
-              ]
-            : null,
+              )
+            : IconButton(
+                icon: const Icon(Icons.close_rounded),
+                tooltip: l10n.cancel,
+                onPressed: () => Navigator.maybePop(context),
+              ),
+        actions: [
+          if (apple)
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Semantics(
+                button: true,
+                label: saveLabel,
+                child: CNButton.icon(
+                  icon: const CNSymbol('checkmark', size: 16),
+                  tint: Theme.of(context).colorScheme.primary,
+                  config: const CNButtonConfig(
+                    style: CNButtonStyle.prominentGlass,
+                  ),
+                  onPressed: _saveEntry,
+                ),
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: FilledButton(
+                onPressed: _saveEntry,
+                child: Text(saveLabel),
+              ),
+            ),
+        ],
       ),
       body: BlocListener<SettingsBloc, SettingsState>(
         listener: (context, state) {
@@ -400,481 +553,237 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
             });
           }
         },
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Date Selection
-                Card(
-                  elevation: 2,
-                  child: ListTile(
-                    leading: const FaIcon(
-                      FontAwesomeIcons.calendar,
-                      color: Colors.blue,
-                    ),
-                    title: Text(l10n.date),
-                    subtitle: Text(
-                      DateFormat(
-                        'EEEE, MMMM d, y',
-                        l10n.localeName,
-                      ).format(_selectedDate),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () => _selectDate(context),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Start Time
-                Card(
-                  elevation: 2,
-                  child: ListTile(
-                    leading: const FaIcon(
-                      FontAwesomeIcons.clock,
-                      color: Colors.green,
-                    ),
-                    title: Text(l10n.startTime),
-                    subtitle: Text(_startTime.format(context)),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () => _selectStartTime(context),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // End Time
-                Card(
-                  elevation: 2,
-                  child: ListTile(
-                    leading: const FaIcon(
-                      FontAwesomeIcons.clock,
-                      color: Colors.red,
-                    ),
-                    title: Text(l10n.endTime),
-                    subtitle: Text(
-                      _isOvernight
-                          ? '${_endTime.format(context)} • ${l10n.endsNextDay}'
-                          : _endTime.format(context),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () => _selectEndTime(context),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Lunch Toggle
-                Card(
-                  elevation: 2,
-                  child: Column(
-                    children: [
-                      SwitchListTile(
-                        secondary: const FaIcon(
-                          FontAwesomeIcons.utensils,
-                          color: Colors.orange,
-                        ),
-                        title: Text(l10n.lunchBreak),
-                        subtitle: Text(l10n.deductLunch),
-                        value: _lunchTaken,
-                        onChanged: (bool value) {
-                          setState(() {
-                            _lunchTaken = value;
-                          });
-                        },
-                      ),
-                      if (_lunchTaken) ...[
-                        const Divider(),
-                        ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 0,
-                          ),
-                          leading: const SizedBox(
-                            width: 24,
-                          ), // Spacer for alignment
-                          title: Text(l10n.lunchStart),
-                          trailing: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.outlineVariant,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              _lunchStartTime.format(context),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          onTap: () => _selectLunchStartTime(context),
-                        ),
-                        ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 0,
-                          ),
-                          leading: const SizedBox(
-                            width: 24,
-                          ), // Spacer for alignment
-                          title: Text(l10n.lunchEnd),
-                          trailing: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.outlineVariant,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              _lunchEndTime.format(context),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          onTap: () => _selectLunchEndTime(context),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Job selector (only when jobs exist)
-                BlocBuilder<JobsCubit, List<Job>>(
-                  builder: (context, jobs) {
-                    final selectable = jobs
-                        .where((j) => !j.archived || j.id == _jobId)
-                        .toList();
-                    if (selectable.isEmpty) return const SizedBox.shrink();
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Card(
-                          elevation: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 4,
-                            ),
-                            child: Row(
-                              children: [
-                                const FaIcon(
-                                  FontAwesomeIcons.briefcase,
-                                  color: Colors.indigo,
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: DropdownButtonFormField<int?>(
-                                    initialValue: _jobId,
-                                    decoration: InputDecoration(
-                                      labelText: l10n.job,
-                                      border: InputBorder.none,
-                                    ),
-                                    items: [
-                                      DropdownMenuItem<int?>(
-                                        value: null,
-                                        child: Text(l10n.noJob),
-                                      ),
-                                      for (final job in selectable)
-                                        DropdownMenuItem<int?>(
-                                          value: job.id,
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Container(
-                                                width: 14,
-                                                height: 14,
-                                                decoration: BoxDecoration(
-                                                  color: Color(job.colorValue),
-                                                  shape: BoxShape.circle,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Text(job.name),
-                                            ],
-                                          ),
-                                        ),
-                                    ],
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _jobId = value;
-                                        final job = context
-                                            .read<JobsCubit>()
-                                            .byId(value);
-                                        if (job?.hourlyRate != null) {
-                                          _hourlyRate = job!.hourlyRate!;
-                                          _rateController.text = _hourlyRate
-                                              .toStringAsFixed(2);
-                                        }
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
-                    );
-                  },
-                ),
-
-                // Description
-                Card(
-                  elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const FaIcon(
-                              FontAwesomeIcons.noteSticky,
-                              color: Colors.purple,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              l10n.descriptionNote,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        TextFormField(
-                          controller: _descriptionController,
-                          maxLines: 3,
-                          decoration: InputDecoration(
-                            border: const OutlineInputBorder(),
-                            hintText: l10n.descriptionHint,
-                            contentPadding: const EdgeInsets.all(12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Paid Status Toggle (solo en modo editar)
-                if (_isEditMode) ...[
-                  Card(
-                    elevation: 2,
-                    child: SwitchListTile(
-                      secondary: FaIcon(
-                        _isPaid
-                            ? FontAwesomeIcons.circleCheck
-                            : FontAwesomeIcons.clock,
-                        color: _isPaid ? Colors.green : Colors.orange,
-                      ),
-                      title: Text(l10n.markAsPaid),
-                      subtitle: Text(
-                        _isPaid ? l10n.paidStatus : l10n.unpaidStatus,
-                      ),
-                      value: _isPaid,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _isPaid = value;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-
-                // Hourly Rate
-                Card(
-                  elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const FaIcon(
-                              FontAwesomeIcons.dollarSign,
-                              color: Colors.green,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              l10n.hourlyRate,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: _rateController,
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d+\.?\d{0,2}'),
-                            ),
-                          ],
-                          decoration: InputDecoration(
-                            prefixText: '$symbol ',
-                            border: const OutlineInputBorder(),
-                            helperText: _isEditMode
-                                ? l10n.rateForEntry
-                                : l10n.defaultRateFromSettings,
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return l10n.enterRateValidation;
-                            }
-                            final rate = double.tryParse(value);
-                            if (rate == null || rate <= 0) {
-                              return l10n.enterValidNumberValidation;
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            final rate = double.tryParse(value);
-                            if (rate != null && rate > 0) {
-                              setState(() {
-                                _hourlyRate = rate;
-                              });
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Summary Card
-                Card(
-                  elevation: 4,
-
-                  // color: Theme.of(context).colorScheme.primaryContainer,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.summaryTab,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Divider(),
-                        _buildSummaryRow(
-                          l10n.hourlyRate,
-                          '$symbol${_hourlyRate.toStringAsFixed(2)}',
-                        ),
-                        _buildSummaryRow(
-                          l10n.totalHours,
-                          _calculateDisplayHours().toStringAsFixed(2),
-                        ),
-                        _buildSummaryRow(
-                          l10n.estimatedEarnings,
-                          '$symbol${_calculateDisplayEarnings().toStringAsFixed(2)}',
-                          isTotal: true,
-                        ),
-                        ..._buildDeductionRows(context, l10n, symbol),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Save Button
-                FilledButton.icon(
-                  onPressed: _saveEntry,
-                  icon: const FaIcon(FontAwesomeIcons.floppyDisk, size: 18),
-                  label: Text(saveButtonText),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final gutter = constraints.maxWidth > _maxContentWidth + 32
+                ? (constraints.maxWidth - _maxContentWidth) / 2
+                : 16.0;
+            return Form(
+              key: _formKey,
+              child: ListView(
+                padding: EdgeInsets.fromLTRB(gutter, 8, gutter, 32),
+                children: _buildFormSections(context, l10n, apple),
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
-  // Deduction estimate rows, only when deductions are enabled in settings
-  List<Widget> _buildDeductionRows(
+  List<Widget> _buildFormSections(
     BuildContext context,
     AppLocalizations l10n,
-    String symbol,
+    bool apple,
   ) {
-    final settingsState = context.watch<SettingsBloc>().state;
-    if (settingsState is! SettingsLoaded ||
-        !settingsState.settings.deductionsEnabled) {
-      return const [];
-    }
-    final settings = settingsState.settings;
-    final gross = _calculateDisplayEarnings();
-    final net = settings.netOf(gross);
-    return [
-      _buildSummaryRow(
-        '${l10n.deductions} (${settings.deductionRate.toStringAsFixed(1)}%)',
-        '-$symbol${(gross - net).toStringAsFixed(2)}',
-      ),
-      _buildSummaryRow(
-        l10n.estimatedNet,
-        '$symbol${net.toStringAsFixed(2)}',
-        isTotal: true,
-      ),
-    ];
-  }
+    final symbol = currencySymbolOf(context);
+    final scheme = Theme.of(context).colorScheme;
+    final dateLabel = toBeginningOfSentenceCase(
+      DateFormat.yMMMEd(l10n.localeName).format(_selectedDate),
+    );
 
-  Widget _buildSummaryRow(String label, String value, {bool isTotal = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return [
+      _TotalsCard(
+        hours: _calculateDisplayHours(),
+        earnings: _calculateDisplayEarnings(),
+        symbol: symbol,
+      ),
+      const SizedBox(height: 24),
+
+      // Job (only when jobs exist)
+      BlocBuilder<JobsCubit, List<Job>>(
+        builder: (context, jobs) {
+          final selectable = jobs
+              .where((j) => !j.archived || j.id == _jobId)
+              .toList();
+          if (selectable.isEmpty) return const SizedBox.shrink();
+          final job = context.read<JobsCubit>().byId(_jobId);
+          return SettingsSection(
+            children: [
+              SettingsTile(
+                icon: apple
+                    ? CupertinoIcons.briefcase_fill
+                    : Icons.work_outline,
+                color: job != null ? Color(job.colorValue) : scheme.outline,
+                title: l10n.job,
+                value: job?.name ?? l10n.noJob,
+                onTap: () => _selectJob(selectable),
+              ),
+            ],
+          );
+        },
+      ),
+
+      SettingsSection(
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: isTotal ? 16 : 14,
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+          SettingsTile(
+            icon: apple
+                ? CupertinoIcons.calendar
+                : Icons.calendar_month_outlined,
+            color: const Color(0xFFFF3B30),
+            title: l10n.date,
+            value: dateLabel,
+            onTap: _selectDate,
+          ),
+          SettingsTile(
+            icon: apple ? CupertinoIcons.play_circle_fill : Icons.login_rounded,
+            color: const Color(0xFF34C759),
+            title: l10n.startTime,
+            value: _startTime.format(context),
+            onTap: () => _pickTime(_startTime, (t) => _startTime = t),
+          ),
+          SettingsTile(
+            icon: apple
+                ? CupertinoIcons.stop_circle_fill
+                : Icons.logout_rounded,
+            color: const Color(0xFFFF9500),
+            title: l10n.endTime,
+            subtitle: _isOvernight ? l10n.endsNextDay : null,
+            value: _endTime.format(context),
+            onTap: () => _pickTime(_endTime, (t) => _endTime = t),
+          ),
+        ],
+      ),
+
+      SettingsSection(
+        children: [
+          SettingsTile.toggle(
+            icon: apple
+                ? CupertinoIcons.pause_circle_fill
+                : Icons.restaurant_rounded,
+            color: const Color(0xFFFF9500),
+            title: l10n.lunchBreak,
+            value: _lunchTaken,
+            onChanged: (value) => setState(() => _lunchTaken = value),
+          ),
+          if (_lunchTaken) ...[
+            SettingsTile(
+              icon: apple ? CupertinoIcons.clock : Icons.schedule_rounded,
+              color: const Color(0xFF8E8E93),
+              title: l10n.lunchStart,
+              value: _lunchStartTime.format(context),
+              onTap: () =>
+                  _pickTime(_lunchStartTime, (t) => _lunchStartTime = t),
+            ),
+            SettingsTile(
+              icon: apple ? CupertinoIcons.clock_fill : Icons.schedule_rounded,
+              color: const Color(0xFF8E8E93),
+              title: l10n.lunchEnd,
+              value: _lunchEndTime.format(context),
+              onTap: () => _pickTime(_lunchEndTime, (t) => _lunchEndTime = t),
+            ),
+          ],
+        ],
+      ),
+
+      SettingsSection(
+        footer: _isEditMode ? l10n.rateForEntry : l10n.defaultRateFromSettings,
+        children: [
+          SettingsTile(
+            icon: apple
+                ? CupertinoIcons.money_dollar_circle_fill
+                : Icons.payments_outlined,
+            color: const Color(0xFF34C759),
+            title: l10n.hourlyRate,
+            trailing: SizedBox(
+              width: 120,
+              child: TextFormField(
+                controller: _rateController,
+                textAlign: TextAlign.end,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                ],
+                decoration: InputDecoration(
+                  prefixText: '$symbol ',
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  errorStyle: const TextStyle(height: 0, fontSize: 0),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return l10n.enterRateValidation;
+                  }
+                  final rate = double.tryParse(value);
+                  if (rate == null || rate <= 0) {
+                    return l10n.enterValidNumberValidation;
+                  }
+                  return null;
+                },
+                onChanged: (value) {
+                  final rate = double.tryParse(value);
+                  if (rate != null && rate > 0) {
+                    setState(() {
+                      _hourlyRate = rate;
+                    });
+                  }
+                },
+              ),
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: isTotal ? 18 : 14,
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              color: isTotal ? Theme.of(context).colorScheme.primary : null,
+          if (_isEditMode)
+            SettingsTile.toggle(
+              icon: apple
+                  ? CupertinoIcons.checkmark_seal_fill
+                  : Icons.price_check_rounded,
+              color: const Color(0xFF30B0C7),
+              title: l10n.paid,
+              subtitle: _isPaid ? l10n.paidStatus : l10n.unpaidStatus,
+              value: _isPaid,
+              onChanged: (value) => setState(() => _isPaid = value),
+            ),
+        ],
+      ),
+
+      SettingsSection(
+        header: l10n.descriptionNote,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(4),
+            child: TextFormField(
+              controller: _descriptionController,
+              minLines: 3,
+              maxLines: 6,
+              decoration: InputDecoration(
+                hintText: l10n.descriptionHint,
+                filled: false,
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                contentPadding: const EdgeInsets.all(12),
+              ),
             ),
           ),
         ],
       ),
-    );
+
+      if (_isEditMode)
+        SettingsSection(
+          children: [
+            InkWell(
+              onTap: _deleteEntry,
+              child: SizedBox(
+                height: 50,
+                child: Center(
+                  child: Text(
+                    l10n.deleteEntry,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: apple ? FontWeight.w400 : FontWeight.w700,
+                      color: apple ? const Color(0xFFFF3B30) : scheme.error,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+    ];
   }
 
   double _calculateDisplayEarnings() {
@@ -948,6 +857,112 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
       _lunchTaken,
       lunchStart: lunchStart,
       lunchEnd: lunchEnd,
+    );
+  }
+}
+
+/// Live hours and earnings for the entry being edited, plus the estimated
+/// net when deductions are enabled.
+class _TotalsCard extends StatelessWidget {
+  final double hours;
+  final double earnings;
+  final String symbol;
+
+  const _TotalsCard({
+    required this.hours,
+    required this.earnings,
+    required this.symbol,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final scheme = Theme.of(context).colorScheme;
+    final paidColor = StatusColors.of(context).paid;
+    final settingsState = context.watch<SettingsBloc>().state;
+    final settings = settingsState is SettingsLoaded
+        ? settingsState.settings
+        : null;
+    final showNet = settings?.deductionsEnabled ?? false;
+    final valueWeight = isApplePlatform ? FontWeight.w700 : FontWeight.w900;
+
+    Widget metric(String label, String value, {Color? color}) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: valueWeight,
+                color: color,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            IntrinsicHeight(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: metric(
+                      l10n.totalHours,
+                      '${hours.toStringAsFixed(2)} h',
+                    ),
+                  ),
+                  VerticalDivider(
+                    width: 32,
+                    color: scheme.outlineVariant.withValues(alpha: 0.6),
+                  ),
+                  Expanded(
+                    child: metric(
+                      l10n.estimatedEarnings,
+                      '$symbol${earnings.toStringAsFixed(2)}',
+                      color: paidColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (showNet) ...[
+              const SizedBox(height: 12),
+              Text(
+                '${l10n.estimatedNet}: $symbol${settings!.netOf(earnings).toStringAsFixed(2)}'
+                '  (−${settings.deductionRate.toStringAsFixed(1)}%)',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: scheme.onSurfaceVariant,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
