@@ -9,6 +9,7 @@ import '../../core/entities/job.dart';
 import '../../core/platform/app_platform.dart';
 import '../blocs/jobs/jobs_cubit.dart';
 import '../utils/currency.dart';
+import '../widgets/adaptive_dialogs.dart';
 import '../widgets/settings_list.dart';
 
 /// Predefined colors a job can use.
@@ -92,196 +93,294 @@ class JobsPage extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, Job job) {
+  Future<void> _confirmDelete(BuildContext context, Job job) async {
     final l10n = AppLocalizations.of(context)!;
-
-    void confirm(BuildContext dialogContext) {
-      context.read<JobsCubit>().delete(job.id!);
-      Navigator.pop(dialogContext);
-    }
-
-    showAdaptiveDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog.adaptive(
-        title: Text(l10n.deleteJob),
-        content: Text(l10n.deleteJobConfirm),
-        actions: isApplePlatform
-            ? [
-                CupertinoDialogAction(
-                  onPressed: () => Navigator.pop(dialogContext),
-                  child: Text(l10n.cancel),
-                ),
-                CupertinoDialogAction(
-                  isDestructiveAction: true,
-                  onPressed: () => confirm(dialogContext),
-                  child: Text(l10n.delete),
-                ),
-              ]
-            : [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogContext),
-                  child: Text(l10n.cancel),
-                ),
-                TextButton(
-                  onPressed: () => confirm(dialogContext),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.error,
-                  ),
-                  child: Text(l10n.delete),
-                ),
-              ],
-      ),
+    final confirmed = await showConfirmDialog(
+      context,
+      title: l10n.deleteJob,
+      message: l10n.deleteJobConfirm,
+      confirmLabel: l10n.delete,
+      destructive: true,
     );
+    if (!confirmed || !context.mounted) return;
+    context.read<JobsCubit>().delete(job.id!);
   }
 
   void _showJobDialog(BuildContext context, {Job? job}) {
-    final l10n = AppLocalizations.of(context)!;
-    final isEdit = job != null;
-    final formKey = GlobalKey<FormState>();
-    final nameController = TextEditingController(text: job?.name ?? '');
-    final rateController = TextEditingController(
-      text: job?.hourlyRate?.toStringAsFixed(2) ?? '',
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => JobFormPage(
+          job: job,
+          onDelete: job == null ? null : () => _confirmDelete(context, job),
+        ),
+      ),
     );
-    var selectedColor = job?.colorValue ?? jobColors.first.toARGB32();
-    var archived = job?.archived ?? false;
+  }
+}
 
-    showDialog(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (dialogContext, setDialogState) => AlertDialog(
-          title: Text(isEdit ? l10n.editJob : l10n.addJob),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextFormField(
-                    controller: nameController,
-                    autofocus: !isEdit,
-                    decoration: InputDecoration(
-                      labelText: l10n.jobName,
-                      border: const OutlineInputBorder(),
+/// Add or edit a job: name, optional rate, color and (when editing)
+/// archive/delete, as grouped rows.
+class JobFormPage extends StatefulWidget {
+  final Job? job;
+
+  /// Asks to delete the job; the form closes first.
+  final VoidCallback? onDelete;
+
+  const JobFormPage({super.key, this.job, this.onDelete});
+
+  @override
+  State<JobFormPage> createState() => _JobFormPageState();
+}
+
+class _JobFormPageState extends State<JobFormPage> {
+  static const double _maxContentWidth = 640;
+
+  final _formKey = GlobalKey<FormState>();
+  late final _nameController = TextEditingController(
+    text: widget.job?.name ?? '',
+  );
+  late final _rateController = TextEditingController(
+    text: widget.job?.hourlyRate?.toStringAsFixed(2) ?? '',
+  );
+  late int _color = widget.job?.colorValue ?? jobColors.first.toARGB32();
+  late bool _archived = widget.job?.archived ?? false;
+
+  bool get _isEdit => widget.job != null;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _rateController.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    if (!_formKey.currentState!.validate()) return;
+    final rate = double.tryParse(_rateController.text);
+    final cubit = context.read<JobsCubit>();
+    final name = _nameController.text.trim();
+    if (_isEdit) {
+      cubit.update(
+        widget.job!.copyWith(
+          name: name,
+          colorValue: _color,
+          hourlyRate: rate,
+          clearHourlyRate: rate == null,
+          archived: _archived,
+        ),
+      );
+    } else {
+      cubit.add(Job(name: name, colorValue: _color, hourlyRate: rate));
+    }
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final apple = isApplePlatform;
+    final scheme = Theme.of(context).colorScheme;
+    final symbol = currencySymbolOf(context);
+
+    const borderless = InputDecoration(
+      filled: false,
+      border: InputBorder.none,
+      enabledBorder: InputBorder.none,
+      focusedBorder: InputBorder.none,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_isEdit ? l10n.editJob : l10n.addJob),
+        leadingWidth: apple ? 64 : null,
+        leading: apple
+            ? Center(
+                child: CNButton.icon(
+                  icon: const CNSymbol('xmark', size: 16),
+                  onPressed: () => Navigator.maybePop(context),
+                ),
+              )
+            : IconButton(
+                icon: const Icon(Icons.close_rounded),
+                tooltip: l10n.cancel,
+                onPressed: () => Navigator.maybePop(context),
+              ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: apple
+                ? Semantics(
+                    button: true,
+                    label: l10n.save,
+                    child: CNButton.icon(
+                      icon: const CNSymbol('checkmark', size: 16),
+                      tint: scheme.primary,
+                      config: const CNButtonConfig(
+                        style: CNButtonStyle.prominentGlass,
+                      ),
+                      onPressed: _save,
                     ),
-                    validator: (value) => value == null || value.trim().isEmpty
-                        ? l10n.enterNameValidation
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: rateController,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
+                  )
+                : FilledButton(onPressed: _save, child: Text(l10n.save)),
+          ),
+        ],
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final gutter = constraints.maxWidth > _maxContentWidth + 32
+              ? (constraints.maxWidth - _maxContentWidth) / 2
+              : 16.0;
+          return Form(
+            key: _formKey,
+            child: ListView(
+              padding: EdgeInsets.fromLTRB(gutter, 8, gutter, 32),
+              children: [
+                SettingsSection(
+                  header: l10n.jobName,
+                  children: [
+                    TextFormField(
+                      controller: _nameController,
+                      autofocus: !_isEdit,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: borderless.copyWith(hintText: l10n.jobName),
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                          ? l10n.enterNameValidation
+                          : null,
                     ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                        RegExp(r'^\d+\.?\d{0,2}'),
+                  ],
+                ),
+                SettingsSection(
+                  header: l10n.jobRateOptional,
+                  footer: l10n.jobRateHelper,
+                  children: [
+                    TextFormField(
+                      controller: _rateController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d+\.?\d{0,2}'),
+                        ),
+                      ],
+                      decoration: borderless.copyWith(
+                        prefixText: '$symbol ',
+                        hintText: l10n.defaultRateLabel,
+                      ),
+                    ),
+                  ],
+                ),
+                SettingsSection(
+                  header: l10n.jobColor,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          for (final color in jobColors)
+                            _ColorSwatch(
+                              color: color,
+                              selected: _color == color.toARGB32(),
+                              onTap: () =>
+                                  setState(() => _color = color.toARGB32()),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                if (_isEdit) ...[
+                  SettingsSection(
+                    children: [
+                      SettingsTile.toggle(
+                        icon: apple
+                            ? CupertinoIcons.archivebox_fill
+                            : Icons.archive_outlined,
+                        color: const Color(0xFF8E8E93),
+                        title: l10n.archiveJob,
+                        value: _archived,
+                        onChanged: (value) => setState(() => _archived = value),
                       ),
                     ],
-                    decoration: InputDecoration(
-                      labelText: l10n.jobRateOptional,
-                      helperText: l10n.jobRateHelper,
-                      border: const OutlineInputBorder(),
-                    ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    l10n.jobColor,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
+                  SettingsSection(
                     children: [
-                      for (final color in jobColors)
-                        InkWell(
-                          onTap: () => setDialogState(
-                            () => selectedColor = color.toARGB32(),
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: color,
-                              shape: BoxShape.circle,
-                              border: selectedColor == color.toARGB32()
-                                  ? Border.all(
-                                      width: 3,
-                                      color: Theme.of(
-                                        dialogContext,
-                                      ).colorScheme.onSurface,
-                                    )
-                                  : null,
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                          widget.onDelete?.call();
+                        },
+                        child: SizedBox(
+                          height: 50,
+                          child: Center(
+                            child: Text(
+                              l10n.deleteJob,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: apple
+                                    ? FontWeight.w400
+                                    : FontWeight.w700,
+                                color: apple
+                                    ? const Color(0xFFFF3B30)
+                                    : scheme.error,
+                              ),
                             ),
                           ),
                         ),
+                      ),
                     ],
                   ),
-                  if (isEdit) ...[
-                    const SizedBox(height: 8),
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        l10n.archiveJob,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      value: archived,
-                      onChanged: (value) =>
-                          setDialogState(() => archived = value),
-                    ),
-                  ],
                 ],
-              ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ColorSwatch extends StatelessWidget {
+  final Color color;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ColorSwatch({
+    required this.color,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 44,
+          height: 44,
+          padding: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: selected ? color : Colors.transparent,
+              width: 2.5,
             ),
           ),
-          actions: [
-            if (isEdit)
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(dialogContext);
-                  _confirmDelete(context, job);
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(dialogContext).colorScheme.error,
-                ),
-                child: Text(l10n.delete),
-              ),
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(l10n.cancel),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (!formKey.currentState!.validate()) return;
-                final rate = double.tryParse(rateController.text);
-                final cubit = context.read<JobsCubit>();
-                if (isEdit) {
-                  cubit.update(
-                    job.copyWith(
-                      name: nameController.text.trim(),
-                      colorValue: selectedColor,
-                      hourlyRate: rate,
-                      clearHourlyRate: rate == null,
-                      archived: archived,
-                    ),
-                  );
-                } else {
-                  cubit.add(
-                    Job(
-                      name: nameController.text.trim(),
-                      colorValue: selectedColor,
-                      hourlyRate: rate,
-                    ),
-                  );
-                }
-                Navigator.pop(dialogContext);
-              },
-              child: Text(isEdit ? l10n.saveChanges : l10n.saveEntry),
-            ),
-          ],
+          child: DecoratedBox(
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            child: selected
+                ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
+                : null,
+          ),
         ),
       ),
     );

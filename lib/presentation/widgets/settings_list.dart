@@ -149,7 +149,10 @@ class SettingsTile extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(minHeight: apple ? 48 : 64),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: apple ? 8 : 10),
+          padding: EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: apple ? 8 : 10,
+          ),
           child: Row(
             children: [
               badge,

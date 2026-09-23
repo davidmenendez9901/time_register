@@ -296,6 +296,36 @@ abstract class AppLocalizations {
   /// **'Colors'**
   String get colors;
 
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @paletteBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get paletteBlue;
+
+  /// No description provided for @palettePurple.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple'**
+  String get palettePurple;
+
+  /// No description provided for @paletteGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get paletteGreen;
+
+  /// No description provided for @paletteOrange.
+  ///
+  /// In en, this message translates to:
+  /// **'Orange'**
+  String get paletteOrange;
+
   /// No description provided for @system.
   ///
   /// In en, this message translates to:

@@ -44,9 +44,7 @@ class _StatsPageState extends State<StatsPage> {
               ? (width - _maxContentWidth) / 2
               : 16.0;
           // Clear the floating tab bar on iPhone.
-          final bottomClearance = width < 600 && isApplePlatform
-              ? 130.0
-              : 32.0;
+          final bottomClearance = width < 600 && isApplePlatform ? 130.0 : 32.0;
 
           return BlocBuilder<TimeTrackingBloc, TimeTrackingState>(
             builder: (context, state) {

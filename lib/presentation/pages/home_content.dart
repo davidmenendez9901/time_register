@@ -187,7 +187,9 @@ class _HomeContentState extends State<HomeContent> {
               ? (apple
                     ? CupertinoIcons.calendar_badge_minus
                     : Icons.event_available_rounded)
-              : (apple ? CupertinoIcons.calendar : Icons.calendar_month_rounded),
+              : (apple
+                    ? CupertinoIcons.calendar
+                    : Icons.calendar_month_rounded),
           color: _selectedDate != null ? primary : null,
         ),
         onPressed: _selectDate,

@@ -23,6 +23,7 @@ import '../blocs/time_tracking/time_tracking_state.dart';
 import 'package:time_register/l10n/app_localizations.dart';
 import '../utils/currency.dart';
 import '../utils/share_origin.dart';
+import '../widgets/adaptive_dialogs.dart';
 import '../widgets/entry_widgets.dart';
 import 'work_entry_form_page.dart';
 
@@ -226,45 +227,17 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
     );
   }
 
-  void _deleteEntry(WorkEntry entry) {
+  Future<void> _deleteEntry(WorkEntry entry) async {
     final l10n = AppLocalizations.of(context)!;
-    void confirm(BuildContext dialogContext) {
-      context.read<TimeTrackingBloc>().add(DeleteWorkEntry(entry.id!));
-      Navigator.pop(dialogContext);
-    }
-
-    showAdaptiveDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog.adaptive(
-        title: Text(l10n.deleteEntry),
-        content: Text(l10n.deleteEntryConfirm),
-        actions: isApplePlatform
-            ? [
-                CupertinoDialogAction(
-                  onPressed: () => Navigator.pop(dialogContext),
-                  child: Text(l10n.cancel),
-                ),
-                CupertinoDialogAction(
-                  isDestructiveAction: true,
-                  onPressed: () => confirm(dialogContext),
-                  child: Text(l10n.delete),
-                ),
-              ]
-            : [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogContext),
-                  child: Text(l10n.cancel),
-                ),
-                TextButton(
-                  onPressed: () => confirm(dialogContext),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.error,
-                  ),
-                  child: Text(l10n.delete),
-                ),
-              ],
-      ),
+    final confirmed = await showConfirmDialog(
+      context,
+      title: l10n.deleteEntry,
+      message: l10n.deleteEntryConfirm,
+      confirmLabel: l10n.delete,
+      destructive: true,
     );
+    if (!confirmed || !mounted) return;
+    context.read<TimeTrackingBloc>().add(DeleteWorkEntry(entry.id!));
   }
 
   /// Toggle paid, edit or delete: an action sheet on Apple platforms, a
@@ -861,5 +834,4 @@ class _WeekEntryRow extends StatelessWidget {
       ),
     );
   }
-
 }

@@ -13,6 +13,7 @@ import '../blocs/time_tracking/time_tracking_event.dart';
 import '../blocs/settings/settings_bloc.dart';
 import '../blocs/settings/settings_state.dart';
 import '../utils/currency.dart';
+import '../widgets/adaptive_dialogs.dart';
 import '../widgets/entry_widgets.dart';
 import '../widgets/settings_list.dart';
 
@@ -449,47 +450,18 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
     }
   }
 
-  void _deleteEntry() {
+  Future<void> _deleteEntry() async {
     final l10n = AppLocalizations.of(context)!;
-
-    void confirm(BuildContext dialogContext) {
-      context.read<TimeTrackingBloc>().add(DeleteWorkEntry(widget.entry!.id!));
-      Navigator.pop(dialogContext);
-      Navigator.pop(context);
-    }
-
-    showAdaptiveDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog.adaptive(
-        title: Text(l10n.deleteEntry),
-        content: Text(l10n.deleteEntryConfirm),
-        actions: isApplePlatform
-            ? [
-                CupertinoDialogAction(
-                  onPressed: () => Navigator.pop(dialogContext),
-                  child: Text(l10n.cancel),
-                ),
-                CupertinoDialogAction(
-                  isDestructiveAction: true,
-                  onPressed: () => confirm(dialogContext),
-                  child: Text(l10n.delete),
-                ),
-              ]
-            : [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogContext),
-                  child: Text(l10n.cancel),
-                ),
-                TextButton(
-                  onPressed: () => confirm(dialogContext),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.error,
-                  ),
-                  child: Text(l10n.delete),
-                ),
-              ],
-      ),
+    final confirmed = await showConfirmDialog(
+      context,
+      title: l10n.deleteEntry,
+      message: l10n.deleteEntryConfirm,
+      confirmLabel: l10n.delete,
+      destructive: true,
     );
+    if (!confirmed || !mounted) return;
+    context.read<TimeTrackingBloc>().add(DeleteWorkEntry(widget.entry!.id!));
+    Navigator.pop(context);
   }
 
   @override

@@ -118,6 +118,21 @@ class AppLocalizationsEs extends AppLocalizations {
   String get colors => 'Colores';
 
   @override
+  String get save => 'Guardar';
+
+  @override
+  String get paletteBlue => 'Azul';
+
+  @override
+  String get palettePurple => 'Morado';
+
+  @override
+  String get paletteGreen => 'Verde';
+
+  @override
+  String get paletteOrange => 'Naranja';
+
+  @override
   String get system => 'Sistema';
 
   @override
