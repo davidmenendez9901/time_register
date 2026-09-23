@@ -1,12 +1,15 @@
+import 'package:cupertino_native_better/cupertino_native_better.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:time_register/l10n/app_localizations.dart';
 
 import '../../core/entities/job.dart';
+import '../../core/platform/app_platform.dart';
 import '../blocs/jobs/jobs_cubit.dart';
 import '../utils/currency.dart';
+import '../widgets/settings_list.dart';
 
 /// Predefined colors a job can use.
 const jobColors = [
@@ -23,85 +26,64 @@ const jobColors = [
 class JobsPage extends StatelessWidget {
   const JobsPage({super.key});
 
+  /// Wide layouts (iPad, Mac, tablets) center the list at this width.
+  static const double _maxContentWidth = 700;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final apple = isApplePlatform;
+
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.jobs), centerTitle: true),
-      floatingActionButton: FloatingActionButton(
-        tooltip: l10n.addJob,
-        onPressed: () => _showJobDialog(context),
-        child: const FaIcon(FontAwesomeIcons.plus),
-      ),
-      body: BlocBuilder<JobsCubit, List<Job>>(
-        builder: (context, jobs) {
-          if (jobs.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FaIcon(
-                      FontAwesomeIcons.briefcase,
-                      size: 64,
-                      color: Colors.grey.withValues(alpha: 0.5),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      l10n.noJobs,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-          final symbol = currencySymbolOf(context);
-          return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-            itemCount: jobs.length,
-            itemBuilder: (context, index) {
-              final job = jobs[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                elevation: 2,
-                child: ListTile(
-                  leading: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: Color(job.colorValue),
-                      shape: BoxShape.circle,
-                    ),
+      floatingActionButton: apple
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => _showJobDialog(context),
+              icon: const Icon(Icons.add_rounded),
+              label: Text(l10n.addJob),
+            ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final gutter = constraints.maxWidth > _maxContentWidth + 32
+              ? (constraints.maxWidth - _maxContentWidth) / 2
+              : 16.0;
+          return BlocBuilder<JobsCubit, List<Job>>(
+            builder: (context, jobs) {
+              return CustomScrollView(
+                slivers: [
+                  SliverAppBar.large(
+                    title: Text(l10n.jobs),
+                    actions: [
+                      if (apple)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: Semantics(
+                            button: true,
+                            label: l10n.addJob,
+                            child: CNButton.icon(
+                              icon: const CNSymbol('plus', size: 16),
+                              onPressed: () => _showJobDialog(context),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  title: Text(
-                    job.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: job.archived ? Colors.grey : null,
-                      decoration: job.archived
-                          ? TextDecoration.lineThrough
-                          : null,
+                  if (jobs.isEmpty)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: _EmptyJobs(message: l10n.noJobs),
+                    )
+                  else
+                    SliverPadding(
+                      padding: EdgeInsets.fromLTRB(gutter, 8, gutter, 120),
+                      sliver: SliverToBoxAdapter(
+                        child: _JobsList(
+                          jobs: jobs,
+                          onEdit: (job) => _showJobDialog(context, job: job),
+                        ),
+                      ),
                     ),
-                  ),
-                  subtitle: Text(
-                    job.hourlyRate != null
-                        ? '$symbol${job.hourlyRate!.toStringAsFixed(2)} ${l10n.perHour}'
-                        : l10n.defaultRateLabel,
-                  ),
-                  onTap: () => _showJobDialog(context, job: job),
-                  trailing: IconButton(
-                    icon: const FaIcon(
-                      FontAwesomeIcons.trash,
-                      size: 16,
-                      color: Colors.red,
-                    ),
-                    tooltip: l10n.deleteJob,
-                    onPressed: () => _confirmDelete(context, job),
-                  ),
-                ),
+                ],
               );
             },
           );
@@ -112,24 +94,42 @@ class JobsPage extends StatelessWidget {
 
   void _confirmDelete(BuildContext context, Job job) {
     final l10n = AppLocalizations.of(context)!;
-    showDialog(
+
+    void confirm(BuildContext dialogContext) {
+      context.read<JobsCubit>().delete(job.id!);
+      Navigator.pop(dialogContext);
+    }
+
+    showAdaptiveDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialogContext) => AlertDialog.adaptive(
         title: Text(l10n.deleteJob),
         content: Text(l10n.deleteJobConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              context.read<JobsCubit>().delete(job.id!);
-              Navigator.pop(dialogContext);
-            },
-            child: Text(l10n.delete, style: const TextStyle(color: Colors.red)),
-          ),
-        ],
+        actions: isApplePlatform
+            ? [
+                CupertinoDialogAction(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: Text(l10n.cancel),
+                ),
+                CupertinoDialogAction(
+                  isDestructiveAction: true,
+                  onPressed: () => confirm(dialogContext),
+                  child: Text(l10n.delete),
+                ),
+              ]
+            : [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: Text(l10n.cancel),
+                ),
+                TextButton(
+                  onPressed: () => confirm(dialogContext),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                  ),
+                  child: Text(l10n.delete),
+                ),
+              ],
       ),
     );
   }
@@ -238,6 +238,17 @@ class JobsPage extends StatelessWidget {
             ),
           ),
           actions: [
+            if (isEdit)
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+                  _confirmDelete(context, job);
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(dialogContext).colorScheme.error,
+                ),
+                child: Text(l10n.delete),
+              ),
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
               child: Text(l10n.cancel),
@@ -269,6 +280,71 @@ class JobsPage extends StatelessWidget {
                 Navigator.pop(dialogContext);
               },
               child: Text(isEdit ? l10n.saveChanges : l10n.saveEntry),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _JobsList extends StatelessWidget {
+  final List<Job> jobs;
+  final ValueChanged<Job> onEdit;
+
+  const _JobsList({required this.jobs, required this.onEdit});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final symbol = currencySymbolOf(context);
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+
+    return SettingsSection(
+      footer: l10n.jobRateHelper,
+      children: [
+        for (final job in jobs)
+          SettingsTile(
+            icon: isApplePlatform
+                ? CupertinoIcons.briefcase_fill
+                : Icons.work_outline,
+            color: job.archived ? muted : Color(job.colorValue),
+            title: job.name,
+            subtitle: job.archived ? l10n.archiveJob : null,
+            value: job.hourlyRate != null
+                ? '$symbol${job.hourlyRate!.toStringAsFixed(2)}'
+                : l10n.defaultRateLabel,
+            onTap: () => onEdit(job),
+          ),
+      ],
+    );
+  }
+}
+
+class _EmptyJobs extends StatelessWidget {
+  final String message;
+
+  const _EmptyJobs({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isApplePlatform ? CupertinoIcons.briefcase : Icons.work_outline,
+              size: 64,
+              color: muted.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, color: muted),
             ),
           ],
         ),
