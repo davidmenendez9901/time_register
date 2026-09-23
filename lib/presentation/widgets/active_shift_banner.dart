@@ -88,6 +88,8 @@ class ActiveShiftBanner extends StatelessWidget {
             children: [
               Expanded(
                 child: RepaintBoundary(
+                  // Long shifts (10+ hours) shrink instead of running into
+                  // the clock-out button.
                   child: _ElapsedClock(
                     start: start,
                     style: TextStyle(
@@ -101,6 +103,7 @@ class ActiveShiftBanner extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(width: 12),
               FilledButton.icon(
                 onPressed: onClockOut,
                 style: FilledButton.styleFrom(
@@ -161,6 +164,10 @@ class _ElapsedClockState extends State<_ElapsedClock> {
   @override
   Widget build(BuildContext context) {
     final elapsed = DateTime.now().difference(widget.start);
-    return Text(_formatElapsed(elapsed), style: widget.style);
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: Text(_formatElapsed(elapsed), style: widget.style),
+    );
   }
 }
