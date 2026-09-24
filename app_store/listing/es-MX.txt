@@ -1,0 +1,82 @@
+NOMBRE (máx. 30 caracteres; ya registrado en App Store Connect):
+Time Register – Horas y Pagos
+
+SUBTÍTULO (máx. 30 caracteres):
+Registra turnos y cobra al día
+
+TEXTO PROMOCIONAL (máx. 170 caracteres; se puede cambiar sin nueva versión):
+Ficha tu turno con un toque, mira cuánto te deben y exporta reportes en PDF o CSV. Sin cuentas, sin anuncios y sin conexión.
+
+PALABRAS CLAVE (máx. 100 caracteres, separadas por comas, sin espacios):
+turnos,fichar,jornada,freelance,salario,ganancias,tarifa,clientes,trabajo,cronometro,nomina,reloj
+
+DESCRIPCIÓN (máx. 4000 caracteres):
+Time Register es la forma más simple de registrar tus horas de trabajo y saber exactamente cuánto vas a cobrar. Pensada para quienes cobran por hora: trabajadores por turnos, freelancers y consultores.
+
+REGISTRA TU TIEMPO
+• Ficha entrada y salida con el cronómetro en vivo, o agrega entradas manualmente
+• El turno en curso sigue contando aunque cierres la app
+• Turnos nocturnos que cruzan medianoche, sin complicaciones
+• Hora de almuerzo personalizada y notas en cada entrada
+
+CONTROLA TUS PAGOS
+• Cada entrada calcula sus ganancias automáticamente
+• Marca entradas como pagadas o pendientes
+• Mira de un vistazo cuánto te deben
+• Deducciones opcionales (impuestos, etc.) para estimar tu neto
+
+ORGANIZA POR TRABAJO
+• Crea trabajos o clientes con su color y su propia tarifa por hora
+• Analiza tus ganancias por cliente
+
+ENTIENDE TUS NÚMEROS
+• Resumen semanal y mensual
+• Gráficas de horas y ganancias de las últimas 8 semanas y 6 meses
+• Desglose de ganancias por trabajo
+
+COMPARTE Y RESPALDA
+• Exporta a CSV, listo para cualquier hoja de cálculo
+• Genera reportes PDF para tu empleador o tus clientes
+• Respalda todos tus datos en un archivo y restáuralos en otro dispositivo
+
+TU PRIVACIDAD, EN SERIO
+• Funciona sin conexión y no envía nada a ningún servidor
+• Sin cuentas, sin anuncios, sin analíticas, sin rastreo
+• Tus datos se guardan en tu dispositivo y solo salen cuando tú exportas o respaldas
+• Código abierto (licencia MIT): puedes revisar cada línea
+
+HECHA PARA iPHONE Y iPAD
+• Diseño Liquid Glass con controles nativos
+• Barra lateral en iPad
+• Tema claro y oscuro con cuatro paletas de color
+• Tu símbolo de moneda ($, €, o el que uses)
+• En español e inglés
+
+Time Register es gratis, sin compras dentro de la app y de código abierto.
+
+URL DE SOPORTE:
+https://timeregister.davidmenendez.dev/
+
+URL DE MARKETING (opcional):
+https://timeregister.davidmenendez.dev/
+
+URL DE POLÍTICA DE PRIVACIDAD:
+https://davidmenendez9901.github.io/time_register/privacy.html
+
+COPYRIGHT:
+2026 David Menendez Acosta
+
+CATEGORÍA:
+Principal: Productividad · Secundaria: Negocios
+
+NOTAS PARA EL REVISOR (App Review Information → Notes; en inglés):
+Time Register is a fully offline work-hours tracker. It has no login, no account and no network access, so no demo account is needed.
+
+How to try it:
+1. On the Home tab, tap the play button (top right) to start a live shift, then "Fichar Salida" (Clock Out) to turn it into an entry.
+2. Or tap + to add an entry manually: pick date, start and end time, optional lunch break and rate.
+3. The Resumen (Summary) tab shows totals and filters; the share button exports CSV or PDF.
+4. Ajustes (Settings) has the hourly rate, currency, optional deductions, jobs/clients, and backup/restore to a file.
+
+The app is in Spanish and English; it follows the device language.
+All data stays on the device. Export and backup files only leave the app through the system share sheet when the user chooses to.
