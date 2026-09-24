@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'l10n/app_localizations.dart';
 import 'core/database/database_helper.dart';
+import 'core/demo/demo_data.dart';
 import 'core/database/desktop_sqlite.dart';
 import 'core/platform/app_platform.dart';
 import 'core/theme/app_theme.dart';
@@ -49,6 +50,7 @@ void main() async {
 
   // Initialize database
   final databaseHelper = DatabaseHelper();
+  if (kDemoData) await seedDemoDataIfEmpty(databaseHelper);
 
   // Initialize data sources
   final workEntryDataSource = WorkEntryLocalDataSourceImpl(databaseHelper);
@@ -187,9 +189,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             // Keeps the native Liquid Glass views from bleeding through
             // sheets and dialogs pushed over them.
-            navigatorObservers: [
-              if (isApplePlatform) CNTabBarRouteObserver(),
-            ],
+            navigatorObservers: [if (isApplePlatform) CNTabBarRouteObserver()],
             // Use localized app title if available, otherwise fallback
             onGenerateTitle: (context) =>
                 AppLocalizations.of(context)?.appTitle ?? 'Time Register',

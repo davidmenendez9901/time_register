@@ -205,7 +205,7 @@ class _JobFormPageState extends State<JobFormPage> {
               )
             : IconButton(
                 icon: const Icon(Icons.close_rounded),
-                tooltip: l10n.cancel,
+                tooltip: l10n.close,
                 onPressed: () => Navigator.maybePop(context),
               ),
         actions: [
