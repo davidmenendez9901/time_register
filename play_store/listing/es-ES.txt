@@ -36,12 +36,13 @@ Time Register es la forma más simple de registrar tus horas de trabajo y saber 
 🔒 TU PRIVACIDAD, EN SERIO
 • 100% offline: la app ni siquiera tiene permiso de internet
 • Sin cuentas, sin anuncios, sin analíticas, sin rastreo
-• Tus datos viven solo en tu teléfono
+• Tus datos se guardan solo en tu teléfono y no se copian a tu cuenta de Google; salen únicamente cuando tú exportas o respaldas
 • Código abierto (licencia MIT): puedes auditar cada línea
 
 🎨 A TU GUSTO
 • Tema claro y oscuro con cuatro paletas de color
 • Tu símbolo de moneda ($, €, o el que uses)
+• Diseño adaptado a teléfonos y tablets
 • En español e inglés
 
 Time Register es gratis, sin compras dentro de la app y de código abierto:

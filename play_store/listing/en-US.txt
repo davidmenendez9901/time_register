@@ -36,12 +36,13 @@ Time Register is the simplest way to track your work hours and know exactly how 
 🔒 PRIVACY, FOR REAL
 • 100% offline: the app does not even have internet permission
 • No accounts, no ads, no analytics, no tracking
-• Your data lives only on your phone
+• Your data is stored only on your phone and is not copied to your Google account; it leaves only when you export or back it up
 • Open source (MIT license): you can audit every line
 
 🎨 MAKE IT YOURS
 • Light and dark themes with four color palettes
 • Your currency symbol ($, €, or whatever you use)
+• Designed for phones and tablets
 • Available in English and Spanish
 
 Time Register is free, has no in-app purchases, and is open source:
