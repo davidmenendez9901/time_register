@@ -2,7 +2,7 @@
 
 **Last updated: September 23, 2026**
 
-Time Register ("the app") is an open source application for tracking work hours and earnings, developed by David Menéndez. It is available for Android, iPhone, iPad and Mac. This policy is also published at <https://timeregister.davidmenendez.dev/privacidad/>.
+Time Register ("the app") is an open source application for tracking work hours and earnings, developed by David Menéndez. It is available for Android, iPhone, iPad and Mac.
 
 **The app does not collect, transmit or share your personal data, and it does not send anything to any server.**
 
@@ -50,7 +50,7 @@ For questions about this policy, write to <hello@davidmenendez.dev> or open an i
 
 **Última actualización: 23 de septiembre de 2026**
 
-Time Register («la app») es una aplicación de código abierto para registrar horas de trabajo y ganancias, desarrollada por David Menéndez. Está disponible para Android, iPhone, iPad y Mac. Esta política también está publicada en <https://timeregister.davidmenendez.dev/privacidad/>.
+Time Register («la app») es una aplicación de código abierto para registrar horas de trabajo y ganancias, desarrollada por David Menéndez. Está disponible para Android, iPhone, iPad y Mac.
 
 **La app no recolecta, transmite ni comparte tus datos personales, y no envía nada a ningún servidor.**
 
