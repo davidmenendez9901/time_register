@@ -44,3 +44,9 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 play_store/app-release.aab
+
+# goldie (store screenshots): renders and demo builds
+goldie/out/
+goldie/android/out/
+goldie/builds/
+.argent/recordings/

@@ -1,0 +1,11 @@
+executionPrerequisite: >-
+  Time Register on the Resumen tab (end of store-preview-03-summary).
+
+steps:
+  - tap:
+      text: Estadísticas
+  - wait: 2000
+  - echo: Switch the charts from earnings to hours (native segmented control).
+  - tap:
+      text: Horas
+  - wait: 2000

@@ -1,0 +1,10 @@
+executionPrerequisite: >-
+  Time Register on the Resumen tab (left there by store-03-summary).
+
+steps:
+  - tap:
+      text: Estadísticas
+  - echo: Wait for "Últimas 8 semanas" (fixed pause; see the note in store-01-home).
+  - wait: 2500
+  - echo: Settle before the capture (a fixed pause; the shift timer never idles).
+  - wait: 1500

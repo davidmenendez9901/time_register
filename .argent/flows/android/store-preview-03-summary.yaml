@@ -1,0 +1,14 @@
+executionPrerequisite: >-
+  Time Register back on the Inicio tab with the form closed (end of
+  store-preview-02-entry).
+
+steps:
+  - tap:
+      text: Resumen
+  - await:
+      visible:
+        text: Resumen Semanal
+  - wait: 1500
+  - tool: gesture-swipe
+    args: { fromX: 0.5, fromY: 0.72, toX: 0.5, toY: 0.38, durationMs: 700 }
+  - wait: 1500

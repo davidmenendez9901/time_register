@@ -1,0 +1,16 @@
+executionPrerequisite: >-
+  Time Register on the Estadísticas tab (left there by store-04-stats).
+
+steps:
+  - tap:
+      text: Ajustes
+  - echo: Wait for "Trabajos / Clientes" (fixed pause; see the note in store-01-home).
+  - wait: 2500
+  - echo: The "Trabajos / Clientes" row, last row of the GENERAL group.
+  - tap:
+      x: 0.5
+      y: 0.517
+  - echo: Wait for "Freelance" (fixed pause; see the note in store-01-home).
+  - wait: 2500
+  - echo: Settle before the capture (a fixed pause; the shift timer never idles).
+  - wait: 1500

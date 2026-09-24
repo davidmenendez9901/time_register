@@ -1,0 +1,24 @@
+executionPrerequisite: >-
+  Time Register on the Inicio tab (left there by store-01-home).
+
+steps:
+  - echo: >-
+      Add button: the native glass button above the tab bar, whose UIKit
+      label is the SF Symbol's ("añadir"), so the runner can see it.
+  - wait: 800
+  - tap:
+      text: añadir
+  - echo: Wait for "Guardar Entrada" (fixed pause; see the note in store-01-home).
+  - wait: 2500
+  - echo: The "Trabajo" row, first row of the form's first group.
+  - tap:
+      x: 0.5
+      y: 0.277
+  - echo: Wait for "Estudio Norte" (fixed pause; see the note in store-01-home).
+  - wait: 2500
+  - echo: '"Estudio Norte" in the job action sheet (third choice).'
+  - tap:
+      x: 0.5
+      y: 0.806
+  - echo: Settle before the capture (a fixed pause; the shift timer never idles).
+  - wait: 1500

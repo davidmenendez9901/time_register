@@ -1,0 +1,26 @@
+executionPrerequisite: >-
+  Time Register on the Inicio tab (end of store-preview-01-open).
+
+steps:
+  - echo: Add button (native glass button; UIKit label "añadir").
+  - tap:
+      text: añadir
+  - wait: 1800
+  - echo: The "Trabajo" row, first row of the form's first group.
+  - tap:
+      x: 0.5
+      y: 0.277
+  - wait: 1500
+  - echo: '"Estudio Norte" in the job action sheet (third choice).'
+  - tap:
+      x: 0.5
+      y: 0.806
+  - wait: 1800
+  - echo: Close the form (native glass button, top left).
+  - tap:
+      x: 0.073
+      y: 0.094
+  - await:
+      visible:
+        text: Resumen
+  - wait: 600

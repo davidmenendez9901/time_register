@@ -1,0 +1,17 @@
+executionPrerequisite: >-
+  The add-entry form is open (left there by store-02-entry).
+
+steps:
+  - echo: Close the form without saving, then open the Resumen tab.
+  - tap:
+      text: Cerrar
+  - await:
+      visible:
+        text: Resumen
+  - tap:
+      text: Resumen
+  - await:
+      visible:
+        text: Resumen Semanal
+  - await:
+      idle: true

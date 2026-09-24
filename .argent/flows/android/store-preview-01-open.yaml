@@ -1,0 +1,9 @@
+executionPrerequisite: >-
+  Time Register freshly restarted by goldie, settled on the Inicio tab.
+
+steps:
+  - echo: Let the home screen read, with the shift timer ticking.
+  - await:
+      visible:
+        text: Registro de Tiempo
+  - wait: 3000

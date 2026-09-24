@@ -1,0 +1,17 @@
+executionPrerequisite: >-
+  The add-entry form is open (left there by store-02-entry).
+
+steps:
+  - echo: Close the form (native glass button, top left), then open Resumen.
+  - tap:
+      x: 0.073
+      y: 0.094
+  - await:
+      visible:
+        text: Resumen
+  - tap:
+      text: Resumen
+  - echo: Wait for "Resumen Semanal" (fixed pause; see the note in store-01-home).
+  - wait: 2500
+  - echo: Settle before the capture (a fixed pause; the shift timer never idles).
+  - wait: 1500

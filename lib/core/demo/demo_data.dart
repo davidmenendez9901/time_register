@@ -7,6 +7,10 @@ import '../entities/work_entry.dart';
 /// stores leave it false, so the seeding below is compiled out.
 const bool kDemoData = bool.fromEnvironment('DEMO_DATA');
 
+/// Screenshot builds only: forces the app language (e.g. `es`) for emulators
+/// whose system locale cannot be changed. Empty follows the device.
+const String kDemoLocale = String.fromEnvironment('DEMO_LOCALE');
+
 /// Fills an empty database with six months of realistic sample data (three
 /// jobs, a live shift, recent entries unpaid) so marketing screenshots show a
 /// lived-in app. Does nothing when entries already exist.

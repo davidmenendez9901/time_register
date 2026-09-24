@@ -1,0 +1,10 @@
+executionPrerequisite: >-
+  Time Register just launched with demo data (DEMO_DATA build), on the Inicio tab.
+
+steps:
+  - echo: Home with the live shift timer, the summary tiles and today's entries.
+  - await:
+      visible:
+        text: Registro de Tiempo
+  - await:
+      idle: true

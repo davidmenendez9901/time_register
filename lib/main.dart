@@ -206,6 +206,7 @@ class MyApp extends StatelessWidget {
               Locale('en'), // English
               Locale('es'), // Spanish
             ],
+            locale: kDemoLocale.isEmpty ? null : Locale(kDemoLocale),
             home: const HomePage(),
           );
         },
