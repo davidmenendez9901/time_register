@@ -43,6 +43,7 @@ import 'presentation/pages/home_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   initDesktopSqliteIfNeeded();
+  await initAppPlatform();
 
   // Fonts are bundled in assets/google_fonts/; the app is fully offline and
   // the release build has no network permission, so never fetch at runtime.

@@ -1,6 +1,5 @@
 import 'package:cupertino_native_better/cupertino_native_better.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:time_register/l10n/app_localizations.dart';
 
@@ -187,9 +186,9 @@ class _HomePageState extends State<HomePage> {
                 onTap: () => _onItemTapped(i),
               ),
             const Spacer(),
-            // The native glass button drops its label on macOS, so the Mac
-            // sidebar uses a plain capsule button instead.
-            if (defaultTargetPlatform == TargetPlatform.macOS)
+            // The native glass button drops its label on a Mac (macOS or the
+            // iPad app on Mac), so there the sidebar uses a plain capsule.
+            if (runsOnMac)
               FilledButton.icon(
                 onPressed: _addEntry,
                 icon: const Icon(CupertinoIcons.add, size: 18),
