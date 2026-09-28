@@ -24,15 +24,16 @@ certificado: `A4:79:1E:7A:FC:A1:D2:29:FE:06:10:E9:12:04:37:5B:FF:83:10:D0:F4:02:
 
 - [ ] **Clave de subida restablecida** (paso 0; espera el correo de Google).
 - [ ] **versionCode**: en Play Console revisa el versionCode más alto subido.
-      Este build lleva **2**; debe ser mayor que el existente. Si ya subiste
-      un 2 o superior, sube `version:` en `pubspec.yaml` (p. ej. `1.1.0+3`)
-      y recompila.
+      Este árbol lleva **4** (`1.1.1+4` en `pubspec.yaml`); debe ser mayor
+      que el existente. Si ya subiste un 4 o superior, sube el `+N` de
+      `version:` y recompila. También actualiza el texto `'1.1.1'` en
+      `lib/presentation/pages/settings_page.dart` (no se lee de pubspec).
 - [x] **Package**: Play Console registró la app como
       `time_register.davidmenendez.dev`; el `applicationId` del proyecto ya
       se ajustó para coincidir (2026-07-06).
 - [ ] **Subir `app-release.aab`** a **prueba interna** primero.
 - [ ] **Probar la actualización** en un dispositivo que tenga la versión
-      vieja instalada (las migraciones de base de datos v4 → v8 deben
+      vieja instalada (las migraciones de base de datos v4 → v9 deben
       conservar tus entradas). No desinstales: actualiza encima.
 - [ ] **Notas de versión**: copia `release_notes/es-ES.txt` y `en-US.txt`
       en el formulario de la versión.
@@ -43,8 +44,16 @@ certificado: `A4:79:1E:7A:FC:A1:D2:29:FE:06:10:E9:12:04:37:5B:FF:83:10:D0:F4:02:
   - [ ] Descripciones: `listing/es-ES.txt` y `listing/en-US.txt`
         (nombre, corta y completa, dentro de los límites de caracteres).
   - [ ] Sitio web: `https://davidmenendez9901.github.io/time_register/`
-- [ ] **Política de privacidad**:
-      `https://github.com/davidmenendez9901/time_register/blob/main/PRIVACY_POLICY.md`
+- [ ] **Política de privacidad** (actualizada 23 sep 2026: Android + iPhone/iPad/Mac,
+      exportaciones por la hoja de compartir, Auto Backup de Google desactivado,
+      iCloud/Time Machine pueden incluir datos en Apple):
+      - Play Console (blob del repo):
+        `https://github.com/davidmenendez9901/time_register/blob/main/PRIVACY_POLICY.md`
+      - Página publicada (la que abre la app):
+        `https://davidmenendez9901.github.io/time_register/privacy.html`
+      Mantén ambos archivos (`PRIVACY_POLICY.md` y `docs/privacy.html`) iguales. El
+      diálogo in-app (`privacyPolicyContent` en los ARB) es un **resumen corto**,
+      no la política completa.
 - [ ] **Seguridad de los datos**: declarar que **no se recolecta ni comparte
       ningún dato**. Si el formulario anterior decía otra cosa, actualízalo —
       ahora es verificable: la app ya no pide el permiso de internet.
@@ -67,7 +76,8 @@ certificado: `A4:79:1E:7A:FC:A1:D2:29:FE:06:10:E9:12:04:37:5B:FF:83:10:D0:F4:02:
 ## Para futuras versiones
 
 ```bash
-# 1. Sube la versión en pubspec.yaml (ej. 1.1.1+3)
+# 1. Sube la versión en pubspec.yaml (ej. 1.1.1+5; el +N es versionCode)
+#    y el texto de versión en Settings (settings_page.dart)
 # 2. Compila firmado:
 flutter build appbundle --release
 # 3. El .aab queda en build/app/outputs/bundle/release/
