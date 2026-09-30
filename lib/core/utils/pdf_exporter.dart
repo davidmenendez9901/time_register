@@ -156,6 +156,18 @@ class PdfExporter {
                       fontWeight: pw.FontWeight.bold,
                     ),
                   ),
+                  if (deductionRate != null)
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(top: 3),
+                      child: pw.Text(
+                        '$netLabel (-${deductionRate.toStringAsFixed(1)}%): '
+                        '${money(totalEarnings * (1 - deductionRate / 100))}',
+                        style: const pw.TextStyle(
+                          fontSize: 10.5,
+                          color: PdfColors.grey700,
+                        ),
+                      ),
+                    ),
                   if (hasReceipts) ...[
                     pw.Padding(
                       padding: const pw.EdgeInsets.only(top: 3),
@@ -177,18 +189,6 @@ class PdfExporter {
                       ),
                     ),
                   ],
-                  if (deductionRate != null)
-                    pw.Padding(
-                      padding: const pw.EdgeInsets.only(top: 3),
-                      child: pw.Text(
-                        '$netLabel (-${deductionRate.toStringAsFixed(1)}%): '
-                        '${money(totalEarnings * (1 - deductionRate / 100))}',
-                        style: const pw.TextStyle(
-                          fontSize: 10.5,
-                          color: PdfColors.grey700,
-                        ),
-                      ),
-                    ),
                 ],
               ),
             ),

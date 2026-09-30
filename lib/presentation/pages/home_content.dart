@@ -347,7 +347,7 @@ class _DaySection extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final hours = entries.fold(0.0, (sum, e) => sum + e.totalHours);
-    final earnings = entries.fold(0.0, (sum, e) => sum + e.earnings);
+    final earnings = entries.fold(0.0, (sum, e) => sum + e.totalToCollect);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
