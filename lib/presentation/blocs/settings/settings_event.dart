@@ -35,3 +35,9 @@ class UpdateDeductions extends SettingsEvent {
 
   UpdateDeductions({required this.enabled, required this.rate});
 }
+
+class UpdateExpenseTaxRate extends SettingsEvent {
+  final double rate;
+
+  UpdateExpenseTaxRate(this.rate);
+}

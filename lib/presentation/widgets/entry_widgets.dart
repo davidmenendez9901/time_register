@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:time_register/l10n/app_localizations.dart';
 
+import '../../core/entities/work_entry.dart';
 import '../../core/platform/app_platform.dart';
+import '../utils/currency.dart';
 
 /// Paid/unpaid tones readable in both light and dark mode.
 class StatusColors {
@@ -59,6 +61,45 @@ class PaidPill extends StatelessWidget {
 }
 
 /// A headline number on a card: tinted label, big value, muted caption.
+/// An entry's amount to collect (hours plus receipts), with a note of the
+/// receipts part when there is one.
+class EntryAmount extends StatelessWidget {
+  final WorkEntry entry;
+
+  const EntryAmount({super.key, required this.entry});
+
+  @override
+  Widget build(BuildContext context) {
+    final symbol = currencySymbolOf(context);
+    final receipts = entry.expensesTotal;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          '$symbol${entry.totalToCollect.toStringAsFixed(2)}',
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            fontFeatures: [FontFeature.tabularFigures()],
+          ),
+        ),
+        if (receipts > 0)
+          Text(
+            AppLocalizations.of(
+              context,
+            )!.includesReceipts('$symbol${receipts.toStringAsFixed(2)}'),
+            style: TextStyle(
+              fontSize: 11,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 class SummaryTile extends StatelessWidget {
   final String label;
   final Color labelColor;

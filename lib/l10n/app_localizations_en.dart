@@ -547,4 +547,69 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get privacyPolicyOpenFailed =>
       'Couldn\'t open the link. Make sure a browser is installed.';
+
+  @override
+  String get receipts => 'Receipts';
+
+  @override
+  String get receiptsFooter =>
+      'Products you bought for this shift. Your employer pays them back, so they\'re added to what you\'re owed.';
+
+  @override
+  String get addProduct => 'Add product';
+
+  @override
+  String get editProduct => 'Edit product';
+
+  @override
+  String get productName => 'Product';
+
+  @override
+  String get productNameHint => 'e.g. Paint, gloves';
+
+  @override
+  String get enterProductName => 'Enter the product name';
+
+  @override
+  String get priceBeforeTax => 'Price before tax';
+
+  @override
+  String get taxRate => 'Tax';
+
+  @override
+  String get subtotal => 'Subtotal';
+
+  @override
+  String get receiptsTotal => 'Receipts total';
+
+  @override
+  String get hoursEarnings => 'Earnings (hours)';
+
+  @override
+  String get totalToCollect => 'Total to collect';
+
+  @override
+  String get receiptsTaxRate => 'Receipt tax rate';
+
+  @override
+  String get receiptsTaxSubtitle =>
+      'Applied to new products you add to an entry. You can change it for each product; products already saved keep their rate.';
+
+  @override
+  String get receiptsTaxUpdated => 'Receipt tax rate updated';
+
+  @override
+  String includesReceipts(String amount) {
+    return 'incl. $amount receipts';
+  }
+
+  @override
+  String get receiptsDetail => 'Receipts detail';
+
+  @override
+  String get deleteProduct => 'Delete product';
+
+  @override
+  String get deleteProductConfirm =>
+      'This product will be removed from the entry.';
 }

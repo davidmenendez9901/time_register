@@ -79,6 +79,30 @@ class _SettingsPageState extends State<SettingsPage> {
     _showUpdated(l10n.deductionsUpdated);
   }
 
+  Future<void> _showEditReceiptTaxDialog(
+    app_settings.AppSettings settings,
+    AppLocalizations l10n,
+  ) async {
+    final value = await showTextInputDialog(
+      context,
+      title: l10n.receiptsTaxRate,
+      initialValue: settings.expenseTaxRate.toStringAsFixed(1),
+      suffix: '%',
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: _decimalInput,
+      validator: (value) {
+        final rate = double.tryParse(value);
+        if (rate == null || rate < 0 || rate > 100) {
+          return l10n.enterPercentValidation;
+        }
+        return null;
+      },
+    );
+    if (value == null || !mounted) return;
+    context.read<SettingsBloc>().add(UpdateExpenseTaxRate(double.parse(value)));
+    _showUpdated(l10n.receiptsTaxUpdated);
+  }
+
   Future<void> _showEditCurrencyDialog(
     String currentSymbol,
     AppLocalizations l10n,
@@ -286,6 +310,19 @@ class _SettingsPageState extends State<SettingsPage> {
               value: '${settings.deductionRate.toStringAsFixed(1)} %',
               onTap: () => _showEditDeductionDialog(settings, l10n),
             ),
+        ],
+      ),
+      SettingsSection(
+        header: l10n.receipts,
+        footer: l10n.receiptsTaxSubtitle,
+        children: [
+          SettingsTile(
+            icon: apple ? CupertinoIcons.bag_fill : Icons.receipt_long_rounded,
+            color: const Color(0xFFFF9500),
+            title: l10n.receiptsTaxRate,
+            value: '${settings.expenseTaxRate.toStringAsFixed(1)} %',
+            onTap: () => _showEditReceiptTaxDialog(settings, l10n),
+          ),
         ],
       ),
       SettingsSection(

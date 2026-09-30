@@ -27,6 +27,7 @@ import 'core/usecases/mark_entry_as_paid.dart';
 import 'core/usecases/update_app_palette.dart' as palette_usecase;
 import 'core/usecases/update_currency_symbol.dart' as currency_usecase;
 import 'core/usecases/update_deductions.dart' as deductions_usecase;
+import 'core/usecases/update_expense_tax_rate.dart' as tax_usecase;
 import 'core/theme/app_palette.dart';
 import 'core/repositories/settings_repository.dart';
 import 'core/repositories/job_repository.dart';
@@ -83,6 +84,9 @@ void main() async {
   final updateDeductions = deductions_usecase.UpdateDeductions(
     settingsRepository,
   );
+  final updateExpenseTaxRate = tax_usecase.UpdateExpenseTaxRate(
+    settingsRepository,
+  );
 
   runApp(
     MyApp(
@@ -97,6 +101,7 @@ void main() async {
       updateAppPalette: updateAppPalette,
       updateCurrencySymbol: updateCurrencySymbol,
       updateDeductions: updateDeductions,
+      updateExpenseTaxRate: updateExpenseTaxRate,
       settingsRepository: settingsRepository,
       jobRepository: jobRepository,
     ),
@@ -115,6 +120,7 @@ class MyApp extends StatelessWidget {
   final palette_usecase.UpdateAppPalette updateAppPalette;
   final currency_usecase.UpdateCurrencySymbol updateCurrencySymbol;
   final deductions_usecase.UpdateDeductions updateDeductions;
+  final tax_usecase.UpdateExpenseTaxRate updateExpenseTaxRate;
   final SettingsRepository settingsRepository;
   final JobRepository jobRepository;
 
@@ -131,6 +137,7 @@ class MyApp extends StatelessWidget {
     required this.updateAppPalette,
     required this.updateCurrencySymbol,
     required this.updateDeductions,
+    required this.updateExpenseTaxRate,
     required this.settingsRepository,
     required this.jobRepository,
   });
@@ -159,6 +166,7 @@ class MyApp extends StatelessWidget {
             updateAppPalette: updateAppPalette,
             updateCurrencySymbol: updateCurrencySymbol,
             updateDeductions: updateDeductions,
+            updateExpenseTaxRate: updateExpenseTaxRate,
           )..add(LoadSettings()),
         ),
         // Live shift timer (clock in/out)

@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:time_register/core/entities/expense.dart';
 import 'package:time_register/core/entities/work_entry.dart';
 import 'package:time_register/core/utils/csv_exporter.dart';
 import 'package:time_register/core/utils/pdf_exporter.dart';
@@ -21,9 +22,20 @@ const labels = CsvLabels(
   total: 'Total',
   yes: 'Yes',
   no: 'No',
+  receipts: 'Receipts',
+  totalToCollect: 'Total to collect',
+  receiptsDetail: 'Receipts detail',
+  product: 'Product',
+  subtotal: 'Subtotal',
+  taxRate: 'Tax %',
+  tax: 'Tax',
 );
 
-WorkEntry entry(DateTime date, {int? jobId}) {
+WorkEntry entry(
+  DateTime date, {
+  int? jobId,
+  List<Expense> expenses = const [],
+}) {
   return WorkEntry(
     date: date,
     startTime: DateTime(date.year, date.month, date.day, 9),
@@ -34,6 +46,7 @@ WorkEntry entry(DateTime date, {int? jobId}) {
     earnings: 80,
     isPaid: false,
     jobId: jobId,
+    expenses: expenses,
   );
 }
 
@@ -52,10 +65,13 @@ void main() {
     );
   });
 
-  Future<List<int>> buildPdf({double? deductionRate}) {
+  Future<List<int>> buildPdf({
+    double? deductionRate,
+    List<Expense> expenses = const [],
+  }) {
     return PdfExporter.build(
       entries: [
-        entry(DateTime(2026, 6, 10), jobId: 1),
+        entry(DateTime(2026, 6, 10), jobId: 1, expenses: expenses),
         entry(DateTime(2026, 6, 11)),
       ],
       labels: labels,
@@ -82,6 +98,17 @@ void main() {
 
   test('builds with a deduction rate without errors', () async {
     final bytes = await buildPdf(deductionRate: 13.5);
+    expect(bytes.length, greaterThan(1000));
+  });
+
+  test('builds with receipts (extra columns and detail table)', () async {
+    final bytes = await buildPdf(
+      deductionRate: 13.5,
+      expenses: const [
+        Expense(name: 'Paint', price: 24.99, taxRate: 7),
+        Expense(name: 'Gloves', price: 5, taxRate: 0),
+      ],
+    );
     expect(bytes.length, greaterThan(1000));
   });
 }

@@ -554,4 +554,68 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get privacyPolicyOpenFailed =>
       'No se pudo abrir el enlace. Comprueba que hay un navegador instalado.';
+
+  @override
+  String get receipts => 'Facturas';
+
+  @override
+  String get receiptsFooter =>
+      'Productos que compraste para esta jornada. Tu empleador te los reembolsa, así que se suman a lo que te debe.';
+
+  @override
+  String get addProduct => 'Añadir producto';
+
+  @override
+  String get editProduct => 'Editar producto';
+
+  @override
+  String get productName => 'Producto';
+
+  @override
+  String get productNameHint => 'p. ej. Pintura, guantes';
+
+  @override
+  String get enterProductName => 'Escribe el nombre del producto';
+
+  @override
+  String get priceBeforeTax => 'Precio sin impuestos';
+
+  @override
+  String get taxRate => 'Impuesto';
+
+  @override
+  String get subtotal => 'Subtotal';
+
+  @override
+  String get receiptsTotal => 'Total facturas';
+
+  @override
+  String get hoursEarnings => 'Ganancias (horas)';
+
+  @override
+  String get totalToCollect => 'Total a cobrar';
+
+  @override
+  String get receiptsTaxRate => 'Impuesto de facturas';
+
+  @override
+  String get receiptsTaxSubtitle =>
+      'Se aplica a los productos nuevos que añadas a una entrada. Puedes cambiarlo en cada producto; los ya guardados conservan su porcentaje.';
+
+  @override
+  String get receiptsTaxUpdated => 'Impuesto de facturas actualizado';
+
+  @override
+  String includesReceipts(String amount) {
+    return 'incl. $amount en facturas';
+  }
+
+  @override
+  String get receiptsDetail => 'Detalle de facturas';
+
+  @override
+  String get deleteProduct => 'Eliminar producto';
+
+  @override
+  String get deleteProductConfirm => 'Este producto se quitará de la entrada.';
 }

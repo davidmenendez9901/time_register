@@ -92,4 +92,37 @@ void main() {
 
     expect(() => BackupCodec.decode(json), throwsFormatException);
   });
+
+  test('roundtrip keeps receipts and the receipt tax rate', () {
+    final withReceipts = {
+      ...entry,
+      'expenses': '[{"name":"Paint","price":10.0,"tax_rate":7.0}]',
+    };
+    final json = BackupCodec.encode(
+      settings: {...settings, 'expense_tax_rate': 6.5},
+      entries: [withReceipts],
+      exportedAt: DateTime(2026, 6, 12),
+    );
+    final data = BackupCodec.decode(json);
+
+    expect(data.entries, [withReceipts]);
+    expect(data.settings['expense_tax_rate'], 6.5);
+  });
+
+  test('decode drops receipts that are not the stored JSON string', () {
+    final json = BackupCodec.encode(
+      settings: settings,
+      entries: [
+        {
+          ...entry,
+          'expenses': [
+            {'name': 'Paint'},
+          ],
+        },
+      ],
+      exportedAt: DateTime(2026, 6, 12),
+    );
+
+    expect(BackupCodec.decode(json).entries.single, entry);
+  });
 }

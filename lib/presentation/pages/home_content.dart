@@ -289,7 +289,7 @@ class _SummaryRow extends StatelessWidget {
     final colors = StatusColors.of(context);
 
     final unpaid = entries.where((e) => !e.isPaid).toList();
-    final unpaidAmount = unpaid.fold(0.0, (sum, e) => sum + e.earnings);
+    final unpaidAmount = unpaid.fold(0.0, (sum, e) => sum + e.totalToCollect);
 
     // Weeks start on Monday, matching the weekly summary.
     final now = DateTime.now();
@@ -470,14 +470,7 @@ class _EntryRow extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  '${currencySymbolOf(context)}${entry.earnings.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    fontFeatures: [FontFeature.tabularFigures()],
-                  ),
-                ),
+                EntryAmount(entry: entry),
                 const SizedBox(height: 4),
                 PaidPill(isPaid: entry.isPaid, onTap: onTogglePaid),
               ],

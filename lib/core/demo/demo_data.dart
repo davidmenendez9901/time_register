@@ -1,4 +1,5 @@
 import '../database/database_helper.dart';
+import '../entities/expense.dart';
 import '../entities/job.dart';
 import '../entities/work_entry.dart';
 
@@ -88,6 +89,14 @@ Future<void> seedDemoDataIfEmpty(DatabaseHelper db) async {
       lunchEnd: lunchEnd,
     );
 
+    // Now and then the studio needs supplies the worker buys and gets back.
+    final expenses = jobId == studioId && day.day % 6 == 0
+        ? const [
+            Expense(name: 'Pintura acrílica', price: 24.99, taxRate: 7),
+            Expense(name: 'Brochas', price: 12.50, taxRate: 7),
+          ]
+        : const <Expense>[];
+
     await db.insertWorkEntry(
       WorkEntry(
         date: day,
@@ -102,6 +111,7 @@ Future<void> seedDemoDataIfEmpty(DatabaseHelper db) async {
         lunchStartTime: lunchStart,
         lunchEndTime: lunchEnd,
         jobId: jobId,
+        expenses: expenses,
       ).toMap(),
     );
   }

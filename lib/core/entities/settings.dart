@@ -14,6 +14,9 @@ class AppSettings extends Equatable {
   /// Percentage (0-100) deducted from gross earnings when enabled.
   final double deductionRate;
 
+  /// Default tax percentage (0-100) for new receipt products.
+  final double expenseTaxRate;
+
   const AppSettings({
     required this.hourlyRate,
     this.themeMode = ThemeMode.system,
@@ -21,6 +24,7 @@ class AppSettings extends Equatable {
     this.currencySymbol = '\$',
     this.deductionsEnabled = false,
     this.deductionRate = 0.0,
+    this.expenseTaxRate = 7.0,
   });
 
   /// Earnings after the deduction estimate. Only meaningful when
@@ -41,6 +45,7 @@ class AppSettings extends Equatable {
       currencySymbol: map['currency_symbol'] as String? ?? '\$',
       deductionsEnabled: (map['deductions_enabled'] as int? ?? 0) == 1,
       deductionRate: (map['deduction_rate'] as num? ?? 0).toDouble(),
+      expenseTaxRate: (map['expense_tax_rate'] as num? ?? 7).toDouble(),
     );
   }
 
@@ -52,6 +57,7 @@ class AppSettings extends Equatable {
       'currency_symbol': currencySymbol,
       'deductions_enabled': deductionsEnabled ? 1 : 0,
       'deduction_rate': deductionRate,
+      'expense_tax_rate': expenseTaxRate,
     };
   }
 
@@ -62,6 +68,7 @@ class AppSettings extends Equatable {
     String? currencySymbol,
     bool? deductionsEnabled,
     double? deductionRate,
+    double? expenseTaxRate,
   }) {
     return AppSettings(
       hourlyRate: hourlyRate ?? this.hourlyRate,
@@ -70,6 +77,7 @@ class AppSettings extends Equatable {
       currencySymbol: currencySymbol ?? this.currencySymbol,
       deductionsEnabled: deductionsEnabled ?? this.deductionsEnabled,
       deductionRate: deductionRate ?? this.deductionRate,
+      expenseTaxRate: expenseTaxRate ?? this.expenseTaxRate,
     );
   }
 
@@ -81,10 +89,11 @@ class AppSettings extends Equatable {
     currencySymbol,
     deductionsEnabled,
     deductionRate,
+    expenseTaxRate,
   ];
 
   @override
   String toString() {
-    return 'AppSettings(hourlyRate: $hourlyRate, themeMode: $themeMode, palette: $palette, currencySymbol: $currencySymbol, deductionsEnabled: $deductionsEnabled, deductionRate: $deductionRate)';
+    return 'AppSettings(hourlyRate: $hourlyRate, themeMode: $themeMode, palette: $palette, currencySymbol: $currencySymbol, deductionsEnabled: $deductionsEnabled, deductionRate: $deductionRate, expenseTaxRate: $expenseTaxRate)';
   }
 }

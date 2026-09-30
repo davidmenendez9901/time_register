@@ -131,6 +131,13 @@ class _WeeklySummaryPageState extends State<WeeklySummaryPage> {
       total: l10n.total,
       yes: l10n.yes,
       no: l10n.no,
+      receipts: l10n.receipts,
+      totalToCollect: l10n.totalToCollect,
+      receiptsDetail: l10n.receiptsDetail,
+      product: l10n.productName,
+      subtotal: l10n.subtotal,
+      taxRate: '${l10n.taxRate} %',
+      tax: l10n.taxRate,
     );
   }
 
@@ -635,6 +642,8 @@ class _StatsGrid extends StatelessWidget {
         list.fold(0.0, (sum, e) => sum + e.totalHours);
     double earningsOf(Iterable<WorkEntry> list) =>
         list.fold(0.0, (sum, e) => sum + e.earnings);
+    double receiptsOf(Iterable<WorkEntry> list) =>
+        list.fold(0.0, (sum, e) => sum + e.expensesTotal);
     String money(double value) => '$symbol${value.toStringAsFixed(2)}';
     String? net(double value) => showNet
         ? '${l10n.estimatedNet}: ${money(settings!.netOf(value))}'
@@ -656,10 +665,14 @@ class _StatsGrid extends StatelessWidget {
     final outstanding = SummaryTile(
       label: l10n.toCollect,
       labelColor: StatusColors.of(context).unpaid,
-      value: money(earningsOf(unpaid)),
+      value: money(earningsOf(unpaid) + receiptsOf(unpaid)),
       caption:
           '${hoursOf(unpaid).toStringAsFixed(1)} h · ${l10n.unpaidEntriesCount(unpaid.length)}',
-      footnote: net(earningsOf(unpaid)),
+      // Deductions only apply to hours; receipts are paid back in full.
+      footnote: showNet
+          ? '${l10n.estimatedNet}: '
+                '${money(settings!.netOf(earningsOf(unpaid)) + receiptsOf(unpaid))}'
+          : null,
     );
     final thisWeek = SummaryTile(
       label: l10n.thisWeek,
@@ -806,14 +819,7 @@ class _WeekEntryRow extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  '${currencySymbolOf(context)}${entry.earnings.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    fontFeatures: [FontFeature.tabularFigures()],
-                  ),
-                ),
+                EntryAmount(entry: entry),
                 const SizedBox(height: 4),
                 PaidPill(isPaid: entry.isPaid, onTap: onTogglePaid),
               ],

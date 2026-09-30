@@ -1111,6 +1111,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t open the link. Make sure a browser is installed.'**
   String get privacyPolicyOpenFailed;
+
+  /// No description provided for @receipts.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts'**
+  String get receipts;
+
+  /// No description provided for @receiptsFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Products you bought for this shift. Your employer pays them back, so they\'re added to what you\'re owed.'**
+  String get receiptsFooter;
+
+  /// No description provided for @addProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Add product'**
+  String get addProduct;
+
+  /// No description provided for @editProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit product'**
+  String get editProduct;
+
+  /// No description provided for @productName.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get productName;
+
+  /// No description provided for @productNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Paint, gloves'**
+  String get productNameHint;
+
+  /// No description provided for @enterProductName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the product name'**
+  String get enterProductName;
+
+  /// No description provided for @priceBeforeTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Price before tax'**
+  String get priceBeforeTax;
+
+  /// No description provided for @taxRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax'**
+  String get taxRate;
+
+  /// No description provided for @subtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get subtotal;
+
+  /// No description provided for @receiptsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts total'**
+  String get receiptsTotal;
+
+  /// No description provided for @hoursEarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Earnings (hours)'**
+  String get hoursEarnings;
+
+  /// No description provided for @totalToCollect.
+  ///
+  /// In en, this message translates to:
+  /// **'Total to collect'**
+  String get totalToCollect;
+
+  /// No description provided for @receiptsTaxRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt tax rate'**
+  String get receiptsTaxRate;
+
+  /// No description provided for @receiptsTaxSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied to new products you add to an entry. You can change it for each product; products already saved keep their rate.'**
+  String get receiptsTaxSubtitle;
+
+  /// No description provided for @receiptsTaxUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt tax rate updated'**
+  String get receiptsTaxUpdated;
+
+  /// No description provided for @includesReceipts.
+  ///
+  /// In en, this message translates to:
+  /// **'incl. {amount} receipts'**
+  String includesReceipts(String amount);
+
+  /// No description provided for @receiptsDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts detail'**
+  String get receiptsDetail;
+
+  /// No description provided for @deleteProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete product'**
+  String get deleteProduct;
+
+  /// No description provided for @deleteProductConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This product will be removed from the entry.'**
+  String get deleteProductConfirm;
 }
 
 class _AppLocalizationsDelegate

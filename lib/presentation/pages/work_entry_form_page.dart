@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import '../../core/entities/expense.dart';
 import '../../core/entities/job.dart';
 import '../../core/entities/work_entry.dart';
 import '../../core/platform/app_platform.dart';
@@ -16,6 +17,7 @@ import '../utils/currency.dart';
 import '../widgets/adaptive_dialogs.dart';
 import '../widgets/entry_widgets.dart';
 import '../widgets/settings_list.dart';
+import 'expense_form_page.dart';
 
 import 'package:time_register/l10n/app_localizations.dart';
 
@@ -48,6 +50,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
   late double _hourlyRate;
   late bool _isPaid;
   int? _jobId;
+  List<Expense> _expenses = const [];
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _rateController = TextEditingController();
 
@@ -93,6 +96,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
       _hourlyRate = widget.entry!.hourlyRate;
       _isPaid = widget.entry!.isPaid;
       _jobId = widget.entry!.jobId;
+      _expenses = widget.entry!.expenses;
       _descriptionController.text = widget.entry!.description ?? '';
     } else {
       // Modo Agregar - usar valores por defecto o los del turno en vivo
@@ -417,6 +421,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
           description: _descriptionController.text,
           jobId: _jobId,
           clearJobId: _jobId == null,
+          expenses: _expenses,
         );
         context.read<TimeTrackingBloc>().add(UpdateWorkEntry(updatedEntry));
       } else {
@@ -434,6 +439,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
           lunchEndTime: lunchEndDateTime,
           description: _descriptionController.text,
           jobId: _jobId,
+          expenses: _expenses,
         );
         context.read<TimeTrackingBloc>().add(AddWorkEntry(entry));
       }
@@ -558,6 +564,7 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
       _TotalsCard(
         hours: _calculateDisplayHours(),
         earnings: _calculateDisplayEarnings(),
+        receipts: _expensesTotal,
         symbol: symbol,
       ),
       const SizedBox(height: 24),
@@ -713,6 +720,35 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
       ),
 
       SettingsSection(
+        header: l10n.receipts,
+        footer: _expenses.isEmpty
+            ? l10n.receiptsFooter
+            : '${l10n.receiptsTotal}: $symbol${_expensesTotal.toStringAsFixed(2)}',
+        children: [
+          for (var i = 0; i < _expenses.length; i++)
+            SettingsTile(
+              icon: apple
+                  ? CupertinoIcons.bag_fill
+                  : Icons.receipt_long_rounded,
+              color: const Color(0xFFFF9500),
+              title: _expenses[i].name,
+              subtitle:
+                  '$symbol${_expenses[i].price.toStringAsFixed(2)} + '
+                  '${l10n.taxRate.toLowerCase()} '
+                  '${ExpenseFormPage.formatRate(_expenses[i].taxRate)}%',
+              value: '$symbol${_expenses[i].total.toStringAsFixed(2)}',
+              onTap: () => _editExpense(i),
+            ),
+          SettingsTile(
+            icon: apple ? CupertinoIcons.plus : Icons.add_rounded,
+            color: scheme.primary,
+            title: l10n.addProduct,
+            onTap: () => _editExpense(null),
+          ),
+        ],
+      ),
+
+      SettingsSection(
         header: l10n.descriptionNote,
         children: [
           Padding(
@@ -756,6 +792,35 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
           ],
         ),
     ];
+  }
+
+  double get _expensesTotal => _expenses.fold(0.0, (sum, e) => sum + e.total);
+
+  /// Opens the product form; [index] null adds a new product.
+  Future<void> _editExpense(int? index) async {
+    final settingsState = context.read<SettingsBloc>().state;
+    final defaultRate = settingsState is SettingsLoaded
+        ? settingsState.settings.expenseTaxRate
+        : 7.0;
+    final result = await Navigator.of(context).push<Expense>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => ExpenseFormPage(
+          expense: index == null ? null : _expenses[index],
+          defaultTaxRate: defaultRate,
+          onDelete: index == null
+              ? null
+              : () =>
+                    setState(() => _expenses = [..._expenses]..removeAt(index)),
+        ),
+      ),
+    );
+    if (result == null || !mounted) return;
+    setState(() {
+      _expenses = index == null
+          ? [..._expenses, result]
+          : ([..._expenses]..[index] = result);
+    });
   }
 
   double _calculateDisplayEarnings() {
@@ -838,11 +903,13 @@ class _WorkEntryFormPageState extends State<WorkEntryFormPage> {
 class _TotalsCard extends StatelessWidget {
   final double hours;
   final double earnings;
+  final double receipts;
   final String symbol;
 
   const _TotalsCard({
     required this.hours,
     required this.earnings,
+    required this.receipts,
     required this.symbol,
   });
 
@@ -919,6 +986,35 @@ class _TotalsCard extends StatelessWidget {
                 ],
               ),
             ),
+            if (receipts > 0) ...[
+              Divider(
+                height: 24,
+                color: scheme.outlineVariant.withValues(alpha: 0.6),
+              ),
+              IntrinsicHeight(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: metric(
+                        l10n.receipts,
+                        '$symbol${receipts.toStringAsFixed(2)}',
+                      ),
+                    ),
+                    VerticalDivider(
+                      width: 32,
+                      color: scheme.outlineVariant.withValues(alpha: 0.6),
+                    ),
+                    Expanded(
+                      child: metric(
+                        l10n.totalToCollect,
+                        '$symbol${(earnings + receipts).toStringAsFixed(2)}',
+                        color: paidColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             if (showNet) ...[
               const SizedBox(height: 12),
               Text(

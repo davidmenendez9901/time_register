@@ -22,7 +22,7 @@ class DatabaseHelper {
     String path = join(documentsDirectory.path, 'time_register.db');
     return await openDatabase(
       path,
-      version: 9,
+      version: 10,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -39,7 +39,8 @@ class DatabaseHelper {
         currency_symbol TEXT NOT NULL DEFAULT '\$',
         active_shift_start TEXT,
         deductions_enabled INTEGER NOT NULL DEFAULT 0,
-        deduction_rate REAL NOT NULL DEFAULT 0.0
+        deduction_rate REAL NOT NULL DEFAULT 0.0,
+        expense_tax_rate REAL NOT NULL DEFAULT 7.0
       )
     ''');
 
@@ -59,7 +60,8 @@ class DatabaseHelper {
         lunch_start_time TEXT,
         lunch_end_time TEXT,
         description TEXT,
-        job_id INTEGER
+        job_id INTEGER,
+        expenses TEXT
       )
     ''');
 
@@ -157,6 +159,14 @@ class DatabaseHelper {
     if (oldVersion < 9) {
       await _createWorkEntryIndexes(db);
     }
+    if (oldVersion < 10) {
+      // Receipts (products bought for a shift) as JSON on each entry, and
+      // the default tax rate applied to new products.
+      await db.execute('ALTER TABLE work_entries ADD COLUMN expenses TEXT');
+      await db.execute(
+        'ALTER TABLE settings ADD COLUMN expense_tax_rate REAL NOT NULL DEFAULT 7.0',
+      );
+    }
   }
 
   // Settings operations
@@ -173,6 +183,7 @@ class DatabaseHelper {
       'currency_symbol': '\$',
       'deductions_enabled': 0,
       'deduction_rate': 0.0,
+      'expense_tax_rate': 7.0,
     };
   }
 
@@ -229,6 +240,16 @@ class DatabaseHelper {
     await db.update(
       'settings',
       {'deductions_enabled': enabled ? 1 : 0, 'deduction_rate': rate},
+      where: 'id = ?',
+      whereArgs: [1],
+    );
+  }
+
+  Future<void> updateExpenseTaxRate(double rate) async {
+    final db = await database;
+    await db.update(
+      'settings',
+      {'expense_tax_rate': rate},
       where: 'id = ?',
       whereArgs: [1],
     );
