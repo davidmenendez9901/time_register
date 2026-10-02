@@ -16,6 +16,7 @@ All data stays on your device — no account, no cloud, no tracking. The app is 
 - **Overnight Shifts**: Shifts that cross midnight (e.g. 22:00 – 06:00) are handled automatically
 - **Lunch Break Control**: Optional lunch break with custom start/end times
 - **Notes**: Attach a description to any entry
+- **Receipts**: Log products you bought for a shift (price before tax + tax %, 7% by default); they are added to what you're owed
 - **Automatic Calculations**: Real-time calculation of total hours and earnings
 - **Edit & Delete**: Full CRUD operations for work entries
 
@@ -24,7 +25,7 @@ All data stays on your device — no account, no cloud, no tracking. The app is 
 - **Outstanding Balance**: See at a glance how much you are owed
 - **Filtering**: View all, paid only, or unpaid entries
 - **Per-Entry Rate**: Each entry keeps the hourly rate it was created with
-- **CSV & PDF Export**: Share your entries (all, paid, or unpaid) as a spreadsheet-ready file or a printable work report
+- **CSV & PDF Export**: Share your entries (all, paid, or unpaid) as a spreadsheet-ready file or a printable work report, with hours earnings, receipts and the total to collect
 - **Backup & Restore**: Save everything to a file and load it on a new device
 
 ### 📊 Summaries
@@ -40,6 +41,7 @@ All data stays on your device — no account, no cloud, no tracking. The app is 
 - **Deduction Estimates**: Optional percentage (taxes etc.) showing net earnings; fully hidden when disabled
 - **Theme Support**: Light, dark, and system theme modes with four color palettes
 - **Languages**: English and Spanish
+- **Adaptive Design**: Native Liquid Glass controls on iPhone, iPad and Mac; Material 3 Expressive on Android, with phone and tablet layouts
 - **Persistent Settings**: All configurations saved locally
 
 ## 🌐 Website
@@ -135,7 +137,20 @@ CREATE TABLE work_entries (
   created_at TEXT NOT NULL,
   lunch_start_time TEXT,
   lunch_end_time TEXT,
-  description TEXT
+  description TEXT,
+  job_id INTEGER,          -- jobs.id, nullable
+  expenses TEXT            -- receipts as JSON: [{name, price, tax_rate}]
+)
+```
+
+### Jobs Table
+```sql
+CREATE TABLE jobs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  color INTEGER NOT NULL,
+  hourly_rate REAL,        -- null uses the default rate
+  archived INTEGER NOT NULL DEFAULT 0
 )
 ```
 
@@ -146,7 +161,11 @@ CREATE TABLE settings (
   hourly_rate REAL NOT NULL DEFAULT 0.0,
   theme_mode TEXT NOT NULL DEFAULT 'system',
   app_palette TEXT NOT NULL DEFAULT 'Blue',
-  currency_symbol TEXT NOT NULL DEFAULT '$'
+  currency_symbol TEXT NOT NULL DEFAULT '$',
+  active_shift_start TEXT,
+  deductions_enabled INTEGER NOT NULL DEFAULT 0,
+  deduction_rate REAL NOT NULL DEFAULT 0.0,
+  expense_tax_rate REAL NOT NULL DEFAULT 7.0
 )
 ```
 
@@ -181,8 +200,8 @@ Please do not add network, telemetry or account code without an issue discussing
 - [x] Tax/deduction estimates (optional, off by default)
 - [x] Charts and analytics
 - [x] PDF export
-- [ ] Overtime rules (1.5x / 2x after N hours)
-- [ ] Shift templates
+- [x] Receipts (reimbursable products per entry)
+- [x] Adaptive redesign (Liquid Glass / Material 3 Expressive)
 
 ## 🤝 Contributing
 
