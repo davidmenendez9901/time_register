@@ -13,8 +13,7 @@ bool _iosAppOnMac = false;
 /// True on macOS, and for the iPad app running on a Mac ("Designed for
 /// iPad"), where Flutter reports iOS but native controls behave like macOS.
 bool get runsOnMac =>
-    !kIsWeb &&
-    (defaultTargetPlatform == TargetPlatform.macOS || _iosAppOnMac);
+    !kIsWeb && (defaultTargetPlatform == TargetPlatform.macOS || _iosAppOnMac);
 
 /// Call once before `runApp` so [runsOnMac] is accurate.
 Future<void> initAppPlatform() async {

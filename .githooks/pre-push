@@ -1,0 +1,36 @@
+#!/bin/sh
+# Blocks pushing Pro work while the GitHub repo is public. Pro code lives on
+# pro/* branches and under lib/pro/; it must never reach a public repo.
+# Enable once per clone: git config core.hooksPath .githooks
+
+remote_url="$2"
+zero=0000000000000000000000000000000000000000
+
+pro_refs=""
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue # deleting a branch
+  case "$remote_ref" in
+    refs/heads/pro/*) pro_refs="$pro_refs $remote_ref"; continue ;;
+  esac
+  if [ "$remote_sha" = "$zero" ]; then
+    range="$local_sha --not --remotes"
+  else
+    range="$remote_sha..$local_sha"
+  fi
+  # shellcheck disable=SC2086
+  if git log --name-only --format= $range -- lib/pro | grep -q .; then
+    pro_refs="$pro_refs $remote_ref"
+  fi
+done
+
+[ -z "$pro_refs" ] && exit 0
+
+visibility=$(gh repo view "$remote_url" --json visibility --jq .visibility 2>/dev/null)
+if [ "$visibility" = "PRIVATE" ]; then
+  exit 0
+fi
+
+echo "pre-push: refusing to push Pro code to a repo that is not private" >&2
+echo "  refs:${pro_refs}" >&2
+echo "  repo visibility: ${visibility:-unknown}" >&2
+exit 1

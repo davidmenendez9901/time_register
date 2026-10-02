@@ -22,15 +22,16 @@ class AppTheme {
     // iOS systemGroupedBackground / secondarySystemGroupedBackground
     final background = isDark ? Colors.black : const Color(0xFFF2F2F7);
     final grouped = isDark ? const Color(0xFF1C1C1E) : Colors.white;
-    final scheme = ColorScheme.fromSeed(
-      seedColor: palette.primary,
-      brightness: brightness,
-    ).copyWith(
-      primary: palette.primary,
-      onPrimary: Colors.white,
-      surface: grouped,
-      surfaceContainerLow: background,
-    );
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: palette.primary,
+          brightness: brightness,
+        ).copyWith(
+          primary: palette.primary,
+          onPrimary: Colors.white,
+          surface: grouped,
+          surfaceContainerLow: background,
+        );
 
     return ThemeData(
       useMaterial3: true,
