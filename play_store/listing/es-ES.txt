@@ -12,6 +12,7 @@ Time Register es la forma más simple de registrar tus horas de trabajo y saber 
 • El turno en curso sobrevive aunque cierres la app
 • Turnos nocturnos que cruzan medianoche, sin complicaciones
 • Almuerzo con horas personalizadas y notas en cada entrada
+• Facturas: anota los productos que compraste para un trabajo (precio + impuesto) y se suman a lo que te deben
 
 💰 CONTROLA TUS PAGOS
 • Cada entrada calcula sus ganancias automáticamente
@@ -30,14 +31,13 @@ Time Register es la forma más simple de registrar tus horas de trabajo y saber 
 
 📤 COMPARTE Y RESPALDA
 • Exporta CSV listo para hoja de cálculo
-• Genera reportes PDF imprimibles para tu empleador
+• Genera reportes PDF para tu empleador o tus clientes, con horas, facturas y total a cobrar
 • Respalda todos tus datos a un archivo y restáuralos en otro teléfono
 
 🔒 TU PRIVACIDAD, EN SERIO
 • 100% offline: la app ni siquiera tiene permiso de internet
 • Sin cuentas, sin anuncios, sin analíticas, sin rastreo
 • Tus datos se guardan solo en tu teléfono y no se copian a tu cuenta de Google; salen únicamente cuando tú exportas o respaldas
-• Código abierto (licencia MIT): puedes auditar cada línea
 
 🎨 A TU GUSTO
 • Tema claro y oscuro con cuatro paletas de color
@@ -45,5 +45,4 @@ Time Register es la forma más simple de registrar tus horas de trabajo y saber 
 • Diseño adaptado a teléfonos y tablets
 • En español e inglés
 
-Time Register es gratis, sin compras dentro de la app y de código abierto:
-https://github.com/davidmenendez9901/time_register
+Time Register es gratis y sin anuncios.
