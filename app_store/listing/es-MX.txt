@@ -18,6 +18,7 @@ REGISTRA TU TIEMPO
 • El turno en curso sigue contando aunque cierres la app
 • Turnos nocturnos que cruzan medianoche, sin complicaciones
 • Hora de almuerzo personalizada y notas en cada entrada
+• Facturas: anota los productos que compraste para un trabajo (precio + impuesto) y se suman a lo que te deben
 
 CONTROLA TUS PAGOS
 • Cada entrada calcula sus ganancias automáticamente
@@ -36,23 +37,22 @@ ENTIENDE TUS NÚMEROS
 
 COMPARTE Y RESPALDA
 • Exporta a CSV, listo para cualquier hoja de cálculo
-• Genera reportes PDF para tu empleador o tus clientes
+• Genera reportes PDF para tu empleador o tus clientes, con horas, facturas y total a cobrar
 • Respalda todos tus datos en un archivo y restáuralos en otro dispositivo
 
 TU PRIVACIDAD, EN SERIO
 • Funciona sin conexión y no envía nada a ningún servidor
 • Sin cuentas, sin anuncios, sin analíticas, sin rastreo
 • Tus datos se guardan en tu dispositivo y solo salen cuando tú exportas o respaldas
-• Código abierto (licencia MIT): puedes revisar cada línea
 
-HECHA PARA iPHONE Y iPAD
+HECHA PARA iPHONE, iPAD Y MAC
 • Diseño Liquid Glass con controles nativos
-• Barra lateral en iPad
+• Barra lateral en iPad y Mac
 • Tema claro y oscuro con cuatro paletas de color
 • Tu símbolo de moneda ($, €, o el que uses)
 • En español e inglés
 
-Time Register es gratis, sin compras dentro de la app y de código abierto.
+Time Register es gratis y sin anuncios.
 
 URL DE SOPORTE:
 https://timeregister.davidmenendez.dev/
@@ -75,8 +75,9 @@ Time Register is a fully offline work-hours tracker. It has no login, no account
 How to try it:
 1. On the Home tab, tap the play button (top right) to start a live shift, then "Fichar Salida" (Clock Out) to turn it into an entry.
 2. Or tap + to add an entry manually: pick date, start and end time, optional lunch break and rate.
-3. The Resumen (Summary) tab shows totals and filters; the share button exports CSV or PDF.
-4. Ajustes (Settings) has the hourly rate, currency, optional deductions, jobs/clients, and backup/restore to a file.
+3. Inside an entry, the "Facturas" (Receipts) section lets you add products bought for that shift (price before tax + tax %); they are added to the amount to collect.
+4. The Resumen (Summary) tab shows totals and filters; the share button exports CSV or PDF.
+5. Ajustes (Settings) has the hourly rate, currency, optional deductions, receipt tax rate, jobs/clients, and backup/restore to a file.
 
 The app is in Spanish and English; it follows the device language.
 All data stays on the device. Export and backup files only leave the app through the system share sheet when the user chooses to.
