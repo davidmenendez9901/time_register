@@ -1,8 +1,8 @@
-• New Material 3 design with improved dark mode
+• New Material 3 Expressive design for phones and tablets
 • Live timer: clock in and out of your shift
+• Receipts: add products you bought for a job and add them to what you're owed
 • Jobs/clients with their own colors and rates
 • Weekly and monthly hours & earnings charts
-• Export CSV and printable PDF reports
+• Export CSV and PDF reports with hours, receipts and total to collect
 • Back up and restore your data
-• Configurable currency symbol and optional deductions
-• Overnight shift support
+• Configurable currency, optional deductions and overnight shifts
