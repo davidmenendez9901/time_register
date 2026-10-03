@@ -1,0 +1,25 @@
+executionPrerequisite: >-
+  Time Register on the Inicio tab (end of store-preview-01-open).
+
+steps:
+  - tap:
+      text: Agregar Entrada
+  - await:
+      visible:
+        text: Guardar Entrada
+  - wait: 1200
+  - tap:
+      text: Trabajo
+  - await:
+      visible:
+        text: Estudio Norte
+  - wait: 800
+  - tap:
+      text: Estudio Norte
+  - wait: 1800
+  - tap:
+      text: Cerrar
+  - await:
+      visible:
+        text: Resumen
+  - wait: 600

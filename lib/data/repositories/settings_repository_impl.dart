@@ -42,6 +42,11 @@ class SettingsRepositoryImpl implements SettingsRepository {
   }
 
   @override
+  Future<void> updateExpenseTaxRate(double rate) async {
+    await localDataSource.updateExpenseTaxRate(rate);
+  }
+
+  @override
   Future<DateTime?> getActiveShiftStart() async {
     return await localDataSource.getActiveShiftStart();
   }

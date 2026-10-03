@@ -7,6 +7,14 @@
     "outstanding": "Outstanding",
     "toCollect": "To Collect",
     "thisWeek": "This Week",
+    "unpaidEntriesCount": "{count, plural, =1{1 unpaid entry} other{{count} unpaid entries}}",
+    "@unpaidEntriesCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
     "performance": "Performance",
     "thisMonth": "This Month",
     "viewSummary": "View Summary",
@@ -38,6 +46,11 @@
     "about": "About",
     "mode": "Mode",
     "colors": "Colors",
+    "save": "Save",
+    "paletteBlue": "Blue",
+    "palettePurple": "Purple",
+    "paletteGreen": "Green",
+    "paletteOrange": "Orange",
     "system": "System",
     "light": "Light",
     "dark": "Dark",
@@ -187,7 +200,34 @@
     "yes": "Yes",
     "no": "No",
     "privacyPolicySubtitle": "How your data is handled",
-    "privacyPolicyContent": "Time Register does not collect, transmit, or share any personal data.\n\nEverything you enter (work entries, rates, notes, and settings) is stored only in a local database on your device. The app does not connect to the internet, has no analytics, and shows no ads.\n\nUninstalling the app permanently deletes all of its data.",
+    "privacyPolicyContent": "Time Register does not collect, transmit, or share your personal data, and it sends nothing to any server.\n\nEverything you enter (work entries, rates, jobs, notes, and settings) is stored only in a local database on your device. The app does not connect to the internet, has no analytics, and shows no ads.\n\nYour data only leaves the app when you export a report or create a backup and choose where to share it. On iPhone, iPad and Mac, your iCloud or computer backups may include the app's data.\n\nUninstalling the app permanently deletes its data from the device.",
     "privacyPolicyOpenWeb": "Open full policy",
-    "privacyPolicyOpenFailed": "Couldn't open the link. Make sure a browser is installed."
+    "privacyPolicyOpenFailed": "Couldn't open the link. Make sure a browser is installed.",
+    "receipts": "Receipts",
+    "receiptsFooter": "Products you bought for this shift. Your employer pays them back, so they're added to what you're owed.",
+    "addProduct": "Add product",
+    "editProduct": "Edit product",
+    "productName": "Product",
+    "productNameHint": "e.g. Paint, gloves",
+    "enterProductName": "Enter the product name",
+    "priceBeforeTax": "Price before tax",
+    "taxRate": "Tax",
+    "subtotal": "Subtotal",
+    "receiptsTotal": "Receipts total",
+    "hoursEarnings": "Earnings (hours)",
+    "totalToCollect": "Total to collect",
+    "receiptsTaxRate": "Receipt tax rate",
+    "receiptsTaxSubtitle": "Applied to new products you add to an entry. You can change it for each product; products already saved keep their rate.",
+    "receiptsTaxUpdated": "Receipt tax rate updated",
+    "includesReceipts": "incl. {amount} receipts",
+    "@includesReceipts": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "receiptsDetail": "Receipts detail",
+    "deleteProduct": "Delete product",
+    "deleteProductConfirm": "This product will be removed from the entry."
 }

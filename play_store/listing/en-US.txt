@@ -12,6 +12,7 @@ Time Register is the simplest way to track your work hours and know exactly how 
 • The running shift survives even if you close the app
 • Overnight shifts that cross midnight just work
 • Custom lunch breaks and notes on every entry
+• Receipts: log products you bought for a job (price + tax) and add them to what you're owed
 
 💰 CONTROL YOUR PAYMENTS
 • Every entry calculates its earnings automatically
@@ -30,19 +31,18 @@ Time Register is the simplest way to track your work hours and know exactly how 
 
 📤 SHARE AND BACK UP
 • Export spreadsheet-ready CSV files
-• Generate printable PDF reports for your employer
+• Generate PDF reports for your employer or clients, with hours, receipts and total to collect
 • Back up all your data to a file and restore it on another phone
 
 🔒 PRIVACY, FOR REAL
 • 100% offline: the app does not even have internet permission
 • No accounts, no ads, no analytics, no tracking
-• Your data lives only on your phone
-• Open source (MIT license): you can audit every line
+• Your data is stored only on your phone and is not copied to your Google account; it leaves only when you export or back it up
 
 🎨 MAKE IT YOURS
 • Light and dark themes with four color palettes
 • Your currency symbol ($, €, or whatever you use)
+• Designed for phones and tablets
 • Available in English and Spanish
 
-Time Register is free, has no in-app purchases, and is open source:
-https://github.com/davidmenendez9901/time_register
+Time Register is free and ad-free.

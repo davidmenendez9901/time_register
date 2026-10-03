@@ -1,0 +1,20 @@
+executionPrerequisite: >-
+  Time Register on the Inicio tab (left there by store-01-home).
+
+steps:
+  - echo: Open the add-entry form from the home screen's add button.
+  - tap:
+      text: Agregar Entrada
+  - await:
+      visible:
+        text: Guardar Entrada
+  - echo: Pick a job so the form shows a real client instead of "Sin trabajo".
+  - tap:
+      text: Trabajo
+  - await:
+      visible:
+        text: Estudio Norte
+  - tap:
+      text: Estudio Norte
+  - await:
+      idle: true

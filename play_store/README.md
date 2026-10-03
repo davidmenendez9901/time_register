@@ -1,6 +1,6 @@
 # Recursos y checklist para la actualización en Play Store
 
-Todo lo necesario para subir la versión **1.1.1 (versionCode 4)** está en esta carpeta.
+Todo lo necesario para subir la versión **1.1.1 (versionCode 5)** está en esta carpeta.
 
 ## ⚠️ PASO 0 — Restablecer la clave de subida (OBLIGATORIO)
 
@@ -28,8 +28,10 @@ certificado: `A4:79:1E:7A:FC:A1:D2:29:FE:06:10:E9:12:04:37:5B:FF:83:10:D0:F4:02:
       un 2 o superior, sube `version:` en `pubspec.yaml` (p. ej. `1.1.0+3`)
       y recompila.
 - [x] **Package**: Play Console registró la app como
-      `time_register.davidmenendez.dev`; el `applicationId` del proyecto ya
-      se ajustó para coincidir (2026-07-06).
+      `time_register.davidmenendez.dev` y Play no permite cambiarlo, así que el
+      `applicationId` se queda así. El resto de identificadores (namespace de
+      Android, bundle ID de iOS/macOS, Linux) usan el dominio invertido
+      `dev.davidmenendez.timeregister` (de `timeregister.davidmenendez.dev`).
 - [ ] **Subir `app-release.aab`** a **prueba interna** primero.
 - [ ] **Probar la actualización** en un dispositivo que tenga la versión
       vieja instalada (las migraciones de base de datos v4 → v8 deben

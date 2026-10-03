@@ -5,6 +5,7 @@ import '../../../core/usecases/update_theme_mode.dart' as theme_usecase;
 import '../../../core/usecases/update_app_palette.dart' as palette_usecase;
 import '../../../core/usecases/update_currency_symbol.dart' as currency_usecase;
 import '../../../core/usecases/update_deductions.dart' as deductions_usecase;
+import '../../../core/usecases/update_expense_tax_rate.dart' as tax_usecase;
 import 'settings_event.dart';
 import 'settings_state.dart';
 
@@ -15,6 +16,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   final palette_usecase.UpdateAppPalette updateAppPalette;
   final currency_usecase.UpdateCurrencySymbol updateCurrencySymbol;
   final deductions_usecase.UpdateDeductions updateDeductions;
+  final tax_usecase.UpdateExpenseTaxRate updateExpenseTaxRate;
 
   SettingsBloc({
     required this.getSettings,
@@ -23,6 +25,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required this.updateAppPalette,
     required this.updateCurrencySymbol,
     required this.updateDeductions,
+    required this.updateExpenseTaxRate,
   }) : super(const SettingsInitial()) {
     on<LoadSettings>(_onLoadSettings);
     on<UpdateHourlyRate>(_onUpdateHourlyRate);
@@ -30,6 +33,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     on<UpdateAppPalette>(_onUpdateAppPalette);
     on<UpdateCurrencySymbol>(_onUpdateCurrencySymbol);
     on<UpdateDeductions>(_onUpdateDeductions);
+    on<UpdateExpenseTaxRate>(_onUpdateExpenseTaxRate);
   }
 
   Future<void> _onLoadSettings(
@@ -105,6 +109,19 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   ) async {
     try {
       await updateDeductions(enabled: event.enabled, rate: event.rate);
+      final settings = await getSettings();
+      emit(SettingsLoaded(settings));
+    } catch (e) {
+      emit(SettingsError(e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateExpenseTaxRate(
+    UpdateExpenseTaxRate event,
+    Emitter<SettingsState> emit,
+  ) async {
+    try {
+      await updateExpenseTaxRate(event.rate);
       final settings = await getSettings();
       emit(SettingsLoaded(settings));
     } catch (e) {

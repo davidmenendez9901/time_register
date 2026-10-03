@@ -1,0 +1,13 @@
+executionPrerequisite: >-
+  Time Register just launched with demo data (DEMO_DATA build), on the Inicio tab.
+
+steps:
+  - echo: >-
+      iOS flows wait with fixed pauses: argent's await directive reads the
+      UIKit hierarchy, which does not contain Flutter's widgets, and the
+      accessibility tree can go stale after goldie reboots the simulator.
+      Taps on Flutter widgets use coordinates; native views use their text.
+  - echo: Wait for "Registro de Tiempo" (fixed pause; see the note in store-01-home).
+  - wait: 2500
+  - echo: Settle before the capture (a fixed pause; the shift timer never idles).
+  - wait: 1500

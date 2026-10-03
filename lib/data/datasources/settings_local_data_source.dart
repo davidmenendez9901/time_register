@@ -9,6 +9,7 @@ abstract class SettingsLocalDataSource {
   Future<void> updateAppPalette(AppPalette palette);
   Future<void> updateCurrencySymbol(String symbol);
   Future<void> updateDeductions({required bool enabled, required double rate});
+  Future<void> updateExpenseTaxRate(double rate);
   Future<DateTime?> getActiveShiftStart();
   Future<void> setActiveShiftStart(DateTime? start);
 }
@@ -50,6 +51,11 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
     required double rate,
   }) async {
     await databaseHelper.updateDeductions(enabled: enabled, rate: rate);
+  }
+
+  @override
+  Future<void> updateExpenseTaxRate(double rate) async {
+    await databaseHelper.updateExpenseTaxRate(rate);
   }
 
   @override

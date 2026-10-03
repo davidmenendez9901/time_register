@@ -15,6 +15,7 @@ class WorkEntryModel extends WorkEntry {
     super.lunchEndTime,
     super.description,
     super.jobId,
+    super.expenses,
     super.createdAt,
   });
 
@@ -33,77 +34,12 @@ class WorkEntryModel extends WorkEntry {
       lunchEndTime: entry.lunchEndTime,
       description: entry.description,
       jobId: entry.jobId,
+      expenses: entry.expenses,
       createdAt: entry.createdAt,
     );
   }
 
-  factory WorkEntryModel.fromMap(Map<String, dynamic> map) {
-    final startTime = DateTime.parse('${map['date']} ${map['start_time']}');
-    var endTime = DateTime.parse('${map['date']} ${map['end_time']}');
-    // Times are stored as HH:mm; an end time earlier than the start time
-    // means the shift crosses midnight and ends the next day.
-    if (endTime.isBefore(startTime)) {
-      endTime = endTime.add(const Duration(days: 1));
-    }
-
-    DateTime? lunchStart;
-    DateTime? lunchEnd;
-
-    if (map['lunch_start_time'] != null) {
-      lunchStart = DateTime.parse('${map['date']} ${map['lunch_start_time']}');
-      if (lunchStart.isBefore(startTime)) {
-        lunchStart = lunchStart.add(const Duration(days: 1));
-      }
-    }
-
-    if (map['lunch_end_time'] != null) {
-      lunchEnd = DateTime.parse('${map['date']} ${map['lunch_end_time']}');
-      if (lunchStart != null && lunchEnd.isBefore(lunchStart)) {
-        lunchEnd = lunchEnd.add(const Duration(days: 1));
-      }
-    }
-
-    return WorkEntryModel(
-      id: map['id'] as int?,
-      date: DateTime.parse(map['date'] as String),
-      startTime: startTime,
-      endTime: endTime,
-      lunchTaken: (map['lunch_taken'] as int) == 1,
-      totalHours: (map['total_hours'] as num).toDouble(),
-      hourlyRate: (map['hourly_rate'] as num).toDouble(),
-      earnings: (map['earnings'] as num).toDouble(),
-      isPaid: (map['is_paid'] as int) == 1,
-      lunchStartTime: lunchStart,
-      lunchEndTime: lunchEnd,
-      description: map['description'] as String?,
-      jobId: map['job_id'] as int?,
-      createdAt: DateTime.parse(map['created_at'] as String),
-    );
-  }
-
-  @override
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'date': date.toIso8601String().substring(0, 10),
-      'start_time':
-          '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}',
-      'end_time':
-          '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}',
-      'lunch_taken': lunchTaken ? 1 : 0,
-      'total_hours': totalHours,
-      'hourly_rate': hourlyRate,
-      'earnings': earnings,
-      'is_paid': isPaid ? 1 : 0,
-      'lunch_start_time': lunchStartTime != null
-          ? '${lunchStartTime!.hour.toString().padLeft(2, '0')}:${lunchStartTime!.minute.toString().padLeft(2, '0')}'
-          : null,
-      'lunch_end_time': lunchEndTime != null
-          ? '${lunchEndTime!.hour.toString().padLeft(2, '0')}:${lunchEndTime!.minute.toString().padLeft(2, '0')}'
-          : null,
-      'description': description,
-      'job_id': jobId,
-      'created_at': createdAt.toIso8601String(),
-    };
-  }
+  /// Row mapping lives on [WorkEntry] so the two never drift apart.
+  factory WorkEntryModel.fromMap(Map<String, dynamic> map) =>
+      WorkEntryModel.fromEntity(WorkEntry.fromMap(map));
 }

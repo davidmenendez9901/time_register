@@ -33,6 +33,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get thisWeek => 'This Week';
 
   @override
+  String unpaidEntriesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unpaid entries',
+      one: '1 unpaid entry',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get performance => 'Performance';
 
   @override
@@ -105,6 +116,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get colors => 'Colors';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get paletteBlue => 'Blue';
+
+  @override
+  String get palettePurple => 'Purple';
+
+  @override
+  String get paletteGreen => 'Green';
+
+  @override
+  String get paletteOrange => 'Orange';
 
   @override
   String get system => 'System';
@@ -513,7 +539,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyPolicyContent =>
-      'Time Register does not collect, transmit, or share any personal data.\n\nEverything you enter (work entries, rates, notes, and settings) is stored only in a local database on your device. The app does not connect to the internet, has no analytics, and shows no ads.\n\nUninstalling the app permanently deletes all of its data.';
+      'Time Register does not collect, transmit, or share your personal data, and it sends nothing to any server.\n\nEverything you enter (work entries, rates, jobs, notes, and settings) is stored only in a local database on your device. The app does not connect to the internet, has no analytics, and shows no ads.\n\nYour data only leaves the app when you export a report or create a backup and choose where to share it. On iPhone, iPad and Mac, your iCloud or computer backups may include the app\'s data.\n\nUninstalling the app permanently deletes its data from the device.';
 
   @override
   String get privacyPolicyOpenWeb => 'Open full policy';
@@ -521,4 +547,69 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get privacyPolicyOpenFailed =>
       'Couldn\'t open the link. Make sure a browser is installed.';
+
+  @override
+  String get receipts => 'Receipts';
+
+  @override
+  String get receiptsFooter =>
+      'Products you bought for this shift. Your employer pays them back, so they\'re added to what you\'re owed.';
+
+  @override
+  String get addProduct => 'Add product';
+
+  @override
+  String get editProduct => 'Edit product';
+
+  @override
+  String get productName => 'Product';
+
+  @override
+  String get productNameHint => 'e.g. Paint, gloves';
+
+  @override
+  String get enterProductName => 'Enter the product name';
+
+  @override
+  String get priceBeforeTax => 'Price before tax';
+
+  @override
+  String get taxRate => 'Tax';
+
+  @override
+  String get subtotal => 'Subtotal';
+
+  @override
+  String get receiptsTotal => 'Receipts total';
+
+  @override
+  String get hoursEarnings => 'Earnings (hours)';
+
+  @override
+  String get totalToCollect => 'Total to collect';
+
+  @override
+  String get receiptsTaxRate => 'Receipt tax rate';
+
+  @override
+  String get receiptsTaxSubtitle =>
+      'Applied to new products you add to an entry. You can change it for each product; products already saved keep their rate.';
+
+  @override
+  String get receiptsTaxUpdated => 'Receipt tax rate updated';
+
+  @override
+  String includesReceipts(String amount) {
+    return 'incl. $amount receipts';
+  }
+
+  @override
+  String get receiptsDetail => 'Receipts detail';
+
+  @override
+  String get deleteProduct => 'Delete product';
+
+  @override
+  String get deleteProductConfirm =>
+      'This product will be removed from the entry.';
 }

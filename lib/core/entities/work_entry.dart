@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import 'expense.dart';
+
 class WorkEntry extends Equatable {
   final int? id;
   final DateTime date;
@@ -16,6 +18,9 @@ class WorkEntry extends Equatable {
   final String? description;
   final int? jobId;
 
+  /// Products bought for this shift, paid back by the employer.
+  final List<Expense> expenses;
+
   WorkEntry({
     this.id,
     required this.date,
@@ -30,8 +35,15 @@ class WorkEntry extends Equatable {
     this.lunchEndTime,
     this.description,
     this.jobId,
+    this.expenses = const [],
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
+
+  /// Sum of the receipts, tax included.
+  double get expensesTotal => expenses.fold(0.0, (sum, e) => sum + e.total);
+
+  /// What the employer owes for this shift: hours plus receipts.
+  double get totalToCollect => earnings + expensesTotal;
 
   // Calculate total hours based on start/end time and lunch
   static double calculateTotalHours(
@@ -103,6 +115,7 @@ class WorkEntry extends Equatable {
       lunchEndTime: lunchEnd,
       description: map['description'] as String?,
       jobId: map['job_id'] as int?,
+      expenses: Expense.listFromJson(map['expenses']),
       createdAt: DateTime.parse(map['created_at'] as String),
     );
   }
@@ -129,6 +142,7 @@ class WorkEntry extends Equatable {
           : null,
       'description': description,
       'job_id': jobId,
+      'expenses': Expense.listToJson(expenses),
       'created_at': createdAt.toIso8601String(),
     };
   }
@@ -149,6 +163,7 @@ class WorkEntry extends Equatable {
     String? description,
     int? jobId,
     bool clearJobId = false,
+    List<Expense>? expenses,
     DateTime? createdAt,
   }) {
     return WorkEntry(
@@ -165,6 +180,7 @@ class WorkEntry extends Equatable {
       lunchEndTime: lunchEndTime ?? this.lunchEndTime,
       description: description ?? this.description,
       jobId: clearJobId ? null : (jobId ?? this.jobId),
+      expenses: expenses ?? this.expenses,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -185,6 +201,7 @@ class WorkEntry extends Equatable {
     lunchEndTime,
     description,
     jobId,
+    expenses,
   ];
 
   @override

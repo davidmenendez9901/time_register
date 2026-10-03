@@ -70,10 +70,8 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest());
     await tester.pumpAndSettle();
 
-    expect(
-      find.text('Weekly Summary'),
-      findsOneWidget,
-    ); // Assuming English literal or key lookup
+    // The large app bar renders the title twice (expanded and collapsed).
+    expect(find.text('Weekly Summary'), findsWidgets);
     // Since I can't easily rely on l10n strings without checking generated files, I'll search by type or key elements.
     // However, I know the English Arb file likely has "Weekly Summary".
     // Let's verify commonly found elements.
@@ -98,7 +96,10 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest());
     await tester.pumpAndSettle();
 
-    expect(find.byType(ListView), findsOneWidget);
-    expect(find.text('\$80.00'), findsOneWidget);
+    expect(find.byType(CustomScrollView), findsOneWidget);
+    // One row for the entry (no job assigned)...
+    expect(find.text('No job'), findsOneWidget);
+    // ...and its amount appears in the row as well as the summary tiles.
+    expect(find.text('\$80.00'), findsWidgets);
   });
 }

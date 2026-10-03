@@ -1,4 +1,4 @@
-package dev.davidmenendez.time_register
+package dev.davidmenendez.timeregister
 
 import io.flutter.embedding.android.FlutterActivity
 

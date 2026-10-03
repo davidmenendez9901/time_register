@@ -146,6 +146,12 @@ abstract class AppLocalizations {
   /// **'This Week'**
   String get thisWeek;
 
+  /// No description provided for @unpaidEntriesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 unpaid entry} other{{count} unpaid entries}}'**
+  String unpaidEntriesCount(int count);
+
   /// No description provided for @performance.
   ///
   /// In en, this message translates to:
@@ -289,6 +295,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Colors'**
   String get colors;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @paletteBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get paletteBlue;
+
+  /// No description provided for @palettePurple.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple'**
+  String get palettePurple;
+
+  /// No description provided for @paletteGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get paletteGreen;
+
+  /// No description provided for @paletteOrange.
+  ///
+  /// In en, this message translates to:
+  /// **'Orange'**
+  String get paletteOrange;
 
   /// No description provided for @system.
   ///
@@ -1061,7 +1097,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyPolicyContent.
   ///
   /// In en, this message translates to:
-  /// **'Time Register does not collect, transmit, or share any personal data.\n\nEverything you enter (work entries, rates, notes, and settings) is stored only in a local database on your device. The app does not connect to the internet, has no analytics, and shows no ads.\n\nUninstalling the app permanently deletes all of its data.'**
+  /// **'Time Register does not collect, transmit, or share your personal data, and it sends nothing to any server.\n\nEverything you enter (work entries, rates, jobs, notes, and settings) is stored only in a local database on your device. The app does not connect to the internet, has no analytics, and shows no ads.\n\nYour data only leaves the app when you export a report or create a backup and choose where to share it. On iPhone, iPad and Mac, your iCloud or computer backups may include the app\'s data.\n\nUninstalling the app permanently deletes its data from the device.'**
   String get privacyPolicyContent;
 
   /// No description provided for @privacyPolicyOpenWeb.
@@ -1075,6 +1111,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t open the link. Make sure a browser is installed.'**
   String get privacyPolicyOpenFailed;
+
+  /// No description provided for @receipts.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts'**
+  String get receipts;
+
+  /// No description provided for @receiptsFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Products you bought for this shift. Your employer pays them back, so they\'re added to what you\'re owed.'**
+  String get receiptsFooter;
+
+  /// No description provided for @addProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Add product'**
+  String get addProduct;
+
+  /// No description provided for @editProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit product'**
+  String get editProduct;
+
+  /// No description provided for @productName.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get productName;
+
+  /// No description provided for @productNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Paint, gloves'**
+  String get productNameHint;
+
+  /// No description provided for @enterProductName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the product name'**
+  String get enterProductName;
+
+  /// No description provided for @priceBeforeTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Price before tax'**
+  String get priceBeforeTax;
+
+  /// No description provided for @taxRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax'**
+  String get taxRate;
+
+  /// No description provided for @subtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get subtotal;
+
+  /// No description provided for @receiptsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts total'**
+  String get receiptsTotal;
+
+  /// No description provided for @hoursEarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Earnings (hours)'**
+  String get hoursEarnings;
+
+  /// No description provided for @totalToCollect.
+  ///
+  /// In en, this message translates to:
+  /// **'Total to collect'**
+  String get totalToCollect;
+
+  /// No description provided for @receiptsTaxRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt tax rate'**
+  String get receiptsTaxRate;
+
+  /// No description provided for @receiptsTaxSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied to new products you add to an entry. You can change it for each product; products already saved keep their rate.'**
+  String get receiptsTaxSubtitle;
+
+  /// No description provided for @receiptsTaxUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt tax rate updated'**
+  String get receiptsTaxUpdated;
+
+  /// No description provided for @includesReceipts.
+  ///
+  /// In en, this message translates to:
+  /// **'incl. {amount} receipts'**
+  String includesReceipts(String amount);
+
+  /// No description provided for @receiptsDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts detail'**
+  String get receiptsDetail;
+
+  /// No description provided for @deleteProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete product'**
+  String get deleteProduct;
+
+  /// No description provided for @deleteProductConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This product will be removed from the entry.'**
+  String get deleteProductConfirm;
 }
 
 class _AppLocalizationsDelegate

@@ -1,0 +1,8 @@
+executionPrerequisite: >-
+  Time Register freshly restarted by goldie, settled on the Inicio tab.
+
+steps:
+  - echo: >-
+      Let the home screen read, with the shift timer ticking. iOS flows use
+      fixed pauses (see store-01-home for why).
+  - wait: 3000

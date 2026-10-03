@@ -1,0 +1,17 @@
+executionPrerequisite: >-
+  Time Register on the Estadísticas tab (left there by store-04-stats).
+
+steps:
+  - echo: Settings, then the jobs list with each client's color and rate.
+  - tap:
+      text: Ajustes
+  - await:
+      visible:
+        text: Trabajos / Clientes
+  - tap:
+      text: Trabajos / Clientes
+  - await:
+      visible:
+        text: Freelance
+  - await:
+      idle: true

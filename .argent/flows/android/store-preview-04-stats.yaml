@@ -1,0 +1,14 @@
+executionPrerequisite: >-
+  Time Register on the Resumen tab (end of store-preview-03-summary).
+
+steps:
+  - tap:
+      text: Estadísticas
+  - await:
+      visible:
+        text: Últimas 8 semanas
+  - wait: 1500
+  - echo: Switch the charts from earnings to hours.
+  - tap:
+      text: Horas
+  - wait: 2000

@@ -1,10 +1,13 @@
+import 'package:cupertino_native_better/cupertino_native_better.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'l10n/app_localizations.dart';
 import 'core/database/database_helper.dart';
+import 'core/demo/demo_data.dart';
 import 'core/database/desktop_sqlite.dart';
+import 'core/platform/app_platform.dart';
 import 'core/theme/app_theme.dart';
 import 'core/entities/settings.dart' as app_settings;
 import 'data/datasources/work_entry_local_data_source.dart';
@@ -24,6 +27,7 @@ import 'core/usecases/mark_entry_as_paid.dart';
 import 'core/usecases/update_app_palette.dart' as palette_usecase;
 import 'core/usecases/update_currency_symbol.dart' as currency_usecase;
 import 'core/usecases/update_deductions.dart' as deductions_usecase;
+import 'core/usecases/update_expense_tax_rate.dart' as tax_usecase;
 import 'core/theme/app_palette.dart';
 import 'core/repositories/settings_repository.dart';
 import 'core/repositories/job_repository.dart';
@@ -40,6 +44,7 @@ import 'presentation/pages/home_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   initDesktopSqliteIfNeeded();
+  await initAppPlatform();
 
   // Fonts are bundled in assets/google_fonts/; the app is fully offline and
   // the release build has no network permission, so never fetch at runtime.
@@ -47,6 +52,7 @@ void main() async {
 
   // Initialize database
   final databaseHelper = DatabaseHelper();
+  if (kDemoData) await seedDemoDataIfEmpty(databaseHelper);
 
   // Initialize data sources
   final workEntryDataSource = WorkEntryLocalDataSourceImpl(databaseHelper);
@@ -78,6 +84,9 @@ void main() async {
   final updateDeductions = deductions_usecase.UpdateDeductions(
     settingsRepository,
   );
+  final updateExpenseTaxRate = tax_usecase.UpdateExpenseTaxRate(
+    settingsRepository,
+  );
 
   runApp(
     MyApp(
@@ -92,6 +101,7 @@ void main() async {
       updateAppPalette: updateAppPalette,
       updateCurrencySymbol: updateCurrencySymbol,
       updateDeductions: updateDeductions,
+      updateExpenseTaxRate: updateExpenseTaxRate,
       settingsRepository: settingsRepository,
       jobRepository: jobRepository,
     ),
@@ -110,6 +120,7 @@ class MyApp extends StatelessWidget {
   final palette_usecase.UpdateAppPalette updateAppPalette;
   final currency_usecase.UpdateCurrencySymbol updateCurrencySymbol;
   final deductions_usecase.UpdateDeductions updateDeductions;
+  final tax_usecase.UpdateExpenseTaxRate updateExpenseTaxRate;
   final SettingsRepository settingsRepository;
   final JobRepository jobRepository;
 
@@ -126,6 +137,7 @@ class MyApp extends StatelessWidget {
     required this.updateAppPalette,
     required this.updateCurrencySymbol,
     required this.updateDeductions,
+    required this.updateExpenseTaxRate,
     required this.settingsRepository,
     required this.jobRepository,
   });
@@ -154,6 +166,7 @@ class MyApp extends StatelessWidget {
             updateAppPalette: updateAppPalette,
             updateCurrencySymbol: updateCurrencySymbol,
             updateDeductions: updateDeductions,
+            updateExpenseTaxRate: updateExpenseTaxRate,
           )..add(LoadSettings()),
         ),
         // Live shift timer (clock in/out)
@@ -183,6 +196,9 @@ class MyApp extends StatelessWidget {
 
           return MaterialApp(
             debugShowCheckedModeBanner: false,
+            // Keeps the native Liquid Glass views from bleeding through
+            // sheets and dialogs pushed over them.
+            navigatorObservers: [if (isApplePlatform) CNTabBarRouteObserver()],
             // Use localized app title if available, otherwise fallback
             onGenerateTitle: (context) =>
                 AppLocalizations.of(context)?.appTitle ?? 'Time Register',
@@ -199,6 +215,7 @@ class MyApp extends StatelessWidget {
               Locale('en'), // English
               Locale('es'), // Spanish
             ],
+            locale: kDemoLocale.isEmpty ? null : Locale(kDemoLocale),
             home: const HomePage(),
           );
         },

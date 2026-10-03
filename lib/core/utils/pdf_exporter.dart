@@ -38,6 +38,22 @@ class PdfExporter {
 
     final totalHours = sorted.fold(0.0, (sum, e) => sum + e.totalHours);
     final totalEarnings = sorted.fold(0.0, (sum, e) => sum + e.earnings);
+    final totalReceipts = sorted.fold(0.0, (sum, e) => sum + e.expensesTotal);
+    // Reports without receipts keep the original portrait layout.
+    final hasReceipts = sorted.any((e) => e.expenses.isNotEmpty);
+
+    final tableHeaderStyle = pw.TextStyle(
+      color: PdfColors.white,
+      fontWeight: pw.FontWeight.bold,
+      fontSize: 9.5,
+    );
+    const tableCellStyle = pw.TextStyle(fontSize: 9.5);
+    const tableHeaderDecoration = pw.BoxDecoration(color: _accent);
+    const tableOddRow = pw.BoxDecoration(color: PdfColor.fromInt(0xFFF1F5F9));
+    const tableCellPadding = pw.EdgeInsets.symmetric(
+      horizontal: 6,
+      vertical: 4,
+    );
 
     final document = pw.Document(
       theme: pw.ThemeData.withFont(base: baseFont, bold: boldFont),
@@ -45,7 +61,7 @@ class PdfExporter {
 
     document.addPage(
       pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
+        pageFormat: hasReceipts ? PdfPageFormat.a4.landscape : PdfPageFormat.a4,
         margin: const pw.EdgeInsets.fromLTRB(36, 42, 36, 42),
         footer: (context) => pw.Align(
           alignment: pw.Alignment.centerRight,
@@ -70,27 +86,23 @@ class PdfExporter {
           ),
           pw.SizedBox(height: 16),
           pw.TableHelper.fromTextArray(
-            headerStyle: pw.TextStyle(
-              color: PdfColors.white,
-              fontWeight: pw.FontWeight.bold,
-              fontSize: 9.5,
-            ),
-            headerDecoration: const pw.BoxDecoration(color: _accent),
-            cellStyle: const pw.TextStyle(fontSize: 9.5),
-            oddRowDecoration: const pw.BoxDecoration(
-              color: PdfColor.fromInt(0xFFF1F5F9),
-            ),
+            headerStyle: tableHeaderStyle,
+            headerDecoration: tableHeaderDecoration,
+            cellStyle: tableCellStyle,
+            oddRowDecoration: tableOddRow,
             cellAlignments: {
               4: pw.Alignment.centerRight,
               5: pw.Alignment.centerRight,
               6: pw.Alignment.centerRight,
-              7: pw.Alignment.center,
+              if (hasReceipts) ...{
+                7: pw.Alignment.centerRight,
+                8: pw.Alignment.centerRight,
+                9: pw.Alignment.center,
+              } else
+                7: pw.Alignment.center,
             },
             border: null,
-            cellPadding: const pw.EdgeInsets.symmetric(
-              horizontal: 6,
-              vertical: 4,
-            ),
+            cellPadding: tableCellPadding,
             headers: [
               labels.date,
               labels.job,
@@ -99,6 +111,7 @@ class PdfExporter {
               labels.totalHours,
               labels.hourlyRate,
               labels.earnings,
+              if (hasReceipts) ...[labels.receipts, labels.totalToCollect],
               labels.paid,
               labels.description,
             ],
@@ -112,6 +125,10 @@ class PdfExporter {
                   e.totalHours.toStringAsFixed(2),
                   money(e.hourlyRate),
                   money(e.earnings),
+                  if (hasReceipts) ...[
+                    money(e.expensesTotal),
+                    money(e.totalToCollect),
+                  ],
                   e.isPaid ? labels.yes : labels.no,
                   e.description ?? '',
                 ],
@@ -151,10 +168,79 @@ class PdfExporter {
                         ),
                       ),
                     ),
+                  if (hasReceipts) ...[
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(top: 3),
+                      child: pw.Text(
+                        '${labels.receipts}: ${money(totalReceipts)}',
+                        style: const pw.TextStyle(fontSize: 11),
+                      ),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.only(top: 3),
+                      child: pw.Text(
+                        '${labels.totalToCollect}: '
+                        '${money(totalEarnings + totalReceipts)}',
+                        style: pw.TextStyle(
+                          fontSize: 13,
+                          fontWeight: pw.FontWeight.bold,
+                          color: _accent,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
           ),
+          if (hasReceipts) ...[
+            pw.SizedBox(height: 22),
+            pw.Text(
+              labels.receiptsDetail,
+              style: pw.TextStyle(
+                fontSize: 14,
+                fontWeight: pw.FontWeight.bold,
+                color: _accent,
+              ),
+            ),
+            pw.SizedBox(height: 8),
+            pw.TableHelper.fromTextArray(
+              headerStyle: tableHeaderStyle,
+              headerDecoration: tableHeaderDecoration,
+              cellStyle: tableCellStyle,
+              oddRowDecoration: tableOddRow,
+              cellAlignments: {
+                3: pw.Alignment.centerRight,
+                4: pw.Alignment.centerRight,
+                5: pw.Alignment.centerRight,
+                6: pw.Alignment.centerRight,
+              },
+              border: null,
+              cellPadding: tableCellPadding,
+              headers: [
+                labels.date,
+                labels.job,
+                labels.product,
+                labels.subtotal,
+                labels.taxRate,
+                labels.tax,
+                labels.total,
+              ],
+              data: [
+                for (final e in sorted)
+                  for (final x in e.expenses)
+                    [
+                      date.format(e.date),
+                      jobNames[e.jobId] ?? '',
+                      x.name,
+                      money(x.price),
+                      '${x.taxRate.toStringAsFixed(x.taxRate == x.taxRate.roundToDouble() ? 0 : 2)}%',
+                      money(x.tax),
+                      money(x.total),
+                    ],
+              ],
+            ),
+          ],
         ],
       ),
     );

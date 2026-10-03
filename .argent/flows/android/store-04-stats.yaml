@@ -1,0 +1,11 @@
+executionPrerequisite: >-
+  Time Register on the Resumen tab (left there by store-03-summary).
+
+steps:
+  - tap:
+      text: Estadísticas
+  - await:
+      visible:
+        text: Últimas 8 semanas
+  - await:
+      idle: true

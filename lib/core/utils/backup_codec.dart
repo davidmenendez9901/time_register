@@ -28,6 +28,7 @@ class BackupCodec {
     'currency_symbol',
     'deductions_enabled',
     'deduction_rate',
+    'expense_tax_rate',
   };
 
   static const _entryKeys = {
@@ -45,6 +46,8 @@ class BackupCodec {
     'lunch_end_time',
     'description',
     'job_id',
+    // Receipts, as the same JSON string stored in the database.
+    'expenses',
   };
 
   static const _jobKeys = {'id', 'name', 'color', 'hourly_rate', 'archived'};
@@ -99,7 +102,11 @@ class BackupCodec {
           !_requiredEntryKeys.every(entry.containsKey)) {
         throw const FormatException('Malformed work entry in backup');
       }
-      parsedEntries.add(_filterKeys(entry, _entryKeys));
+      final filtered = _filterKeys(entry, _entryKeys);
+      // Receipts are optional (older backups have none); anything but the
+      // stored JSON string would not fit the TEXT column.
+      if (filtered['expenses'] is! String?) filtered.remove('expenses');
+      parsedEntries.add(filtered);
     }
 
     // Jobs are optional so backups from before multi-job support restore.
