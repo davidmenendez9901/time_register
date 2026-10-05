@@ -24,9 +24,9 @@ certificado: `A4:79:1E:7A:FC:A1:D2:29:FE:06:10:E9:12:04:37:5B:FF:83:10:D0:F4:02:
 
 - [ ] **Clave de subida restablecida** (paso 0; espera el correo de Google).
 - [ ] **versionCode**: en Play Console revisa el versionCode más alto subido.
-      Este build lleva **2**; debe ser mayor que el existente. Si ya subiste
-      un 2 o superior, sube `version:` en `pubspec.yaml` (p. ej. `1.1.0+3`)
-      y recompila.
+      Este build lleva **5** (`1.1.1+5`); debe ser mayor que el existente. Si
+      ya subiste un 5 o superior, sube `version:` en `pubspec.yaml` y
+      recompila.
 - [x] **Package**: Play Console registró la app como
       `time_register.davidmenendez.dev` y Play no permite cambiarlo, así que el
       `applicationId` se queda así. El resto de identificadores (namespace de
@@ -34,8 +34,9 @@ certificado: `A4:79:1E:7A:FC:A1:D2:29:FE:06:10:E9:12:04:37:5B:FF:83:10:D0:F4:02:
       `dev.davidmenendez.timeregister` (de `timeregister.davidmenendez.dev`).
 - [ ] **Subir `app-release.aab`** a **prueba interna** primero.
 - [ ] **Probar la actualización** en un dispositivo que tenga la versión
-      vieja instalada (las migraciones de base de datos v4 → v8 deben
-      conservar tus entradas). No desinstales: actualiza encima.
+      vieja instalada (las migraciones de base de datos v4 → v10 deben
+      conservar tus entradas, incluidos recibos en v10). No desinstales:
+      actualiza encima.
 - [ ] **Notas de versión**: copia `release_notes/es-ES.txt` y `en-US.txt`
       en el formulario de la versión.
 - [ ] **Ficha de la tienda** (cambió mucho desde la primera versión):
@@ -45,8 +46,11 @@ certificado: `A4:79:1E:7A:FC:A1:D2:29:FE:06:10:E9:12:04:37:5B:FF:83:10:D0:F4:02:
   - [ ] Descripciones: `listing/es-ES.txt` y `listing/en-US.txt`
         (nombre, corta y completa, dentro de los límites de caracteres).
   - [ ] Sitio web: `https://davidmenendez9901.github.io/time_register/`
-- [ ] **Política de privacidad**:
+- [ ] **Política de privacidad** (mantener ambas al día):
+      GitHub blob
       `https://github.com/davidmenendez9901/time_register/blob/main/PRIVACY_POLICY.md`
+      y la página que abre la app
+      `https://davidmenendez9901.github.io/time_register/privacy.html`
 - [ ] **Seguridad de los datos**: declarar que **no se recolecta ni comparte
       ningún dato**. Si el formulario anterior decía otra cosa, actualízalo —
       ahora es verificable: la app ya no pide el permiso de internet.
@@ -69,7 +73,7 @@ certificado: `A4:79:1E:7A:FC:A1:D2:29:FE:06:10:E9:12:04:37:5B:FF:83:10:D0:F4:02:
 ## Para futuras versiones
 
 ```bash
-# 1. Sube la versión en pubspec.yaml (ej. 1.1.1+3)
+# 1. Sube la versión en pubspec.yaml (ej. 1.1.1+6)
 # 2. Compila firmado:
 flutter build appbundle --release
 # 3. El .aab queda en build/app/outputs/bundle/release/

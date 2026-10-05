@@ -62,23 +62,28 @@ Check out the landing page: **<https://davidmenendez9901.github.io/time_register
 
 This app follows **Clean Architecture** principles with clear separation of concerns:
 
-- **Presentation Layer** (`lib/presentation/`): BLoC pattern for state management, pages and widgets
+- **Presentation Layer** (`lib/presentation/`): BLoC/Cubit state management, pages and widgets
 - **Domain Layer** (`lib/core/`): Entities, use cases, and repository interfaces
 - **Data Layer** (`lib/data/`): Local data sources and repository implementations
-- **Database**: SQLite with versioned migrations
+- **Database**: SQLite with versioned migrations (currently **v10**)
+
+Engineering details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Setup, migrations and pitfalls: [docs/DEVELOPER.md](docs/DEVELOPER.md).
 
 ```
 lib/
 ├── core/            # Domain layer
-│   ├── entities/    # Business entities
+│   ├── entities/    # WorkEntry, Expense, Job, AppSettings
 │   ├── usecases/    # Business logic
 │   ├── repositories/# Repository interfaces
 │   ├── database/    # SQLite helper and migrations
+│   ├── demo/        # Store-screenshot seed data
+│   ├── platform/    # Apple vs Material chrome
 │   └── theme/       # App themes and palettes
 ├── data/            # Data layer
 │   ├── datasources/ # Local data sources
 │   ├── models/      # Data models
-│   └── repositories/# Repository implementations
+│   ├── repositories/# Repository implementations
+│   └── services/    # Backup JSON I/O
 ├── presentation/    # UI layer
 │   ├── blocs/       # State management
 │   ├── pages/       # Screen widgets
@@ -111,16 +116,21 @@ flutter analyze
 flutter test
 ```
 
+More setup, migrations and pitfalls: [docs/DEVELOPER.md](docs/DEVELOPER.md).
+
 ## 📦 Main Dependencies
 
 - **flutter_bloc**: State management
-- **sqflite**: Local SQLite database
+- **sqflite** / **sqflite_common_ffi**: Local SQLite (FFI on Linux/Windows)
 - **intl** + **flutter_localizations**: Date formatting and localization
-- **font_awesome_flutter**: Icons
-- **google_fonts**: Typography
-- **animations**: Page transitions
+- **cupertino_native_better**: Liquid Glass chrome on Apple platforms
+- **fl_chart**: Statistics
+- **csv** / **pdf** / **share_plus**: Exports
+- **google_fonts**: Bundled Lato (runtime fetching disabled)
 
 ## 🗄️ Database Schema
+
+Schema version **10** (`DatabaseHelper`). Never edit an old migration — see [docs/DEVELOPER.md](docs/DEVELOPER.md#database-migrations).
 
 ### Work Entries Table
 ```sql
